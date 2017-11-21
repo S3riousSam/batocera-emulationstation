@@ -216,10 +216,9 @@ std::vector<std::string> readList(const std::string& str, const char* delims = "
 SystemData* createSystem(pugi::xml_node* systemsNode, int index)
 {
 	std::string name, fullname, path, cmd, themeFolder;
-	PlatformIds::PlatformId platformId = PlatformIds::PLATFORM_UNKNOWN;
 
 	int myIndex = 0;
-	pugi::xml_node* system;
+	pugi::xml_node* system = nullptr;
 	for (pugi::xml_node systemIn = systemsNode->child("system"); systemIn; systemIn = systemIn.next_sibling("system"))
 	{
 		if (myIndex >= index)
@@ -229,6 +228,10 @@ SystemData* createSystem(pugi::xml_node* systemsNode, int index)
 		}
 		myIndex++;
 	}
+
+	if (system == nullptr)
+		return nullptr;
+
 	name = system->child("name").text().get();
 	fullname = system->child("fullname").text().get();
 	path = system->child("path").text().get();

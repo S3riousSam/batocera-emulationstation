@@ -168,8 +168,8 @@ bool RecalboxSystem::createLastVersionFileIfNotExisting()
 {
 	std::string versionFile = Settings::getInstance()->getString("LastVersionFile");
 
-	FILE* file;
-	if (file = fopen(versionFile.c_str(), "r"))
+	FILE* file = fopen(versionFile.c_str(), "r");
+	if (file != nullptr)
 	{
 		fclose(file);
 		return true;

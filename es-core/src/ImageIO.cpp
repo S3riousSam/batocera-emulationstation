@@ -21,7 +21,6 @@ std::vector<unsigned char> ImageIO::loadFromMemoryRGBA32(const unsigned char* da
 			if (fiBitmap != nullptr)
 			{
 				// loaded. convert to 32bit if necessary
-				FIBITMAP* fiConverted = nullptr;
 				if (FreeImage_GetBPP(fiBitmap) != 32)
 				{
 					FIBITMAP* fiConverted = FreeImage_ConvertTo32Bits(fiBitmap);

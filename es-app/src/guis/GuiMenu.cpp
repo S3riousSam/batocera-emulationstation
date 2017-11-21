@@ -161,8 +161,8 @@ GuiMenu::GuiMenu(Window* window)
 								vname += tokens.at(i);
 							}
 
-							auto space = std::make_shared<TextComponent>(mWindow, vname, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-							informationsGui->addWithLabel(tokens.at(0), space);
+							const auto spaceText = std::make_shared<TextComponent>(mWindow, vname, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+							informationsGui->addWithLabel(tokens.at(0), spaceText);
 						}
 					}
 

@@ -39,7 +39,7 @@ GuiFastSelect::GuiFastSelect(Window* window, IGameListView* gamelist)
 	updateSortText();
 
 	mLetterId = LETTERS.find(mGameList->getCursor()->getName()[0]);
-	if (mLetterId == std::string::npos)
+	if (mLetterId == static_cast<int>(std::string::npos))
 		mLetterId = 0;
 
 	mScrollDir = 0;

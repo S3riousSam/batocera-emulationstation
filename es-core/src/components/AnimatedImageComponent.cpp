@@ -60,7 +60,7 @@ void AnimatedImageComponent::update(int deltaTime)
 	{
 		mCurrentFrame++;
 
-		if (mCurrentFrame == mFrames.size())
+		if (mCurrentFrame == static_cast<int>(mFrames.size()))
 		{
 			if (mLoop)
 			{

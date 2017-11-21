@@ -238,17 +238,17 @@ void ImageGridComponent<T>::updateImages()
 		start = 0;
 
 	unsigned int i = (unsigned int)start;
-	for (unsigned int img = 0; img < mImages.size(); img++)
+	for (size_t img = 0; img < mImages.size(); img++)
 	{
 		ImageComponent& image = mImages.at(img);
-		if (i >= (unsigned int)size())
+		if (static_cast<int>(i) >= size())
 		{
 			image.setImage("");
 			continue;
 		}
 
 		Eigen::Vector2f squareSize = getSquareSize(mEntries.at(i).data.texture);
-		if (i == mCursor)
+		if (static_cast<int>(i) == mCursor)
 		{
 			image.setColorShift(0xFFFFFFFF);
 			image.setResize(squareSize.x() + getPadding().x() * 0.95f, squareSize.y() + getPadding().y() * 0.95f);

@@ -16,7 +16,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 	addChild(&mMenu);
 
 	// jump to letter
-	char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
+	char curChar = static_cast<char>(toupper(getGamelist()->getCursor()->getName()[0]));
 	if (curChar < 'A' || curChar > 'Z')
 		curChar = 'A';
 
@@ -134,7 +134,7 @@ void GuiGamelistOptions::jumpToLetter()
 		if (files.at(mid)->getName().empty())
 			continue;
 
-		char checkLetter = toupper(files.at(mid)->getName()[0]);
+		char checkLetter = static_cast<char>(toupper(files.at(mid)->getName()[0]));
 
 		if (checkLetter < letter)
 			min = mid + 1;

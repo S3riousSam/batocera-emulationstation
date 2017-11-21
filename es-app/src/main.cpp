@@ -181,9 +181,9 @@ int setLocale(char* argv1)
 {
 	char path_save[PATH_MAX];
 	char abs_exe_path[PATH_MAX];
-	char* p;
+	char* p = strrchr(argv1, '/');
 
-	if (!(p = strrchr(argv1, '/')))
+	if (p == nullptr)
 	{
 		getcwd(abs_exe_path, sizeof(abs_exe_path));
 	}
