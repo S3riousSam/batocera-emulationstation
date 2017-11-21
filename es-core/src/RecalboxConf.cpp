@@ -72,7 +72,7 @@ bool RecalboxConf::saveRecalboxConf()
 		std::string key = it->first;
 		std::string val = it->second;
 		bool lineFound = false;
-		for (int i = 0; i < fileLines.size(); i++)
+		for (size_t i = 0; i < fileLines.size(); i++)
 		{
 			std::string currentLine = fileLines[i];
 
@@ -93,7 +93,7 @@ bool RecalboxConf::saveRecalboxConf()
 		LOG(LogError) << "Unable to open for saving :  " << recalboxConfFileTmp << "\n";
 		return false;
 	}
-	for (int i = 0; i < fileLines.size(); i++)
+	for (size_t i = 0; i < fileLines.size(); i++)
 	{
 		fileout << fileLines[i] << "\n";
 	}

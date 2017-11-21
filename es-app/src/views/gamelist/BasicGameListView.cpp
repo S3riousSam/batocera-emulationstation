@@ -37,6 +37,9 @@ void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 	}
 }
 
+#if defined(WIN32) || defined(_WIN32)
+#pragma warning(disable : 4566)
+#endif
 void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
@@ -65,7 +68,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 
 	// The TextListComponent would be able to insert at a specific position,
 	// but the cost of this operation could be seriously huge.
-	// This naive implemention of doing a first pass in the list is used instead.
+	// This naive implementation of doing a first pass in the list is used instead.
 	if (!Settings::getInstance()->getBool("FavoritesOnly") || systemData->isFavorite())
 	{
 		for (auto it = files.begin(); it != files.end(); it++)
@@ -165,6 +168,9 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 		}
 	}
 }
+#if defined(WIN32) || defined(_WIN32)
+#pragma warning(default : 4566)
+#endif
 
 FileData* BasicGameListView::getCursor()
 {

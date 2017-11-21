@@ -100,6 +100,6 @@ private:
 	void populate(const boost::filesystem::path& path);
 	std::vector<const FileSystemSelectorComponent::FileEntry*> entriesForCurrentMode() const;
 
-	friend class ModePredicter;
+	friend struct ModePredicter;
 	friend bool sortPredicter(const FileSystemSelectorComponent::FileEntry&, const FileSystemSelectorComponent::FileEntry&);
 };

@@ -142,7 +142,9 @@ void VolumeControl::init()
 #elif defined(WIN32) || defined(_WIN32)
 	// get windows version information
 	OSVERSIONINFOEXA osVer = {sizeof(OSVERSIONINFO)};
+#pragma warning(disable : 4996) // 'GetVersionExA': was declared deprecated
 	::GetVersionExA(reinterpret_cast<LPOSVERSIONINFOA>(&osVer));
+#pragma warning(default : 4996)
 	// check windows version
 	if (osVer.dwMajorVersion < 6)
 	{

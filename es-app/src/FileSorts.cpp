@@ -7,6 +7,10 @@ namespace FileSorts
 
 	void init()
 	{
+        // warning C4566: character represented by universal-character-name '\uF15D' cannot be represented in the current code page (1252)
+#if defined(WIN32) || defined(_WIN32)
+#pragma warning(disable : 4566)
+#endif
 		SortTypes.push_back(FileData::SortType(&compareFileName, true, "\uF15d " + _("FILENAME")));
 		SortTypes.push_back(FileData::SortType(&compareFileName, false, "\uF15e " + _("FILENAME")));
 		SortTypes.push_back(FileData::SortType(&compareRating, true, "\uF165 " + _("RATING")));
@@ -21,6 +25,9 @@ namespace FileSorts
 		SortTypes.push_back(FileData::SortType(&compareDevelopper, false, "\uF15e " + _("DEVELOPER")));
 		SortTypes.push_back(FileData::SortType(&compareGenre, true, "\uF15d " + _("GENRE")));
 		SortTypes.push_back(FileData::SortType(&compareGenre, false, "\uF15e " + _("GENRE")));
+#if defined(WIN32) || defined(_WIN32)
+#pragma warning(default : 4566)
+#endif
 	}
 
 	// returns if file1 should come before file2

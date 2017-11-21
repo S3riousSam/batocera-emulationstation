@@ -225,24 +225,24 @@ std::string DateTimeComponent::getDisplayString(DisplayMode mode) const
 			return _("just now");
 		if (dur < seconds(60))
 		{
-			n = dur.seconds();
+			n = static_cast<int>(dur.seconds());
 			snprintf(strbuf, 256, ngettext("%i sec ago", "%i secs ago", n).c_str(), n);
 			return strbuf;
 		}
 		if (dur < minutes(60))
 		{
-			n = dur.minutes();
+			n = static_cast<int>(dur.minutes());
 			snprintf(strbuf, 256, ngettext("%i min ago", "%i mins ago", n).c_str(), n);
 			return strbuf;
 		}
 		if (dur < hours(24))
 		{
-			n = dur.hours();
+			n = static_cast<int>(dur.hours());
 			snprintf(strbuf, 256, ngettext("%i hour ago", "%i hours ago", n).c_str(), n);
 			return strbuf;
 		}
 
-		n = dur.hours() / 24;
+		n = static_cast<int>(dur.hours() / 24);
 		snprintf(strbuf, 256, ngettext("%i day ago", "%i days ago", n).c_str(), n);
 		return strbuf;
 	}

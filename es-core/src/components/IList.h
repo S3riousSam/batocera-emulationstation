@@ -130,7 +130,7 @@ public:
 
 	void setCursorIndex(int index)
 	{
-		if (index > 0 && index < mEntries.size())
+		if (index > 0 && index < static_cast<int>(mEntries.size()))
 		{
 			mCursor = index;
 			onCursorChanged(CURSOR_STOPPED);
@@ -190,7 +190,7 @@ public:
 
 	bool changeCursorName(int cursor, const std::string& name)
 	{
-		if (cursor >= mEntries.size())
+		if (cursor >= static_cast<int>(mEntries.size()))
 		{
 			return false;
 		}
