@@ -18,11 +18,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
-*/
+ */
 #pragma once
 
-#include "components/MenuComponent.h"
 #include "PlatformId.h"
+#include "components/MenuComponent.h"
 #include "components/OptionListComponent.h"
 
 class FileData;
@@ -33,7 +33,8 @@ class GuiRomsManager : public MenuComponent
 	friend class RomsListView;
 
 private:
-	struct PlatformData {
+	struct PlatformData
+	{
 		PlatformIds::PlatformId id;
 		std::string name;
 		boost::filesystem::path romsPath;
@@ -52,10 +53,10 @@ public:
 	static boost::filesystem::path platformIdExternalRomsPath(PlatformIds::PlatformId platform);
 
 private:
-	std::shared_ptr< FileData > m_fileData;
+	std::shared_ptr<FileData> m_fileData;
 	std::shared_ptr<TextComponent> m_defaultRomsPath;
 	std::shared_ptr<TextComponent> m_defaultExternalRomsPath;
-	std::shared_ptr< OptionListComponent<PlatformIds::PlatformId> > m_platforms;
+	std::shared_ptr<OptionListComponent<PlatformIds::PlatformId>> m_platforms;
 	std::shared_ptr<TextComponent> m_platformExternalRomsPath;
 	bool m_settingsEdited;
 

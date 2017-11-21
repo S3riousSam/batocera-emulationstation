@@ -1,12 +1,16 @@
 #include "guis/GuiFastSelect.h"
-#include "ThemeData.h"
 #include "FileSorts.h"
 #include "SystemData.h"
+#include "ThemeData.h"
 
 static const std::string LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-GuiFastSelect::GuiFastSelect(Window* window, IGameListView* gamelist) : GuiComponent(window), 
-	mBackground(window), mSortText(window), mLetterText(window), mGameList(gamelist)
+GuiFastSelect::GuiFastSelect(Window* window, IGameListView* gamelist)
+	: GuiComponent(window)
+	, mBackground(window)
+	, mSortText(window)
+	, mLetterText(window)
+	, mGameList(gamelist)
 {
 	setPosition(Renderer::getScreenWidth() * 0.2f, Renderer::getScreenHeight() * 0.2f);
 	setSize(Renderer::getScreenWidth() * 0.6f, Renderer::getScreenHeight() * 0.6f);
@@ -35,7 +39,7 @@ GuiFastSelect::GuiFastSelect(Window* window, IGameListView* gamelist) : GuiCompo
 	updateSortText();
 
 	mLetterId = LETTERS.find(mGameList->getCursor()->getName()[0]);
-	if(mLetterId == std::string::npos)
+	if (mLetterId == std::string::npos)
 		mLetterId = 0;
 
 	mScrollDir = 0;
@@ -45,7 +49,7 @@ GuiFastSelect::GuiFastSelect(Window* window, IGameListView* gamelist) : GuiCompo
 
 bool GuiFastSelect::input(InputConfig* config, Input input)
 {
-	if(input.value == 0 && config->isMappedTo("select", input))
+	if (input.value == 0 && config->isMappedTo("select", input))
 	{
 		// the user let go of select; make our changes to the gamelist and close this gui
 		updateGameListSort();
@@ -54,31 +58,34 @@ bool GuiFastSelect::input(InputConfig* config, Input input)
 		return true;
 	}
 
-	if(config->isMappedTo("up", input))
+	if (config->isMappedTo("up", input))
 	{
-		if(input.value != 0)
+		if (input.value != 0)
 			setScrollDir(-1);
 		else
 			setScrollDir(0);
 
 		return true;
-	}else if(config->isMappedTo("down", input))
+	}
+	else if (config->isMappedTo("down", input))
 	{
-		if(input.value != 0)
+		if (input.value != 0)
 			setScrollDir(1);
 		else
 			setScrollDir(0);
 
 		return true;
-	}else if(config->isMappedTo("left", input) && input.value != 0)
+	}
+	else if (config->isMappedTo("left", input) && input.value != 0)
 	{
 		mSortId = (mSortId + 1) % FileSorts::SortTypes.size();
 		updateSortText();
 		return true;
-	}else if(config->isMappedTo("right", input) && input.value != 0)
+	}
+	else if (config->isMappedTo("right", input) && input.value != 0)
 	{
 		mSortId--;
-		if(mSortId < 0)
+		if (mSortId < 0)
 			mSortId += FileSorts::SortTypes.size();
 
 		updateSortText();
@@ -97,10 +104,10 @@ void GuiFastSelect::setScrollDir(int dir)
 
 void GuiFastSelect::update(int deltaTime)
 {
-	if(mScrollDir != 0)
+	if (mScrollDir != 0)
 	{
 		mScrollAccumulator += deltaTime;
-		while(mScrollAccumulator >= 150)
+		while (mScrollAccumulator >= 150)
 		{
 			scroll();
 			mScrollAccumulator -= 150;
@@ -113,9 +120,9 @@ void GuiFastSelect::update(int deltaTime)
 void GuiFastSelect::scroll()
 {
 	mLetterId += mScrollDir;
-	if(mLetterId < 0)
+	if (mLetterId < 0)
 		mLetterId += LETTERS.length();
-	else if(mLetterId >= (int)LETTERS.length())
+	else if (mLetterId >= (int)LETTERS.length())
 		mLetterId -= LETTERS.length();
 
 	mLetterText.setText(LETTERS.substr(mLetterId, 1));
@@ -145,16 +152,16 @@ void GuiFastSelect::updateGameListCursor()
 
 	// only skip by letter when the sort mode is alphabetical
 	const FileData::SortType& sort = FileSorts::SortTypes.at(mSortId);
-	if(sort.comparisonFunction != &FileSorts::compareFileName)
+	if (sort.comparisonFunction != &FileSorts::compareFileName)
 		return;
 
 	// find the first entry in the list that either exactly matches our target letter or is beyond our target letter
-	for(auto it = list.cbegin(); it != list.cend(); it++)
+	for (auto it = list.cbegin(); it != list.cend(); it++)
 	{
 		char check = (*it)->getName().empty() ? 'A' : (*it)->getName()[0];
 
 		// if there's an exact match or we've passed it, set the cursor to this one
-		if(check == LETTERS[mLetterId] || (sort.ascending && check > LETTERS[mLetterId]) || (!sort.ascending && check < LETTERS[mLetterId]))
+		if (check == LETTERS[mLetterId] || (sort.ascending && check > LETTERS[mLetterId]) || (!sort.ascending && check < LETTERS[mLetterId]))
 		{
 			mGameList->setCursor(*it);
 			break;

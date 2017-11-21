@@ -1,15 +1,15 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <boost/filesystem.hpp>
 #include "MetaData.h"
+#include <boost/filesystem.hpp>
+#include <string>
+#include <vector>
 
 class SystemData;
 
 enum FileType
 {
-	GAME = 1,   // Cannot have children.
+	GAME = 1, // Cannot have children.
 	FOLDER = 2
 };
 
@@ -35,13 +35,31 @@ public:
 	FileData(FileType type, const boost::filesystem::path& path, SystemData* system);
 	virtual ~FileData();
 
-	inline const std::string& getName() const { return metadata.get("name"); }
-	inline FileType getType() const { return mType; }
-	inline const boost::filesystem::path& getPath() const { return mPath; }
-	inline FileData* getParent() const { return mParent; }
-	inline const std::vector<FileData*>& getChildren() const { return mChildren; }
-	inline SystemData* getSystem() const { return mSystem; }
-	
+	inline const std::string& getName() const
+	{
+		return metadata.get("name");
+	}
+	inline FileType getType() const
+	{
+		return mType;
+	}
+	inline const boost::filesystem::path& getPath() const
+	{
+		return mPath;
+	}
+	inline FileData* getParent() const
+	{
+		return mParent;
+	}
+	inline const std::vector<FileData*>& getChildren() const
+	{
+		return mChildren;
+	}
+	inline SystemData* getSystem() const
+	{
+		return mSystem;
+	}
+
 	virtual const std::string& getThumbnailPath() const;
 
 	std::vector<FileData*> getFilesRecursive(unsigned int typeMask) const;
@@ -49,10 +67,10 @@ public:
 	std::vector<FileData*> getHiddenRecursive(unsigned int typeMask) const;
 	void changePath(const boost::filesystem::path& path);
 	void addChild(FileData* file); // Error if mType != FOLDER
-	void removeChild(FileData* file); //Error if mType != FOLDER
+	void removeChild(FileData* file); // Error if mType != FOLDER
 
-	void addAlreadyExisitingChild(FileData *file);
-	void removeAlreadyExisitingChild(FileData *file);
+	void addAlreadyExisitingChild(FileData* file);
+	void removeAlreadyExisitingChild(FileData* file);
 
 	void clear();
 	void lazyPopulate(const std::vector<std::string>& searchExtensions = std::vector<std::string>(), SystemData* systemData = nullptr);
@@ -67,15 +85,21 @@ public:
 		bool ascending;
 		std::string description;
 
-		SortType(ComparisonFunction* sortFunction, bool sortAscending, const std::string & sortDescription) 
-			: comparisonFunction(sortFunction), ascending(sortAscending), description(sortDescription) {}
+		SortType(ComparisonFunction* sortFunction, bool sortAscending, const std::string& sortDescription)
+			: comparisonFunction(sortFunction)
+			, ascending(sortAscending)
+			, description(sortDescription)
+		{
+		}
 	};
 
 	void sort(ComparisonFunction& comparator, bool ascending = true);
 	void sort(const SortType& type);
 
-	static void populateFolder(FileData* folder, const std::vector<std::string>& searchExtensions = std::vector<std::string>(), SystemData* systemData = nullptr);
-	static void populateRecursiveFolder(FileData* folder, const std::vector<std::string>& searchExtensions = std::vector<std::string>(), SystemData* systemData = nullptr);
+	static void populateFolder(
+		FileData* folder, const std::vector<std::string>& searchExtensions = std::vector<std::string>(), SystemData* systemData = nullptr);
+	static void populateRecursiveFolder(
+		FileData* folder, const std::vector<std::string>& searchExtensions = std::vector<std::string>(), SystemData* systemData = nullptr);
 
 	MetaDataList metadata;
 
@@ -85,5 +109,4 @@ private:
 	SystemData* mSystem;
 	FileData* mParent;
 	std::vector<FileData*> mChildren;
-
 };

@@ -1,69 +1,68 @@
 #ifndef _AUDIOMANAGER_H_
 #define _AUDIOMANAGER_H_
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "SDL_audio.h"
 
-#include "Sound.h"
 #include "Music.h"
+#include "Sound.h"
 
+class AudioManager
+{
+	static std::vector<std::shared_ptr<Sound>> sSoundVector;
+	static std::vector<std::shared_ptr<Music>> sMusicVector;
 
-class AudioManager {
-    static std::vector<std::shared_ptr<Sound>> sSoundVector;
-    static std::vector<std::shared_ptr<Music>> sMusicVector;
+	static std::shared_ptr<AudioManager> sInstance;
+	std::shared_ptr<Music> currentMusic;
 
-    static std::shared_ptr<AudioManager> sInstance;
-    std::shared_ptr<Music> currentMusic;
-
-
-    AudioManager();
+	AudioManager();
 
 public:
-    static std::shared_ptr<AudioManager> &getInstance();
+	static std::shared_ptr<AudioManager>& getInstance();
 
-    void stopMusic();
+	void stopMusic();
 
-    void themeChanged(const std::shared_ptr<ThemeData> &theme);
+	void themeChanged(const std::shared_ptr<ThemeData>& theme);
 
-    void resumeMusic();
+	void resumeMusic();
 
-    void playCheckSound();
+	void playCheckSound();
 
-    void init();
+	void init();
 
-    void deinit();
+	void deinit();
 
-    void registerMusic(std::shared_ptr<Music> &music);
+	void registerMusic(std::shared_ptr<Music>& music);
 
-    void registerSound(std::shared_ptr<Sound> &sound);
+	void registerSound(std::shared_ptr<Sound>& sound);
 
-    void unregisterMusic(std::shared_ptr<Music> &music);
+	void unregisterMusic(std::shared_ptr<Music>& music);
 
-    void unregisterSound(std::shared_ptr<Sound> &sound);
+	void unregisterSound(std::shared_ptr<Sound>& sound);
 
-    void play();
+	void play();
 
-    void stop();
+	void stop();
 
-    void musicEnd();
+	void musicEnd();
 
-    virtual ~AudioManager();
+	virtual ~AudioManager();
 
 private:
-    bool running;
-    int lastTime = 0;
+	bool running;
+	int lastTime = 0;
 
-    std::shared_ptr<Music> getRandomMusic(std::string themeSoundDirectory);
+	std::shared_ptr<Music> getRandomMusic(std::string themeSoundDirectory);
 
-    bool runningFromPlaylist;
+	bool runningFromPlaylist;
 
-    bool update(int curTime);
+	bool update(int curTime);
 
-    std::string currentThemeMusicDirectory;
+	std::string currentThemeMusicDirectory;
 
-    void playRandomMusic();
+	void playRandomMusic();
 };
 
 #endif

@@ -1,11 +1,14 @@
-#include <Log.h>
 #include "SwitchComponent.h"
-#include "Renderer.h"
-#include "resources/Font.h"
-#include "Window.h"
 #include "LocaleES.h"
+#include "Renderer.h"
+#include "Window.h"
+#include "resources/Font.h"
+#include <Log.h>
 
-SwitchComponent::SwitchComponent(Window* window, bool state) : GuiComponent(window), mImage(window), mState(state)
+SwitchComponent::SwitchComponent(Window* window, bool state)
+	: GuiComponent(window)
+	, mImage(window)
+	, mState(state)
 {
 	mImage.setImage(mState ? ":/on.svg" : ":/off.svg");
 	mImage.setResize(0, Font::get(FONT_SIZE_MEDIUM)->getLetterHeight());
@@ -19,7 +22,7 @@ void SwitchComponent::onSizeChanged()
 
 bool SwitchComponent::input(InputConfig* config, Input input)
 {
-	if(config->isMappedTo("b", input) && input.value)
+	if (config->isMappedTo("b", input) && input.value)
 	{
 		mState = !mState;
 		onStateChanged();
@@ -32,7 +35,7 @@ bool SwitchComponent::input(InputConfig* config, Input input)
 void SwitchComponent::render(const Eigen::Affine3f& parentTrans)
 {
 	Eigen::Affine3f trans = parentTrans * getTransform();
-	
+
 	mImage.render(trans);
 
 	renderChildren(trans);
@@ -62,10 +65,12 @@ std::vector<HelpPrompt> SwitchComponent::getHelpPrompts()
 	return prompts;
 }
 
-std::string SwitchComponent::getValue() const {
-  return mState ? "true" : "false";
+std::string SwitchComponent::getValue() const
+{
+	return mState ? "true" : "false";
 }
 
-bool SwitchComponent::changed() {
+bool SwitchComponent::changed()
+{
 	return mInitialState != mState;
 }

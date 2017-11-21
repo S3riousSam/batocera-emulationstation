@@ -1,15 +1,14 @@
 #include "platform.h"
-#include <stdlib.h>
 #include <boost/filesystem.hpp>
 #include <iostream>
+#include <stdlib.h>
 #if !defined(WIN32)
 #include <sys/statvfs.h>
 #endif
-#include <sstream>
 #include "Settings.h"
+#include <sstream>
 
 #include <fstream>
-
 
 #ifdef WIN32
 #include <codecvt>
@@ -21,23 +20,25 @@ std::string getHomePath()
 	std::string homePath;
 
 	// this should give you something like "/home/YOUR_USERNAME" on Linux and "C:\Users\YOUR_USERNAME\" on Windows
-	const char * envHome = getenv("HOME");
-	if(envHome != nullptr)
+	const char* envHome = getenv("HOME");
+	if (envHome != nullptr)
 	{
 		homePath = envHome;
 	}
 
 #ifdef WIN32
 	// but does not seem to work for Windows XP or Vista, so try something else
-	if (homePath.empty()) {
-		const char * envDir = getenv("HOMEDRIVE");
-		const char * envPath = getenv("HOMEPATH");
-		if (envDir != nullptr && envPath != nullptr) {
+	if (homePath.empty())
+	{
+		const char* envDir = getenv("HOMEDRIVE");
+		const char* envPath = getenv("HOMEPATH");
+		if (envDir != nullptr && envPath != nullptr)
+		{
 			homePath = envDir;
 			homePath += envPath;
 
-			for(unsigned int i = 0; i < homePath.length(); i++)
-				if(homePath[i] == '\\')
+			for (unsigned int i = 0; i < homePath.length(); i++)
+				if (homePath[i] == '\\')
 					homePath[i] = '/';
 		}
 	}
@@ -47,7 +48,7 @@ std::string getHomePath()
 	boost::filesystem::path genericPath(homePath);
 	return genericPath.generic_string();
 #else
-    return "D:\\Workspace\\EmulationStation.data";
+	return "D:\\Workspace\\EmulationStation.data";
 #endif
 }
 
@@ -79,6 +80,7 @@ int runSystemCommand(const std::string& cmd_utf8)
 	std::wstring wchar_str = converter.from_bytes(cmd_utf8);
 	return _wsystem(wchar_str.c_str());
 #else
-	return system((cmd_utf8 + " 2> /recalbox/share/system/logs/es_launch_stderr.log | head -300 > /recalbox/share/system/logs/es_launch_stdout.log").c_str());
+	return system(
+		(cmd_utf8 + " 2> /recalbox/share/system/logs/es_launch_stderr.log | head -300 > /recalbox/share/system/logs/es_launch_stdout.log").c_str());
 #endif
 }

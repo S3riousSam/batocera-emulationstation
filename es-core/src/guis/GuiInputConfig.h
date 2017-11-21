@@ -1,9 +1,9 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include "components/NinePatchComponent.h"
 #include "components/ComponentGrid.h"
 #include "components/ComponentList.h"
+#include "components/NinePatchComponent.h"
 
 class TextComponent;
 
@@ -35,7 +35,7 @@ private:
 	std::shared_ptr<TextComponent> mSubtitle1;
 	std::shared_ptr<TextComponent> mSubtitle2;
 	std::shared_ptr<ComponentList> mList;
-	std::vector< std::shared_ptr<TextComponent> > mMappings;
+	std::vector<std::shared_ptr<TextComponent>> mMappings;
 	std::shared_ptr<ComponentGrid> mButtonGrid;
 
 	InputConfig* mTargetConfig;

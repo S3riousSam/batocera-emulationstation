@@ -1,7 +1,9 @@
 #include "components/AnimatedImageComponent.h"
 #include "Log.h"
 
-AnimatedImageComponent::AnimatedImageComponent(Window* window) : GuiComponent(window), mEnabled(false)
+AnimatedImageComponent::AnimatedImageComponent(Window* window)
+	: GuiComponent(window)
+	, mEnabled(false)
 {
 }
 
@@ -11,9 +13,9 @@ void AnimatedImageComponent::load(const AnimationDef* def)
 
 	assert(def->frameCount >= 1);
 
-	for(size_t i = 0; i < def->frameCount; i++)
+	for (size_t i = 0; i < def->frameCount; i++)
 	{
-		if(def->frames[i].path != NULL && !ResourceManager::getInstance()->fileExists(def->frames[i].path))
+		if (def->frames[i].path != NULL && !ResourceManager::getInstance()->fileExists(def->frames[i].path))
 		{
 			LOG(LogError) << "Missing animation frame " << i << " (\"" << def->frames[i].path << "\")";
 			continue;
@@ -22,7 +24,7 @@ void AnimatedImageComponent::load(const AnimationDef* def)
 		auto img = std::unique_ptr<ImageComponent>(new ImageComponent(mWindow));
 		img->setResize(mSize.x(), mSize.y());
 		img->setImage(std::string(def->frames[i].path), false);
-		
+
 		mFrames.push_back(ImageFrame(std::move(img), def->frames[i].time));
 	}
 
@@ -41,7 +43,7 @@ void AnimatedImageComponent::reset()
 
 void AnimatedImageComponent::onSizeChanged()
 {
-	for(auto it = mFrames.begin(); it != mFrames.end(); it++)
+	for (auto it = mFrames.begin(); it != mFrames.end(); it++)
 	{
 		it->first->setResize(mSize.x(), mSize.y());
 	}
@@ -49,22 +51,24 @@ void AnimatedImageComponent::onSizeChanged()
 
 void AnimatedImageComponent::update(int deltaTime)
 {
-	if(!mEnabled || mFrames.size() == 0)
+	if (!mEnabled || mFrames.size() == 0)
 		return;
 
 	mFrameAccumulator += deltaTime;
 
-	while(mFrames.at(mCurrentFrame).second <= mFrameAccumulator)
+	while (mFrames.at(mCurrentFrame).second <= mFrameAccumulator)
 	{
 		mCurrentFrame++;
 
-		if(mCurrentFrame == mFrames.size())
+		if (mCurrentFrame == mFrames.size())
 		{
-			if(mLoop)
+			if (mLoop)
 			{
 				// restart
 				mCurrentFrame = 0;
-			}else{
+			}
+			else
+			{
 				// done, stop at last frame
 				mCurrentFrame--;
 				mEnabled = false;
@@ -78,6 +82,6 @@ void AnimatedImageComponent::update(int deltaTime)
 
 void AnimatedImageComponent::render(const Eigen::Affine3f& trans)
 {
-	if(mFrames.size())
+	if (mFrames.size())
 		mFrames.at(mCurrentFrame).first->render(getTransform() * trans);
 }

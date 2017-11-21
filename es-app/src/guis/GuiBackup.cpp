@@ -1,20 +1,22 @@
 #include "guis/GuiBackup.h"
 #include "guis/GuiMsgBox.h"
 
+#include "LocaleES.h"
+#include "Log.h"
+#include "RecalboxSystem.h"
+#include "Settings.h"
 #include "Window.h"
 #include <boost/thread.hpp>
 #include <string>
-#include "Log.h"
-#include "Settings.h"
-#include "RecalboxSystem.h"
-#include "LocaleES.h"
 
-GuiBackup::GuiBackup(Window* window, std::string storageDevice) : GuiComponent(window), mBusyAnim(window)
+GuiBackup::GuiBackup(Window* window, std::string storageDevice)
+	: GuiComponent(window)
+	, mBusyAnim(window)
 {
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
-        mLoading = true;
+	mLoading = true;
 	mState = 1;
-        mBusyAnim.setSize(mSize);
+	mBusyAnim.setSize(mSize);
 	mstorageDevice = storageDevice;
 }
 
@@ -24,7 +26,7 @@ GuiBackup::~GuiBackup()
 
 bool GuiBackup::input(InputConfig* config, Input input)
 {
-        return false;
+	return false;
 }
 
 std::vector<HelpPrompt> GuiBackup::getHelpPrompts()
@@ -34,75 +36,70 @@ std::vector<HelpPrompt> GuiBackup::getHelpPrompts()
 
 void GuiBackup::render(const Eigen::Affine3f& parentTrans)
 {
-        Eigen::Affine3f trans = parentTrans * getTransform();
+	Eigen::Affine3f trans = parentTrans * getTransform();
 
-        renderChildren(trans);
+	renderChildren(trans);
 
-        Renderer::setMatrix(trans);
-        Renderer::drawRect(0.f, 0.f, mSize.x(), mSize.y(), 0x00000011);
+	Renderer::setMatrix(trans);
+	Renderer::drawRect(0.f, 0.f, mSize.x(), mSize.y(), 0x00000011);
 
-        if(mLoading)
-        mBusyAnim.render(trans);
-
+	if (mLoading)
+		mBusyAnim.render(trans);
 }
 
-void GuiBackup::update(int deltaTime) {
-        GuiComponent::update(deltaTime);
-        mBusyAnim.update(deltaTime);
-        
-        Window* window = mWindow;
-        if(mState == 1){
-	  mLoading = true;
-	  mHandle = new boost::thread(boost::bind(&GuiBackup::threadBackup, this));
-	  mState = 0;
-        }
-
-        if(mState == 2){
-	  window->pushGui(
-			  new GuiMsgBox(window, _("FINNISHED"), _("OK"),
-					[this] {
-					  mState = -1;
-					}
-					)
-			  );
-	  mState = 0;
-        }
-        if(mState == 3){
-            window->pushGui(
-                    new GuiMsgBox(window, mResult.first, _("OK"),
-                                  [this] {
-                                      mState = -1;
-                                  }
-                    )
-            );
-            mState = 0;
-        }
-
-        if(mState == -1){
-	  delete this;
-        }
-}
-
-void GuiBackup::threadBackup() 
+void GuiBackup::update(int deltaTime)
 {
-    std::pair<std::string,int> updateStatus = RecalboxSystem::getInstance()->backupSystem(&mBusyAnim, mstorageDevice);
-    if(updateStatus.second == 0){
-        this->onBackupOk();
-    }else {
-        this->onBackupError(updateStatus);
-    }  
+	GuiComponent::update(deltaTime);
+	mBusyAnim.update(deltaTime);
+
+	Window* window = mWindow;
+	if (mState == 1)
+	{
+		mLoading = true;
+		mHandle = new boost::thread(boost::bind(&GuiBackup::threadBackup, this));
+		mState = 0;
+	}
+
+	if (mState == 2)
+	{
+		window->pushGui(new GuiMsgBox(window, _("FINNISHED"), _("OK"), [this] { mState = -1; }));
+		mState = 0;
+	}
+	if (mState == 3)
+	{
+		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = -1; }));
+		mState = 0;
+	}
+
+	if (mState == -1)
+	{
+		delete this;
+	}
+}
+
+void GuiBackup::threadBackup()
+{
+	std::pair<std::string, int> updateStatus = RecalboxSystem::getInstance()->backupSystem(&mBusyAnim, mstorageDevice);
+	if (updateStatus.second == 0)
+	{
+		this->onBackupOk();
+	}
+	else
+	{
+		this->onBackupError(updateStatus);
+	}
 }
 
 void GuiBackup::onBackupError(std::pair<std::string, int> result)
 {
-    mLoading = false;
-    mState = 3;
-    mResult = result;
-    mResult.first = _("AN ERROR OCCURED") + std::string(": check the system/logs directory");
+	mLoading = false;
+	mState = 3;
+	mResult = result;
+	mResult.first = _("AN ERROR OCCURED") + std::string(": check the system/logs directory");
 }
 
 void GuiBackup::onBackupOk()
 {
-    mLoading = false;
-    mState = 2;
+	mLoading = false;
+	mState = 2;
 }

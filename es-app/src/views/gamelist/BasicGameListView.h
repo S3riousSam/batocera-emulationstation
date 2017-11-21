@@ -1,7 +1,7 @@
 #pragma once
 
-#include "views/gamelist/ISimpleGameListView.h"
 #include "components/TextListComponent.h"
+#include "views/gamelist/ISimpleGameListView.h"
 
 class BasicGameListView : public ISimpleGameListView
 {
@@ -18,13 +18,19 @@ public:
 	virtual void setCursor(FileData* file) override;
 	virtual void setCursorIndex(int index) override;
 
-	virtual const char* getName() const override { return "basic"; }
+	virtual const char* getName() const override
+	{
+		return "basic";
+	}
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 	virtual void populateList(const std::vector<FileData*>& files) override;
 
-	virtual inline void updateInfoPanel() override {}
+	virtual inline void updateInfoPanel() override
+	{
+	}
+
 protected:
 	virtual void launch(FileData* game) override;
 

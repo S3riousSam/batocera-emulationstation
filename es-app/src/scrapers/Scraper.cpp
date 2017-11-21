@@ -2,17 +2,15 @@
 #include "Log.h"
 #include "Settings.h"
 #include <FreeImage.h>
-#include <boost/filesystem.hpp>
 #include <boost/assign.hpp>
+#include <boost/filesystem.hpp>
 
 #include "GamesDBScraper.h"
 #include "MamedbScraper.h"
 #include "ScreenscraperScraper.h"
 
-const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs = boost::assign::map_list_of
-	("TheGamesDB", &thegamesdb_generate_scraper_requests)
-	("Mamedb", &mamedb_generate_scraper_requests)
-	("Screenscraper", &screenscraper_generate_scraper_requests);
+const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs = boost::assign::map_list_of("TheGamesDB",
+	&thegamesdb_generate_scraper_requests)("Mamedb", &mamedb_generate_scraper_requests)("Screenscraper", &screenscraper_generate_scraper_requests);
 
 std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params)
 {
@@ -26,7 +24,7 @@ std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParam
 std::vector<std::string> getScraperList()
 {
 	std::vector<std::string> list;
-	for(auto it = scraper_request_funcs.begin(); it != scraper_request_funcs.end(); it++)
+	for (auto it = scraper_request_funcs.begin(); it != scraper_request_funcs.end(); it++)
 	{
 		list.push_back(it->first);
 	}
@@ -42,28 +40,28 @@ ScraperSearchHandle::ScraperSearchHandle()
 
 void ScraperSearchHandle::update()
 {
-	if(mStatus == ASYNC_DONE)
+	if (mStatus == ASYNC_DONE)
 		return;
 
-	while(!mRequestQueue.empty())
+	while (!mRequestQueue.empty())
 	{
 		auto& req = mRequestQueue.front();
 		AsyncHandleStatus status = req->status();
 
-		if(status == ASYNC_ERROR)
+		if (status == ASYNC_ERROR)
 		{
 			// propegate error
 			setError(req->getStatusString());
 
 			// empty our queue
-			while(!mRequestQueue.empty())
+			while (!mRequestQueue.empty())
 				mRequestQueue.pop();
 
 			return;
 		}
 
 		// finished this one, see if we have any more
-		if(status == ASYNC_DONE)
+		if (status == ASYNC_DONE)
 		{
 			mRequestQueue.pop();
 			continue;
@@ -73,23 +71,21 @@ void ScraperSearchHandle::update()
 	}
 
 	// we finished without any errors!
-	if(mRequestQueue.empty())
+	if (mRequestQueue.empty())
 	{
 		setStatus(ASYNC_DONE);
 		return;
 	}
 }
 
-
-
 // ScraperRequest
-ScraperRequest::ScraperRequest(std::vector<ScraperSearchResult>& resultsWrite) : mResults(resultsWrite)
+ScraperRequest::ScraperRequest(std::vector<ScraperSearchResult>& resultsWrite)
+	: mResults(resultsWrite)
 {
 }
 
-
 // ScraperHttpRequest
-ScraperHttpRequest::ScraperHttpRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url) 
+ScraperHttpRequest::ScraperHttpRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url)
 	: ScraperRequest(resultsWrite)
 {
 	setStatus(ASYNC_IN_PROGRESS);
@@ -99,7 +95,7 @@ ScraperHttpRequest::ScraperHttpRequest(std::vector<ScraperSearchResult>& results
 void ScraperHttpRequest::update()
 {
 	HttpReq::Status status = mReq->status();
-	if(status == HttpReq::REQ_SUCCESS)
+	if (status == HttpReq::REQ_SUCCESS)
 	{
 		setStatus(ASYNC_DONE); // if process() has an error, status will be changed to ASYNC_ERROR
 		process(mReq, mResults);
@@ -107,14 +103,13 @@ void ScraperHttpRequest::update()
 	}
 
 	// not ready yet
-	if(status == HttpReq::REQ_IN_PROGRESS)
+	if (status == HttpReq::REQ_IN_PROGRESS)
 		return;
 
 	// everything else is some sort of error
 	LOG(LogError) << "ScraperHttpRequest network error (status: " << status << ") - " << mReq->getErrorMsg();
 	setError(mReq->getErrorMsg());
 }
-
 
 // metadata resolving stuff
 
@@ -123,13 +118,13 @@ std::unique_ptr<MDResolveHandle> resolveMetaDataAssets(const ScraperSearchResult
 	return std::unique_ptr<MDResolveHandle>(new MDResolveHandle(result, search));
 }
 
-MDResolveHandle::MDResolveHandle(const ScraperSearchResult& result, const ScraperSearchParams& search) : mResult(result)
+MDResolveHandle::MDResolveHandle(const ScraperSearchResult& result, const ScraperSearchParams& search)
+	: mResult(result)
 {
-	if(!result.imageUrl.empty())
+	if (!result.imageUrl.empty())
 	{
 		std::string imgPath = getSaveAsPath(search, "image", result.imageUrl);
-		mFuncs.push_back(ResolvePair(downloadImageAsync(result.imageUrl, imgPath), [this, imgPath]
-		{
+		mFuncs.push_back(ResolvePair(downloadImageAsync(result.imageUrl, imgPath), [this, imgPath] {
 			mResult.mdl.set("image", imgPath);
 			mResult.imageUrl = "";
 		}));
@@ -138,17 +133,18 @@ MDResolveHandle::MDResolveHandle(const ScraperSearchResult& result, const Scrape
 
 void MDResolveHandle::update()
 {
-	if(mStatus == ASYNC_DONE || mStatus == ASYNC_ERROR)
+	if (mStatus == ASYNC_DONE || mStatus == ASYNC_ERROR)
 		return;
-	
+
 	auto it = mFuncs.begin();
-	while(it != mFuncs.end())
+	while (it != mFuncs.end())
 	{
-		if(it->first->status() == ASYNC_ERROR)
+		if (it->first->status() == ASYNC_ERROR)
 		{
 			setError(it->first->getStatusString());
 			return;
-		}else if(it->first->status() == ASYNC_DONE)
+		}
+		else if (it->first->status() == ASYNC_DONE)
 		{
 			it->second();
 			it = mFuncs.erase(it);
@@ -157,27 +153,30 @@ void MDResolveHandle::update()
 		it++;
 	}
 
-	if(mFuncs.empty())
+	if (mFuncs.empty())
 		setStatus(ASYNC_DONE);
 }
 
 std::unique_ptr<ImageDownloadHandle> downloadImageAsync(const std::string& url, const std::string& saveAs)
 {
-	return std::unique_ptr<ImageDownloadHandle>(new ImageDownloadHandle(url, saveAs, 
-		Settings::getInstance()->getInt("ScraperResizeWidth"), Settings::getInstance()->getInt("ScraperResizeHeight")));
+	return std::unique_ptr<ImageDownloadHandle>(new ImageDownloadHandle(
+		url, saveAs, Settings::getInstance()->getInt("ScraperResizeWidth"), Settings::getInstance()->getInt("ScraperResizeHeight")));
 }
 
-ImageDownloadHandle::ImageDownloadHandle(const std::string& url, const std::string& path, int maxWidth, int maxHeight) : 
-	mSavePath(path), mMaxWidth(maxWidth), mMaxHeight(maxHeight), mReq(new HttpReq(url))
+ImageDownloadHandle::ImageDownloadHandle(const std::string& url, const std::string& path, int maxWidth, int maxHeight)
+	: mSavePath(path)
+	, mMaxWidth(maxWidth)
+	, mMaxHeight(maxHeight)
+	, mReq(new HttpReq(url))
 {
 }
 
 void ImageDownloadHandle::update()
 {
-	if(mReq->status() == HttpReq::REQ_IN_PROGRESS)
+	if (mReq->status() == HttpReq::REQ_IN_PROGRESS)
 		return;
 
-	if(mReq->status() != HttpReq::REQ_SUCCESS)
+	if (mReq->status() != HttpReq::REQ_SUCCESS)
 	{
 		std::stringstream ss;
 		ss << "Network error: " << mReq->getErrorMsg();
@@ -187,7 +186,7 @@ void ImageDownloadHandle::update()
 
 	// download is done, save it to disk
 	std::ofstream stream(mSavePath, std::ios_base::out | std::ios_base::binary);
-	if(stream.bad())
+	if (stream.bad())
 	{
 		setError("Failed to open image path to write. Permission error? Disk full?");
 		return;
@@ -196,14 +195,14 @@ void ImageDownloadHandle::update()
 	const std::string& content = mReq->getContent();
 	stream.write(content.data(), content.length());
 	stream.close();
-	if(stream.bad())
+	if (stream.bad())
 	{
 		setError("Failed to save image. Disk full?");
 		return;
 	}
 
 	// resize it
-	if(!resizeImage(mSavePath, mMaxWidth, mMaxHeight))
+	if (!resizeImage(mSavePath, mMaxWidth, mMaxHeight))
 	{
 		setError("Error saving resized image. Out of memory? Disk full?");
 		return;
@@ -212,31 +211,33 @@ void ImageDownloadHandle::update()
 	setStatus(ASYNC_DONE);
 }
 
-//you can pass 0 for width or height to keep aspect ratio
+// you can pass 0 for width or height to keep aspect ratio
 bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 {
 	// nothing to do
-	if(maxWidth == 0 && maxHeight == 0)
+	if (maxWidth == 0 && maxHeight == 0)
 		return true;
 
 	FREE_IMAGE_FORMAT format = FIF_UNKNOWN;
 	FIBITMAP* image = NULL;
-	
-	//detect the filetype
+
+	// detect the filetype
 	format = FreeImage_GetFileType(path.c_str(), 0);
-	if(format == FIF_UNKNOWN)
+	if (format == FIF_UNKNOWN)
 		format = FreeImage_GetFIFFromFilename(path.c_str());
-	if(format == FIF_UNKNOWN)
+	if (format == FIF_UNKNOWN)
 	{
 		LOG(LogError) << "Error - could not detect filetype for image \"" << path << "\"!";
 		return false;
 	}
 
-	//make sure we can read this filetype first, then load it
-	if(FreeImage_FIFSupportsReading(format))
+	// make sure we can read this filetype first, then load it
+	if (FreeImage_FIFSupportsReading(format))
 	{
 		image = FreeImage_Load(format, path.c_str());
-	}else{
+	}
+	else
+	{
 		LOG(LogError) << "Error - file format reading not supported for image \"" << path << "\"!";
 		return false;
 	}
@@ -244,10 +245,11 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 	float width = (float)FreeImage_GetWidth(image);
 	float height = (float)FreeImage_GetHeight(image);
 
-	if(maxWidth == 0)
+	if (maxWidth == 0)
 	{
 		maxWidth = (int)((maxHeight / height) * width);
-	}else if(maxHeight == 0)
+	}
+	else if (maxHeight == 0)
 	{
 		maxHeight = (int)((maxWidth / width) * height);
 	}
@@ -255,7 +257,7 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 	FIBITMAP* imageRescaled = FreeImage_Rescale(image, maxWidth, maxHeight, FILTER_BILINEAR);
 	FreeImage_Unload(image);
 
-	if(imageRescaled == NULL)
+	if (imageRescaled == NULL)
 	{
 		LOG(LogError) << "Could not resize image! (not enough memory? invalid bitdepth?)";
 		return false;
@@ -264,9 +266,10 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 	bool saved = FreeImage_Save(format, imageRescaled, path.c_str());
 	FreeImage_Unload(imageRescaled);
 
-    if(!saved) {
+	if (!saved)
+	{
 		LOG(LogError) << "Failed to save resized image!";
-    }
+	}
 
 	return saved;
 }
@@ -278,17 +281,18 @@ std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& 
 
 	// default dir in rom directory
 	std::string path = params.system->getRootFolder()->getPath().generic_string() + "/downloaded_images/";
-	if(!boost::filesystem::exists(path) && !boost::filesystem::create_directory(path)){
+	if (!boost::filesystem::exists(path) && !boost::filesystem::create_directory(path))
+	{
 		// Unable to create the directory in system rom dir, fallback on ~
 		path = getHomePath() + "/.emulationstation/downloaded_images/" + subdirectory + "/";
 	}
 
-	if(!boost::filesystem::exists(path))
+	if (!boost::filesystem::exists(path))
 		boost::filesystem::create_directories(path);
 
 	size_t dot = url.find_last_of('.');
 	std::string ext;
-	if(dot != std::string::npos)
+	if (dot != std::string::npos)
 		ext = url.substr(dot, std::string::npos);
 
 	path += name + ext;

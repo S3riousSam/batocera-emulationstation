@@ -1,10 +1,10 @@
 #pragma once
 
-#include "views/gamelist/BasicGameListView.h"
-#include "components/ScrollableContainer.h"
-#include "components/RatingComponent.h"
-#include "components/DateTimeComponent.h"
 #include "SystemData.h"
+#include "components/DateTimeComponent.h"
+#include "components/RatingComponent.h"
+#include "components/ScrollableContainer.h"
+#include "views/gamelist/BasicGameListView.h"
 
 class DetailedGameListView : public BasicGameListView
 {
@@ -13,7 +13,10 @@ public:
 
 	virtual void onThemeChanged(const std::shared_ptr<ThemeData>& theme) override;
 
-	virtual const char* getName() const override { return "detailed"; }
+	virtual const char* getName() const override
+	{
+		return "detailed";
+	}
 
 	virtual void updateInfoPanel() override;
 

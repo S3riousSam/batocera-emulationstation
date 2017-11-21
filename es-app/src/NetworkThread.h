@@ -3,16 +3,16 @@
 #include "Window.h"
 #include <boost/thread.hpp>
 
-class NetworkThread {
+class NetworkThread
+{
 public:
-    NetworkThread(Window * window);
-    virtual ~NetworkThread();
+	NetworkThread(Window* window);
+	virtual ~NetworkThread();
+
 private:
-    Window* mWindow;
-    bool mRunning;
-    bool mFirstRun;
-    boost::thread * mThreadHandle;
-    void run();
+	Window* mWindow;
+	bool mRunning;
+	bool mFirstRun;
+	boost::thread* mThreadHandle;
+	void run();
 };
-
-

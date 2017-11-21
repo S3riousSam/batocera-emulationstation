@@ -1,20 +1,22 @@
 #include "guis/GuiUpdate.h"
 #include "guis/GuiMsgBox.h"
 
+#include "LocaleES.h"
+#include "Log.h"
+#include "RecalboxSystem.h"
+#include "Settings.h"
 #include "Window.h"
 #include <boost/thread.hpp>
 #include <string>
-#include "Log.h"
-#include "Settings.h"
-#include "RecalboxSystem.h"
-#include "LocaleES.h"
 
-GuiUpdate::GuiUpdate(Window* window) : GuiComponent(window), mBusyAnim(window)
+GuiUpdate::GuiUpdate(Window* window)
+	: GuiComponent(window)
+	, mBusyAnim(window)
 {
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
-        mLoading = true;
-        mPingHandle = new boost::thread(boost::bind(&GuiUpdate::threadPing, this));
-        mBusyAnim.setSize(mSize);
+	mLoading = true;
+	mPingHandle = new boost::thread(boost::bind(&GuiUpdate::threadPing, this));
+	mBusyAnim.setSize(mSize);
 }
 
 GuiUpdate::~GuiUpdate()
@@ -24,7 +26,7 @@ GuiUpdate::~GuiUpdate()
 
 bool GuiUpdate::input(InputConfig* config, Input input)
 {
-        return false;
+	return false;
 }
 
 std::vector<HelpPrompt> GuiUpdate::getHelpPrompts()
@@ -34,133 +36,131 @@ std::vector<HelpPrompt> GuiUpdate::getHelpPrompts()
 
 void GuiUpdate::render(const Eigen::Affine3f& parentTrans)
 {
-        Eigen::Affine3f trans = parentTrans * getTransform();
+	Eigen::Affine3f trans = parentTrans * getTransform();
 
-        renderChildren(trans);
+	renderChildren(trans);
 
-        Renderer::setMatrix(trans);
-        Renderer::drawRect(0.f, 0.f, mSize.x(), mSize.y(), 0x00000011);
+	Renderer::setMatrix(trans);
+	Renderer::drawRect(0.f, 0.f, mSize.x(), mSize.y(), 0x00000011);
 
-        if(mLoading)
-        mBusyAnim.render(trans);
-
+	if (mLoading)
+		mBusyAnim.render(trans);
 }
 
-void GuiUpdate::update(int deltaTime) {
-        GuiComponent::update(deltaTime);
-        mBusyAnim.update(deltaTime);
-        
-        Window* window = mWindow;
-        if(mState == 1){
-            window->pushGui(
-			    new GuiMsgBox(window, _("REALLY UPDATE?"), _("YES"),
-                           [this] { 
-                               mState = 2;
-                               mLoading = true;
-                               mHandle = new boost::thread(boost::bind(&GuiUpdate::threadUpdate, this));
-
-					  }, _("NO"), [this] {
-                               mState = -1;
-                           })
-                                   
-            );
-            mState = 0;
-        }
-         
-        if(mState == 3){
-            window->pushGui(
-			    new GuiMsgBox(window, _("NETWORK CONNECTION NEEDED"), _("OK"), 
-                [this] {
-                    mState = -1;
-                })
-            );
-            mState = 0;
-        }
-        if(mState == 4){
-            window->pushGui(
-			    new GuiMsgBox(window, _("UPDATE DOWNLOADED, THE SYSTEM WILL NOW REBOOT"), _("OK"),
-                [this] {
-                    if(runRestartCommand() != 0) {
-                        LOG(LogWarning) << "Reboot terminated with non-zero result!";
-                    }
-                })
-            );
-            mState = 0;
-        }
-        if(mState == 5){
-            window->pushGui(
-                    new GuiMsgBox(window, mResult.first, _("OK"),
-                                  [this] {
-                                      mState = -1;
-                                  }
-                    )
-            );
-            mState = 0;
-        }
-        if(mState == 6){
-            window->pushGui(
-			    new GuiMsgBox(window, _("NO UPDATE AVAILABLE"), _("OK"), 
-                [this] {
-                    mState = -1;
-                }));
-            mState = 0;
-        }
-        if(mState == -1){
-            delete this;
-        }
-}
-
-void GuiUpdate::threadUpdate() 
+void GuiUpdate::update(int deltaTime)
 {
-    std::pair<std::string,int> updateStatus = RecalboxSystem::getInstance()->updateSystem(&mBusyAnim);
-    if(updateStatus.second == 0){
-        this->onUpdateOk();
-    }else {
-        this->onUpdateError(updateStatus);
-    }  
+	GuiComponent::update(deltaTime);
+	mBusyAnim.update(deltaTime);
+
+	Window* window = mWindow;
+	if (mState == 1)
+	{
+		window->pushGui(new GuiMsgBox(window, _("REALLY UPDATE?"), _("YES"),
+			[this] {
+				mState = 2;
+				mLoading = true;
+				mHandle = new boost::thread(boost::bind(&GuiUpdate::threadUpdate, this));
+
+			},
+			_("NO"), [this] { mState = -1; })
+
+		);
+		mState = 0;
+	}
+
+	if (mState == 3)
+	{
+		window->pushGui(new GuiMsgBox(window, _("NETWORK CONNECTION NEEDED"), _("OK"), [this] { mState = -1; }));
+		mState = 0;
+	}
+	if (mState == 4)
+	{
+		window->pushGui(new GuiMsgBox(window, _("UPDATE DOWNLOADED, THE SYSTEM WILL NOW REBOOT"), _("OK"), [this] {
+			if (runRestartCommand() != 0)
+			{
+				LOG(LogWarning) << "Reboot terminated with non-zero result!";
+			}
+		}));
+		mState = 0;
+	}
+	if (mState == 5)
+	{
+		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = -1; }));
+		mState = 0;
+	}
+	if (mState == 6)
+	{
+		window->pushGui(new GuiMsgBox(window, _("NO UPDATE AVAILABLE"), _("OK"), [this] { mState = -1; }));
+		mState = 0;
+	}
+	if (mState == -1)
+	{
+		delete this;
+	}
 }
 
-void GuiUpdate::threadPing() 
+void GuiUpdate::threadUpdate()
 {
-        if(RecalboxSystem::getInstance()->ping()){
-            if(RecalboxSystem::getInstance()->canUpdate()){
-                this->onUpdateAvailable();
-            }else {
-                this->onNoUpdateAvailable();
+	std::pair<std::string, int> updateStatus = RecalboxSystem::getInstance()->updateSystem(&mBusyAnim);
+	if (updateStatus.second == 0)
+	{
+		this->onUpdateOk();
+	}
+	else
+	{
+		this->onUpdateError(updateStatus);
+	}
+}
 
-            }
-        }else {
-            this->onPingError();
-        }
-}
-void GuiUpdate::onUpdateAvailable() 
-{	
-    mLoading = false;
-    LOG(LogInfo) << "update available" << "\n";	
-    mState = 1;
-}
-void GuiUpdate::onNoUpdateAvailable() 
-{	
-    mLoading = false;
-    LOG(LogInfo) << "no update available" << "\n";	
-    mState = 6;
-}
-void GuiUpdate::onPingError() 
+void GuiUpdate::threadPing()
 {
-    LOG(LogInfo) << "ping nok" << "\n";	
-    mLoading = false;
-    mState = 3;
+	if (RecalboxSystem::getInstance()->ping())
+	{
+		if (RecalboxSystem::getInstance()->canUpdate())
+		{
+			this->onUpdateAvailable();
+		}
+		else
+		{
+			this->onNoUpdateAvailable();
+		}
+	}
+	else
+	{
+		this->onPingError();
+	}
+}
+void GuiUpdate::onUpdateAvailable()
+{
+	mLoading = false;
+	LOG(LogInfo) << "update available"
+				 << "\n";
+	mState = 1;
+}
+void GuiUpdate::onNoUpdateAvailable()
+{
+	mLoading = false;
+	LOG(LogInfo) << "no update available"
+				 << "\n";
+	mState = 6;
+}
+void GuiUpdate::onPingError()
+{
+	LOG(LogInfo) << "ping nok"
+				 << "\n";
+	mLoading = false;
+	mState = 3;
 }
 void GuiUpdate::onUpdateError(std::pair<std::string, int> result)
 {
-    mLoading = false;
-    mState = 5;
-    mResult = result;
-    mResult.first = _("AN ERROR OCCURED") + std::string(": ") + mResult.first;
+	mLoading = false;
+	mState = 5;
+	mResult = result;
+	mResult.first = _("AN ERROR OCCURED") + std::string(": ") + mResult.first;
 }
 
 void GuiUpdate::onUpdateOk()
 {
-    mLoading = false;
-    mState = 4;
+	mLoading = false;
+	mState = 4;
 }

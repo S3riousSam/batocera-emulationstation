@@ -2,14 +2,14 @@
 #define _INPUTMANAGER_H_
 
 #include <SDL.h>
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
 class InputConfig;
 class Window;
 
-//you should only ever instantiate one of these, by the way
+// you should only ever instantiate one of these, by the way
 class InputManager
 {
 private:
@@ -31,10 +31,9 @@ private:
 
 	void addJoystickByDeviceIndex(int id);
 	void removeJoystickByJoystickID(SDL_JoystickID id);
-	bool loadInputConfig(InputConfig* config); // returns true if successfully loaded, false if not (or didn't exist)                
-        void clearJoystick();
-        void addAllJoysticks();
-
+	bool loadInputConfig(InputConfig* config); // returns true if successfully loaded, false if not (or didn't exist)
+	void clearJoystick();
+	void addAllJoysticks();
 
 public:
 	virtual ~InputManager();
@@ -59,7 +58,6 @@ public:
 
 	bool parseEvent(const SDL_Event& ev, Window* window);
 	std::string configureEmulators();
-
 };
 
 #endif

@@ -1,17 +1,17 @@
 #ifndef _SOUND_H_
 #define _SOUND_H_
 
-#include <string>
+#include "SDL_mixer.h"
 #include <map>
 #include <memory>
-#include "SDL_mixer.h"
+#include <string>
 
 class ThemeData;
 
 class Sound
 {
 	std::string mPath;
-	Mix_Chunk * mSampleData;
+	Mix_Chunk* mSampleData;
 	bool playing;
 
 public:
@@ -23,16 +23,15 @@ public:
 	void init();
 	void deinit();
 
-	void loadFile(const std::string & path);
+	void loadFile(const std::string& path);
 
 	void play();
 	bool isPlaying() const;
 	void stop();
 
-
 private:
-	Sound(const std::string & path = "");
-	static std::map< std::string, std::shared_ptr<Sound> > sMap;
+	Sound(const std::string& path = "");
+	static std::map<std::string, std::shared_ptr<Sound>> sMap;
 };
 
 #endif

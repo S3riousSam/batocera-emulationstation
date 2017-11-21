@@ -1,22 +1,40 @@
 #include "views/gamelist/DetailedGameListView.h"
-#include "views/ViewController.h"
-#include "Window.h"
-#include "Settings.h"
-#include "animations/LambdaAnimation.h"
 #include "LocaleES.h"
+#include "Settings.h"
+#include "Window.h"
+#include "animations/LambdaAnimation.h"
+#include "views/ViewController.h"
 
-DetailedGameListView::DetailedGameListView(Window* window, FileData* root, SystemData* system) : 
-	BasicGameListView(window, root), 
-	mDescContainer(window), mDescription(window), 
-	mImage(window), mSystem(system), 
+DetailedGameListView::DetailedGameListView(Window* window, FileData* root, SystemData* system)
+	: BasicGameListView(window, root)
+	, mDescContainer(window)
+	, mDescription(window)
+	, mImage(window)
+	, mSystem(system)
+	,
 
-	mLblRating(window), mLblReleaseDate(window), mLblDeveloper(window), mLblPublisher(window), 
-	mLblGenre(window), mLblPlayers(window), mLblLastPlayed(window), mLblPlayCount(window), mLblFavorite(window),
+	mLblRating(window)
+	, mLblReleaseDate(window)
+	, mLblDeveloper(window)
+	, mLblPublisher(window)
+	, mLblGenre(window)
+	, mLblPlayers(window)
+	, mLblLastPlayed(window)
+	, mLblPlayCount(window)
+	, mLblFavorite(window)
+	,
 
-	mRating(window), mReleaseDate(window), mDeveloper(window), mPublisher(window), 
-	mGenre(window), mPlayers(window), mLastPlayed(window), mPlayCount(window), mFavorite(window)
+	mRating(window)
+	, mReleaseDate(window)
+	, mDeveloper(window)
+	, mPublisher(window)
+	, mGenre(window)
+	, mPlayers(window)
+	, mLastPlayed(window)
+	, mPlayCount(window)
+	, mFavorite(window)
 {
-	//mHeaderImage.setPosition(mSize.x() * 0.25f, 0);
+	// mHeaderImage.setPosition(mSize.x() * 0.25f, 0);
 
 	const float padding = 0.01f;
 
@@ -28,7 +46,7 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root, Syste
 	// image
 	mImage.setOrigin(0.5f, 0.5f);
 	mImage.setPosition(mSize.x() * 0.25f, mList.getPosition().y() + mSize.y() * 0.2125f);
-	mImage.setMaxSize(mSize.x() * (0.50f - 2*padding), mSize.y() * 0.4f);
+	mImage.setMaxSize(mSize.x() * (0.50f - 2 * padding), mSize.y() * 0.4f);
 	addChild(&mImage);
 
 	// metadata labels + values
@@ -59,20 +77,19 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root, Syste
 	addChild(&mPlayCount);
 	if (system->getHasFavorites())
 	{
-	  mLblFavorite.setText(_("Favorite") + ": ");
+		mLblFavorite.setText(_("Favorite") + ": ");
 		addChild(&mLblFavorite);
 		addChild(&mFavorite);
 	}
 
 	mDescContainer.setPosition(mSize.x() * padding, mSize.y() * 0.65f);
-	mDescContainer.setSize(mSize.x() * (0.50f - 2*padding), mSize.y() - mDescContainer.getPosition().y());
+	mDescContainer.setSize(mSize.x() * (0.50f - 2 * padding), mSize.y() - mDescContainer.getPosition().y());
 	mDescContainer.setAutoScroll(true);
 	addChild(&mDescContainer);
 
 	mDescription.setFont(Font::get(FONT_SIZE_SMALL));
 	mDescription.setSize(mDescContainer.getSize().x(), 0);
 	mDescContainer.addChild(&mDescription);
-
 
 	initMDLabels();
 	initMDValues();
@@ -92,10 +109,8 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	if (mSystem->getHasFavorites())
 	{
 		assert(labels.size() == 9);
-		const char* lblElements[9] = {
-			"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher",
-			"md_lbl_genre", "md_lbl_players", "md_lbl_lastplayed", "md_lbl_playcount", "md_lbl_favorite"
-		};
+		const char* lblElements[9] = {"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", "md_lbl_genre", "md_lbl_players",
+			"md_lbl_lastplayed", "md_lbl_playcount", "md_lbl_favorite"};
 
 		for (unsigned int i = 0; i < labels.size(); i++)
 		{
@@ -105,12 +120,10 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	else
 	{
 		assert(labels.size() == 8);
-		const char* lblElements[8] = {
-			"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", 
-			"md_lbl_genre", "md_lbl_players", "md_lbl_lastplayed", "md_lbl_playcount"
-		};
+		const char* lblElements[8] = {"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", "md_lbl_genre", "md_lbl_players",
+			"md_lbl_lastplayed", "md_lbl_playcount"};
 
-		for(unsigned int i = 0; i < labels.size(); i++)
+		for (unsigned int i = 0; i < labels.size(); i++)
 		{
 			labels[i]->applyTheme(theme, getName(), lblElements[i], ALL);
 		}
@@ -123,9 +136,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	{
 		assert(values.size() == 9);
 		const char* valElements[9] = {
-			"md_rating", "md_releasedate", "md_developer", "md_publisher",
-			"md_genre", "md_players", "md_lastplayed", "md_playcount", "md_favorite"
-		};
+			"md_rating", "md_releasedate", "md_developer", "md_publisher", "md_genre", "md_players", "md_lastplayed", "md_playcount", "md_favorite"};
 
 		for (unsigned int i = 0; i < values.size(); i++)
 		{
@@ -136,9 +147,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	{
 		assert(values.size() == 8);
 		const char* valElements[8] = {
-			"md_rating", "md_releasedate", "md_developer", "md_publisher",
-			"md_genre", "md_players", "md_lastplayed", "md_playcount"
-		};
+			"md_rating", "md_releasedate", "md_developer", "md_publisher", "md_genre", "md_players", "md_lastplayed", "md_playcount"};
 
 		for (unsigned int i = 0; i < values.size(); i++)
 		{
@@ -161,20 +170,22 @@ void DetailedGameListView::initMDLabels()
 	const unsigned int rowCount = components.size() / 2;
 
 	Vector3f start(mSize.x() * 0.01f, mSize.y() * 0.625f, 0.0f);
-	
+
 	const float colSize = (mSize.x() * 0.48f) / colCount;
 	const float rowPadding = 0.01f * mSize.y();
 
-	for(unsigned int i = 0; i < components.size(); i++)
+	for (unsigned int i = 0; i < components.size(); i++)
 	{
 		const unsigned int row = i % rowCount;
 		Vector3f pos(0.0f, 0.0f, 0.0f);
-		if(row == 0)
+		if (row == 0)
 		{
 			pos = start + Vector3f(colSize * (i / rowCount), 0, 0);
-		}else{
+		}
+		else
+		{
 			// work from the last component
-			GuiComponent* lc = components[i-1];
+			GuiComponent* lc = components[i - 1];
 			pos = lc->getPosition() + Vector3f(0, lc->getSize().y() + rowPadding, 0);
 		}
 
@@ -204,14 +215,14 @@ void DetailedGameListView::initMDValues()
 	float bottom = 0.0f;
 
 	const float colSize = (mSize.x() * 0.48f) / 2;
-	for(unsigned int i = 0; i < labels.size(); i++)
+	for (unsigned int i = 0; i < labels.size(); i++)
 	{
 		const float heightDiff = (labels[i]->getSize().y() - values[i]->getSize().y()) / 2;
 		values[i]->setPosition(labels[i]->getPosition() + Vector3f(labels[i]->getSize().x(), heightDiff, 0));
 		values[i]->setSize(colSize - labels[i]->getSize().x(), values[i]->getSize().y());
 
 		float testBot = values[i]->getPosition().y() + values[i]->getSize().y();
-		if(testBot > bottom)
+		if (testBot > bottom)
 			bottom = testBot;
 	}
 
@@ -224,17 +235,19 @@ void DetailedGameListView::updateInfoPanel()
 	FileData* file = (mList.size() == 0 || mList.isScrolling()) ? NULL : mList.getSelected();
 
 	bool fadingOut;
-	if(file == NULL)
+	if (file == NULL)
 	{
-		//mImage.setImage("");
-		//mDescription.setText("");
+		// mImage.setImage("");
+		// mDescription.setText("");
 		fadingOut = true;
-	}else{
+	}
+	else
+	{
 		mImage.setImage(file->metadata.get("image"));
 		mDescription.setText(file->metadata.get("desc"));
 		mDescContainer.reset();
 
-		if(file->getType() == GAME)
+		if (file->getType() == GAME)
 		{
 			mRating.setValue(file->metadata.get("rating"));
 			mReleaseDate.setValue(file->metadata.get("releasedate"));
@@ -246,7 +259,7 @@ void DetailedGameListView::updateInfoPanel()
 			mPlayCount.setValue(file->metadata.get("playcount"));
 			mFavorite.setValue(file->metadata.get("favorite"));
 		}
-		
+
 		fadingOut = false;
 	}
 
@@ -256,20 +269,17 @@ void DetailedGameListView::updateInfoPanel()
 	std::vector<TextComponent*> labels = getMDLabels();
 	comps.insert(comps.end(), labels.begin(), labels.end());
 
-	for(auto it = comps.begin(); it != comps.end(); it++)
+	for (auto it = comps.begin(); it != comps.end(); it++)
 	{
 		GuiComponent* comp = *it;
 		// an animation is playing
 		//   then animate if reverse != fadingOut
 		// an animation is not playing
 		//   then animate if opacity != our target opacity
-		if((comp->isAnimationPlaying(0) && comp->isAnimationReversed(0) != fadingOut) || 
+		if ((comp->isAnimationPlaying(0) && comp->isAnimationReversed(0) != fadingOut) ||
 			(!comp->isAnimationPlaying(0) && comp->getOpacity() != (fadingOut ? 0 : 255)))
 		{
-			auto func = [comp](float t)
-			{
-				comp->setOpacity((unsigned char)(lerp<float>(0.0f, 1.0f, t)*255));
-			};
+			auto func = [comp](float t) { comp->setOpacity((unsigned char)(lerp<float>(0.0f, 1.0f, t) * 255)); };
 			comp->setAnimation(new LambdaAnimation(func, 150), 0, nullptr, fadingOut);
 		}
 	}
@@ -278,7 +288,7 @@ void DetailedGameListView::updateInfoPanel()
 void DetailedGameListView::launch(FileData* game)
 {
 	Eigen::Vector3f target(Renderer::getScreenWidth() / 2.0f, Renderer::getScreenHeight() / 2.0f, 0);
-	if(mImage.hasImage())
+	if (mImage.hasImage())
 		target << mImage.getCenter().x(), mImage.getCenter().y(), 0;
 
 	ViewController::get()->launch(game, target);
@@ -326,15 +336,15 @@ std::vector<HelpPrompt> DetailedGameListView::getHelpPrompts()
 
 	if (Settings::getInstance()->getBool("QuickSystemSelect"))
 	{
-	  prompts.push_back(HelpPrompt("left/right", _("SYSTEM")));
+		prompts.push_back(HelpPrompt("left/right", _("SYSTEM")));
 	}
 	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
 	prompts.push_back(HelpPrompt("b", _("LAUNCH")));
 	prompts.push_back(HelpPrompt("a", _("BACK")));
-	if(getRoot()->getSystem() != SystemData::getFavoriteSystem()) {
-	  prompts.push_back(HelpPrompt("y", _("Favorite")));
-	  prompts.push_back(HelpPrompt("select", _("OPTIONS")));
+	if (getRoot()->getSystem() != SystemData::getFavoriteSystem())
+	{
+		prompts.push_back(HelpPrompt("y", _("Favorite")));
+		prompts.push_back(HelpPrompt("select", _("OPTIONS")));
 	}
 	return prompts;
 }
-

@@ -1,9 +1,9 @@
 #include "BusyComponent.h"
 
+#include "LocaleES.h"
+#include "Renderer.h"
 #include "components/AnimatedImageComponent.h"
 #include "components/TextComponent.h"
-#include "Renderer.h"
-#include "LocaleES.h"
 
 // animation definition
 AnimationFrame BUSY_ANIMATION_FRAMES[] = {
@@ -12,16 +12,17 @@ AnimationFrame BUSY_ANIMATION_FRAMES[] = {
 	{":/busy_2.svg", 300},
 	{":/busy_3.svg", 300},
 };
-const AnimationDef BUSY_ANIMATION_DEF = { BUSY_ANIMATION_FRAMES, 4, true };
+const AnimationDef BUSY_ANIMATION_DEF = {BUSY_ANIMATION_FRAMES, 4, true};
 
 using namespace Eigen;
 
-BusyComponent::BusyComponent(Window* window) : GuiComponent(window),
-	mBackground(window, ":/frame.png"), mGrid(window, Vector2i(5, 3))
+BusyComponent::BusyComponent(Window* window)
+	: GuiComponent(window)
+	, mBackground(window, ":/frame.png")
+	, mGrid(window, Vector2i(5, 3))
 {
-        mutex = SDL_CreateMutex();
+	mutex = SDL_CreateMutex();
 
-  
 	mAnimation = std::make_shared<AnimatedImageComponent>(mWindow);
 	mAnimation->load(&BUSY_ANIMATION_DEF);
 	mText = std::make_shared<TextComponent>(mWindow, _("WORKING..."), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
@@ -34,35 +35,41 @@ BusyComponent::BusyComponent(Window* window) : GuiComponent(window),
 	addChild(&mGrid);
 }
 
-BusyComponent::~BusyComponent() {
-  SDL_DestroyMutex(mutex);
+BusyComponent::~BusyComponent()
+{
+	SDL_DestroyMutex(mutex);
 }
 
-void BusyComponent::setText(std::string txt) {
-  if (SDL_LockMutex(mutex) == 0) {
-    threadMessage = txt;
-    threadMessagechanged = true;
-    SDL_UnlockMutex(mutex);
-  }
+void BusyComponent::setText(std::string txt)
+{
+	if (SDL_LockMutex(mutex) == 0)
+	{
+		threadMessage = txt;
+		threadMessagechanged = true;
+		SDL_UnlockMutex(mutex);
+	}
 }
 
-void BusyComponent::render(const Eigen::Affine3f& parentTrans) {
-  if (SDL_LockMutex(mutex) == 0) {
-    if(threadMessagechanged) {
-      threadMessagechanged = false;
-      mText->setText(threadMessage);
-      onSizeChanged();
-    }
-    SDL_UnlockMutex(mutex);
-  }
-  GuiComponent::render(parentTrans);
+void BusyComponent::render(const Eigen::Affine3f& parentTrans)
+{
+	if (SDL_LockMutex(mutex) == 0)
+	{
+		if (threadMessagechanged)
+		{
+			threadMessagechanged = false;
+			mText->setText(threadMessage);
+			onSizeChanged();
+		}
+		SDL_UnlockMutex(mutex);
+	}
+	GuiComponent::render(parentTrans);
 }
 
 void BusyComponent::onSizeChanged()
 {
 	mGrid.setSize(mSize);
 
-	if(mSize.x() == 0 || mSize.y() == 0)
+	if (mSize.x() == 0 || mSize.y() == 0)
 		return;
 
 	const float middleSpacerWidth = 0.01f * Renderer::getScreenWidth();
@@ -75,12 +82,12 @@ void BusyComponent::onSizeChanged()
 	mGrid.setColWidthPerc(3, textWidth / mSize.x());
 
 	mGrid.setRowHeightPerc(1, textHeight / mSize.y());
-	
-	mBackground.fitTo(Vector2f(mGrid.getColWidth(1) + mGrid.getColWidth(2) + mGrid.getColWidth(3), textHeight + 2),
-		mAnimation->getPosition(), Vector2f(0, 0));
+
+	mBackground.fitTo(
+		Vector2f(mGrid.getColWidth(1) + mGrid.getColWidth(2) + mGrid.getColWidth(3), textHeight + 2), mAnimation->getPosition(), Vector2f(0, 0));
 }
 
 void BusyComponent::reset()
 {
-	//mAnimation->reset();
+	// mAnimation->reset();
 }

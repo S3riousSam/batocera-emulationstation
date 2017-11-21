@@ -1,11 +1,11 @@
 #include "Log.h"
+#include "platform.h"
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
-#include "platform.h"
 
 LogLevel Log::reportingLevel = LogInfo;
-FILE* Log::file = NULL; //fopen(getLogPath().c_str(), "w");
+FILE* Log::file = NULL; // fopen(getLogPath().c_str(), "w");
 
 LogLevel Log::getReportingLevel()
 {
@@ -56,7 +56,7 @@ Log::~Log()
 {
 	os << std::endl;
 
-	if(getOutput() == NULL)
+	if (getOutput() == NULL)
 	{
 		// not open yet, print to stdout
 		std::cerr << "ERROR - tried to write to log file before it was open! The following won't be logged:\n";
@@ -66,8 +66,8 @@ Log::~Log()
 
 	fprintf(getOutput(), "%s", os.str().c_str());
 
-	//if it's an error, also print to console
-	//print all messages if using --debug
-	if(messageLevel == LogError || reportingLevel >= LogDebug)
+	// if it's an error, also print to console
+	// print all messages if using --debug
+	if (messageLevel == LogError || reportingLevel >= LogDebug)
 		fprintf(stderr, "%s", os.str().c_str());
 }

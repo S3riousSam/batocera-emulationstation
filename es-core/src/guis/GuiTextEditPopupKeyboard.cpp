@@ -1,13 +1,16 @@
 #include "guis/GuiTextEditPopupKeyboard.h"
-#include "components/MenuComponent.h"
-#include "Log.h"
 #include "LocaleES.h"
+#include "Log.h"
+#include "components/MenuComponent.h"
 
 using namespace Eigen;
 
 GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::string& title, const std::string& initValue,
 	const std::function<void(const std::string&)>& okCallback, bool multiLine, const std::string acceptBtnText)
-	: GuiComponent(window), mBackground(window, ":/frame.png"), mGrid(window, Vector2i(1, 7)), mMultiLine(multiLine)
+	: GuiComponent(window)
+	, mBackground(window, ":/frame.png")
+	, mGrid(window, Vector2i(1, 7))
+	, mMultiLine(multiLine)
 {
 	addChild(&mBackground);
 	addChild(&mGrid);
@@ -27,16 +30,16 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	// Text edit add
 	mGrid.setEntry(mText, Vector2i(0, 1), true, false, Vector2i(1, 1), GridFlags::BORDER_TOP | GridFlags::BORDER_BOTTOM);
 
-
 	// Keyboard
 	// Case for if multiline is enabled, then don't create the keyboard.
-	if (!mMultiLine) {
-
+	if (!mMultiLine)
+	{
 		// Locale for shifting upper/lower case
 		std::locale loc;
 
 		// Digit Row & Special Chara.
-		for (int k = 0; k < 12; k++) {
+		for (int k = 0; k < 12; k++)
+		{
 			// Create string for button display name.
 			std::string strName = "";
 			strName += numRow[k];
@@ -44,11 +47,12 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 			strName += numRowUp[k];
 
 			// Init button and store in Vector
-			digitButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, strName, numRow[k], [this, k, loc] {
+			digitButtons.push_back(std::make_shared<ButtonComponent>(mWindow, strName, numRow[k], [this, k, loc] {
 				mText->startEditing();
-				if (mShift) mText->textInput(numRowUp[k]);
-				else mText->textInput(numRow[k]);
+				if (mShift)
+					mText->textInput(numRowUp[k]);
+				else
+					mText->textInput(numRow[k]);
 				mText->stopEditing();
 			}));
 
@@ -58,7 +62,8 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 		}
 
 		// Accent Row & Special Chara.
-		for (int k = 0; k < 12; k++) {
+		for (int k = 0; k < 12; k++)
+		{
 			// Create string for button display name.
 			std::string strName = "";
 			strName += specialRow[k];
@@ -66,11 +71,12 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 			strName += specialRowUp[k];
 
 			// Init button and store in Vector
-			sButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, strName, specialRow[k], [this, k, loc] {
+			sButtons.push_back(std::make_shared<ButtonComponent>(mWindow, strName, specialRow[k], [this, k, loc] {
 				mText->startEditing();
-				if (mShift) mText->textInput(specialRowUp[k]);
-				else mText->textInput(specialRow[k]);
+				if (mShift)
+					mText->textInput(specialRowUp[k]);
+				else
+					mText->textInput(specialRow[k]);
 				mText->stopEditing();
 			}));
 
@@ -80,97 +86,120 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 		}
 
 		// Top row [Q - P]
-		for (int k = 0; k < 10; k++) {
-			kButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, topRowUp[k], topRowUp[k], [this, k, loc] {
+		for (int k = 0; k < 10; k++)
+		{
+			kButtons.push_back(std::make_shared<ButtonComponent>(mWindow, topRowUp[k], topRowUp[k], [this, k, loc] {
 				mText->startEditing();
-				if (mShift) mText->textInput(topRowUp[k]);
-				else mText->textInput(topRow[k]);
+				if (mShift)
+					mText->textInput(topRowUp[k]);
+				else
+					mText->textInput(topRow[k]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Top row - Add in the last three manualy because they're special chara [{ , }]
-		for (int k = 10; k < 12; k++) {
+		for (int k = 10; k < 12; k++)
+		{
 			kButtons.push_back(std::make_shared<ButtonComponent>(mWindow, topRow[k], topRow[k], [this, k] {
 				mText->startEditing();
-				if (mShift) mText->textInput(topRowUp[k]);
-				else mText->textInput(topRow[k]);
+				if (mShift)
+					mText->textInput(topRowUp[k]);
+				else
+					mText->textInput(topRow[k]);
 				mText->stopEditing();
 			}));
 		}
 
-		for (int k = 0; k < 12; k++) {
+		for (int k = 0; k < 12; k++)
+		{
 			kButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 			mKeyboardGrid->setEntry(kButtons[k], Vector2i(k, 2), true, false);
 		}
 
 		// Home row [A - L]
-		for (int k = 0; k < 9; k++) {
-			hButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, homeRowUp[k], homeRowUp[k], [this, k, loc] {
+		for (int k = 0; k < 9; k++)
+		{
+			hButtons.push_back(std::make_shared<ButtonComponent>(mWindow, homeRowUp[k], homeRowUp[k], [this, k, loc] {
 				mText->startEditing();
-				if (mShift) mText->textInput(homeRowUp[k]);
-				else mText->textInput(homeRow[k]);
+				if (mShift)
+					mText->textInput(homeRowUp[k]);
+				else
+					mText->textInput(homeRow[k]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Home row - Add in the last three manualy because they're special chara [" , |]
-		for (int k = 9; k < 12; k++) {
+		for (int k = 9; k < 12; k++)
+		{
 			hButtons.push_back(std::make_shared<ButtonComponent>(mWindow, homeRow[k], homeRow[k], [this, k] {
 				mText->startEditing();
-				if (mShift) mText->textInput(homeRowUp[k]);
-				else mText->textInput(homeRow[k]);
+				if (mShift)
+					mText->textInput(homeRowUp[k]);
+				else
+					mText->textInput(homeRow[k]);
 				mText->stopEditing();
 			}));
 		}
 
-		for (int k = 0; k < 12; k++) {
+		for (int k = 0; k < 12; k++)
+		{
 			hButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 			mKeyboardGrid->setEntry(hButtons[k], Vector2i(k, 3), true, false);
 		}
 
 		// Special case for shift key
 		bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, "SHIFT", _("SHIFTS FOR UPPER,LOWER, AND SPECIAL"), [this] {
-			if (mShift) mShift = false;
-			else mShift = true;
+			if (mShift)
+				mShift = false;
+			else
+				mShift = true;
 			shiftKeys();
 		}));
 
 		// Bottom row - Add in the first manualy because it is a special chara [~]
-		for (int k = 0; k < 1; k++) {
+		for (int k = 0; k < 1; k++)
+		{
 			bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, bottomRow[0], bottomRow[0], [this, k] {
 				mText->startEditing();
-				if (mShift) mText->textInput(bottomRowUp[k]);
-				else mText->textInput(bottomRow[k]);
+				if (mShift)
+					mText->textInput(bottomRowUp[k]);
+				else
+					mText->textInput(bottomRow[k]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Bottom row [Z - M]
-		for (int k = 1; k < 8; k++) {
-			bButtons.push_back(std::make_shared<ButtonComponent>
-				(mWindow, bottomRowUp[k], bottomRowUp[k], [this, k, loc] {
+		for (int k = 1; k < 8; k++)
+		{
+			bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, bottomRowUp[k], bottomRowUp[k], [this, k, loc] {
 				mText->startEditing();
-				if (mShift) mText->textInput(bottomRowUp[k]);
-				else mText->textInput(bottomRow[k]);
+				if (mShift)
+					mText->textInput(bottomRowUp[k]);
+				else
+					mText->textInput(bottomRow[k]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Bottom row - Add in the last three manualy because they're special chara [< , > , /]
-		for (int k = 8; k < 12; k++) {
+		for (int k = 8; k < 12; k++)
+		{
 			bButtons.push_back(std::make_shared<ButtonComponent>(mWindow, bottomRow[k], bottomRow[k], [this, k] {
 				mText->startEditing();
-				if (mShift) mText->textInput(bottomRowUp[k]);
-				else mText->textInput(bottomRow[k]);
+				if (mShift)
+					mText->textInput(bottomRowUp[k]);
+				else
+					mText->textInput(bottomRow[k]);
 				mText->stopEditing();
 			}));
 		}
 
 		// Do a sererate for loop because shift key makes it weird
-		for (int k = 0; k < 12; k++) {
+		for (int k = 0; k < 12; k++)
+		{
 			bButtons[k]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 			mKeyboardGrid->setEntry(bButtons[k], Vector2i(k, 4), true, false);
 		}
@@ -182,9 +211,12 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	mGrid.setEntry(mKeyboardGrid, Vector2i(0, 2), true, true, Vector2i(2, 4));
 
 	// Accept/Cancel/Delete/Space buttons
-	std::vector<std::shared_ptr<ButtonComponent> > buttons;
+	std::vector<std::shared_ptr<ButtonComponent>> buttons;
 
-	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, acceptBtnText, acceptBtnText, [this, okCallback] { okCallback(mText->getValue()); delete this; }));
+	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, acceptBtnText, acceptBtnText, [this, okCallback] {
+		okCallback(mText->getValue());
+		delete this;
+	}));
 	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("SPACE"), _("SPACE"), [this] {
 		mText->startEditing();
 		mText->textInput(" ");
@@ -208,17 +240,18 @@ GuiTextEditPopupKeyboard::GuiTextEditPopupKeyboard(Window* window, const std::st
 	mText->setSize(0, textHeight);
 
 	// If multiline, set all diminsions back to default, else draw size for keyboard.
-	if (mMultiLine) {
+	if (mMultiLine)
+	{
 		setSize(Renderer::getScreenWidth() * 0.5f, mTitle->getFont()->getHeight() + textHeight + mKeyboardGrid->getSize().y() + 40);
 		setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2);
 	}
-	else {
+	else
+	{
 		// Set size based on ScreenHieght * .08f by the amount of keyboard rows there are.
 		setSize(Renderer::getScreenWidth() * 0.99f, mTitle->getFont()->getHeight() + textHeight + 40 + (Renderer::getScreenHeight() * 0.085f) * 6);
 		setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, (Renderer::getScreenHeight() - mSize.y()) / 2);
 	}
 }
-
 
 void GuiTextEditPopupKeyboard::onSizeChanged()
 {
@@ -247,37 +280,42 @@ bool GuiTextEditPopupKeyboard::input(InputConfig* config, Input input)
 	}
 
 	// For deleting a chara (Left Top Button)
-	if (config->isMappedTo("PageUp", input) && input.value) {
+	if (config->isMappedTo("PageUp", input) && input.value)
+	{
 		mText->startEditing();
 		mText->textInput("\b");
 		mText->stopEditing();
 	}
 
 	// For Adding a space (Right Top Button)
-	if (config->isMappedTo("PageDown", input) && input.value) {
+	if (config->isMappedTo("PageDown", input) && input.value)
+	{
 		mText->startEditing();
 		mText->textInput(" ");
 	}
 
 	// For Shifting (Y)
-	if (config->isMappedTo("y", input) && input.value) {
-		if (mShift) mShift = false;
-		else mShift = true;
+	if (config->isMappedTo("y", input) && input.value)
+	{
+		if (mShift)
+			mShift = false;
+		else
+			mShift = true;
 		shiftKeys();
 	}
-
-	
 
 	return false;
 }
 
-void GuiTextEditPopupKeyboard::update(int deltatime) {
-
+void GuiTextEditPopupKeyboard::update(int deltatime)
+{
 }
 
 // Shifts the keys when user hits the shift button.
-void GuiTextEditPopupKeyboard::shiftKeys() {
-	if (mShift) {
+void GuiTextEditPopupKeyboard::shiftKeys()
+{
+	if (mShift)
+	{
 		// FOR SHIFTING UP
 		// Change Shift button color
 		bButtons[0]->setColorShift(0xEBFD00AA);
@@ -301,7 +339,9 @@ void GuiTextEditPopupKeyboard::shiftKeys() {
 		bButtons[9]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 		bButtons[10]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 		bButtons[11]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
-	} else {
+	}
+	else
+	{
 		// UNSHIFTING
 		// Remove button color
 		bButtons[0]->removeColorShift();
@@ -326,7 +366,6 @@ void GuiTextEditPopupKeyboard::shiftKeys() {
 		bButtons[10]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 		bButtons[11]->setSize((Renderer::getScreenWidth() * 0.95f) / 12, (mText->getFont()->getHeight() + 6));
 	}
-
 }
 
 std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()
@@ -338,4 +377,3 @@ std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()
 	prompts.push_back(HelpPrompt("l", _("DELETE")));
 	return prompts;
 }
-

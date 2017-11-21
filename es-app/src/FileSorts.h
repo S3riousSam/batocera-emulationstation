@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include "FileData.h"
+#include <vector>
 
 namespace FileSorts
 {
@@ -15,4 +15,4 @@ namespace FileSorts
 
 	extern std::vector<FileData::SortType> SortTypes;
 	void init();
-};
+}; // namespace FileSorts

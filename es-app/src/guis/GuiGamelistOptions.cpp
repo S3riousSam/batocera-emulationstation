@@ -1,38 +1,39 @@
-#include <RecalboxConf.h>
 #include "GuiGamelistOptions.h"
 #include "GuiMetaDataEd.h"
+#include "LocaleES.h"
 #include "Settings.h"
-#include "views/gamelist/IGameListView.h"
-#include "views/ViewController.h"
 #include "components/SwitchComponent.h"
 #include "guis/GuiSettings.h"
-#include "LocaleES.h"
+#include "views/ViewController.h"
+#include "views/gamelist/IGameListView.h"
+#include <RecalboxConf.h>
 
-GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
-	mSystem(system), 
-  mMenu(window, _("OPTIONS").c_str())
+GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
+	: GuiComponent(window)
+	, mSystem(system)
+	, mMenu(window, _("OPTIONS").c_str())
 {
 	addChild(&mMenu);
 
 	// jump to letter
 	char curChar = toupper(getGamelist()->getCursor()->getName()[0]);
-	if(curChar < 'A' || curChar > 'Z')
+	if (curChar < 'A' || curChar > 'Z')
 		curChar = 'A';
 
 	mJumpToLetterList = std::make_shared<LetterList>(mWindow, _("JUMP TO LETTER"), false);
-	for(char c = 'A'; c <= 'Z'; c++)
+	for (char c = 'A'; c <= 'Z'; c++)
 		mJumpToLetterList->add(std::string(1, c), c, c == curChar);
 
 	ComponentListRow row;
 	row.addElement(std::make_shared<TextComponent>(mWindow, _("JUMP TO LETTER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.addElement(mJumpToLetterList, false);
 	row.input_handler = [&](InputConfig* config, Input input) {
-		if(config->isMappedTo("b", input) && input.value)
+		if (config->isMappedTo("b", input) && input.value)
 		{
 			jumpToLetter();
 			return true;
 		}
-		else if(mJumpToLetterList->input(config, input))
+		else if (mJumpToLetterList->input(config, input))
 		{
 			return true;
 		}
@@ -42,7 +43,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 
 	// sort list by
 	mListSort = std::make_shared<SortList>(mWindow, _("SORT GAMES BY"), false);
-	for(unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
+	for (unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
 	{
 		const FileData::SortType& sort = FileSorts::SortTypes.at(i);
 		mListSort->add(sort.description, &sort, i == 0); // TODO - actually make the sort type persistent
@@ -63,13 +64,13 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	// edit game metadata
 	row.elements.clear();
 
-	if(RecalboxConf::getInstance()->get("system.es.menu") != "none" && RecalboxConf::getInstance()->get("system.es.menu") != "bartop"){
-	  row.addElement(std::make_shared<TextComponent>(mWindow, _("EDIT THIS GAME'S METADATA"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	if (RecalboxConf::getInstance()->get("system.es.menu") != "none" && RecalboxConf::getInstance()->get("system.es.menu") != "bartop")
+	{
+		row.addElement(std::make_shared<TextComponent>(mWindow, _("EDIT THIS GAME'S METADATA"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		row.addElement(makeArrow(mWindow), false);
 		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openMetaDataEd, this));
 		mMenu.addRow(row);
 	}
-
 
 	// center the menu
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
@@ -103,12 +104,14 @@ void GuiGamelistOptions::openMetaDataEd()
 	p.game = file;
 	p.system = file->getSystem();
 	mWindow->pushGui(new GuiMetaDataEd(mWindow, &file->metadata, file->metadata.getMDD(), p, file->getPath().filename().string(),
-		std::bind(&IGameListView::onFileChanged, getGamelist(), file, FILE_METADATA_CHANGED), [this, file] {
-			boost::filesystem::remove(file->getPath()); //actually delete the file on the filesystem
-			file->getParent()->removeChild(file); //unlink it so list repopulations triggered from onFileChanged won't see it
-			getGamelist()->onFileChanged(file, FILE_REMOVED); //tell the view
-			delete file; //free it
-	},file->getSystem()));
+		std::bind(&IGameListView::onFileChanged, getGamelist(), file, FILE_METADATA_CHANGED),
+		[this, file] {
+			boost::filesystem::remove(file->getPath()); // actually delete the file on the filesystem
+			file->getParent()->removeChild(file); // unlink it so list repopulations triggered from onFileChanged won't see it
+			getGamelist()->onFileChanged(file, FILE_REMOVED); // tell the view
+			delete file; // free it
+		},
+		file->getSystem()));
 }
 
 void GuiGamelistOptions::jumpToLetter()
@@ -118,27 +121,27 @@ void GuiGamelistOptions::jumpToLetter()
 
 	// this is a really shitty way to get a list of files
 	const std::vector<FileData*>& files = gamelist->getCursor()->getParent()->getChildren();
-	
+
 	long min = 0;
 	long max = files.size() - 1;
 	long mid = 0;
 
-	while(max >= min)
+	while (max >= min)
 	{
 		mid = ((max - min) / 2) + min;
 
 		// game somehow has no first character to check
-		if(files.at(mid)->getName().empty())
+		if (files.at(mid)->getName().empty())
 			continue;
 
 		char checkLetter = toupper(files.at(mid)->getName()[0]);
 
-		if(checkLetter < letter)
+		if (checkLetter < letter)
 			min = mid + 1;
-		else if(checkLetter > letter)
+		else if (checkLetter > letter)
 			max = mid - 1;
 		else
-			break; //exact match found
+			break; // exact match found
 	}
 
 	gamelist->setCursor(files.at(mid));
@@ -148,7 +151,7 @@ void GuiGamelistOptions::jumpToLetter()
 
 bool GuiGamelistOptions::input(InputConfig* config, Input input)
 {
-	if((config->isMappedTo("a", input) || config->isMappedTo("select", input)) && input.value)
+	if ((config->isMappedTo("a", input) || config->isMappedTo("select", input)) && input.value)
 	{
 		save();
 		delete this;

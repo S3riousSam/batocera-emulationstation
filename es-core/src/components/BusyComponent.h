@@ -11,12 +11,13 @@ class BusyComponent : public GuiComponent
 public:
 	BusyComponent(Window* window);
 	~BusyComponent();
-  
+
 	void onSizeChanged() override;
 	void setText(std::string txt);
 
 	void reset(); // reset to frame 0
 	virtual void render(const Eigen::Affine3f& parentTrans);
+
 private:
 	NinePatchComponent mBackground;
 	ComponentGrid mGrid;
@@ -24,7 +25,7 @@ private:
 	std::shared_ptr<AnimatedImageComponent> mAnimation;
 	std::shared_ptr<TextComponent> mText;
 
-	SDL_mutex *mutex;
+	SDL_mutex* mutex;
 	bool threadMessagechanged;
 	std::string threadMessage;
 };

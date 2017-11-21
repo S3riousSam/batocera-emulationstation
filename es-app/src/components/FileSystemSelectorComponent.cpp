@@ -18,11 +18,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
-*/
+ */
 #include "FileSystemSelectorComponent.h"
-#include "Renderer.h"
-#include "Log.h"
 #include "LocaleES.h"
+#include "Log.h"
+#include "Renderer.h"
 
 #define DEFAULT_FONT Font::get(FONT_SIZE_MEDIUM)
 #define DEFAULT_COLOR 0x777777FF
@@ -35,26 +35,31 @@ typedef fssc::FileEntry fe;
 
 struct ModePredicter : public std::unary_function<const fe*, bool>
 {
-	ModePredicter(fssc::Mode m) : mode(m) {
+	ModePredicter(fssc::Mode m)
+		: mode(m)
+	{
 	}
 
-	bool operator()(const fe* entry) {
-		switch (mode) {
-			case fssc::FilesShowFolders:
-			case fssc::FoldersShowFiles:
-				return (entry->type & fssc::FileInternal) || (entry->type & fssc::FolderInternal);
+	bool operator()(const fe* entry)
+	{
+		switch (mode)
+		{
+		case fssc::FilesShowFolders:
+		case fssc::FoldersShowFiles:
+			return (entry->type & fssc::FileInternal) || (entry->type & fssc::FolderInternal);
 
-			case fssc::FilesHideFolders:
-				return (entry->type & fssc::FileInternal);
+		case fssc::FilesHideFolders:
+			return (entry->type & fssc::FileInternal);
 
-			case fssc::FoldersHideFiles:
-				return (entry->type & fssc::FolderInternal);
+		case fssc::FoldersHideFiles:
+			return (entry->type & fssc::FolderInternal);
 		}
 
 		return false;
 	}
 
-	bool operator()(const fe& entry) {
+	bool operator()(const fe& entry)
+	{
 		return operator()(&entry);
 	}
 
@@ -62,12 +67,14 @@ private:
 	fssc::Mode mode;
 };
 
-bool sortPredicter(const fe& lhs, const fe& rhs) {
+bool sortPredicter(const fe& lhs, const fe& rhs)
+{
 	const std::string leftName = strToUpper(lhs.filePath.filename().string());
 	const std::string rightName = strToUpper(rhs.filePath.filename().string());
 
-	if (((lhs.type & fssc::FolderInternal) && (rhs.type & fssc::FolderInternal))
-			|| ((lhs.type & fssc::FileInternal) && (rhs.type & fssc::FileInternal))) {
+	if (((lhs.type & fssc::FolderInternal) && (rhs.type & fssc::FolderInternal)) ||
+		((lhs.type & fssc::FileInternal) && (rhs.type & fssc::FileInternal)))
+	{
 		return leftName.compare(rightName) < 0;
 	}
 
@@ -92,7 +99,8 @@ void FileSystemSelectorComponent::init(const fssc::Mode mode, const fs::path& pa
 	m_currentPathLabel = std::make_shared<TextComponent>(mWindow, std::string(), Font::get(FONT_SIZE_SMALL), 0xCC0000FF, ALIGN_CENTER);
 
 	setTitle(titleForCurrentMode().c_str());
-	if (!setCurrentPath(path)) {
+	if (!setCurrentPath(path))
+	{
 		setCurrentPath(getHomePath());
 	}
 	addChild(m_currentPathLabel.get());
@@ -104,55 +112,67 @@ bool FileSystemSelectorComponent::input(InputConfig* config, Input input)
 	const fs::path path = selectedFilePath();
 	const fe::Type type = filePathType(path);
 
-	if (config->isMappedTo("b", input) && input.value) { // cd in
-		if (!path.empty()) {
+	if (config->isMappedTo("b", input) && input.value)
+	{ // cd in
+		if (!path.empty())
+		{
 			setCurrentPath(path);
 		}
 
 		return true;
 	}
-	else if (config->isMappedTo("a", input) && input.value) { // cd up
-		switch (m_mode) {
-			case fssc::FilesShowFolders:
-			case fssc::FoldersShowFiles:
-			case fssc::FoldersHideFiles:
-				setCurrentPath(m_currentPath.parent_path());
-				break;
+	else if (config->isMappedTo("a", input) && input.value)
+	{ // cd up
+		switch (m_mode)
+		{
+		case fssc::FilesShowFolders:
+		case fssc::FoldersShowFiles:
+		case fssc::FoldersHideFiles:
+			setCurrentPath(m_currentPath.parent_path());
+			break;
 
-			case fssc::FilesHideFolders:
-				break;
+		case fssc::FilesHideFolders:
+			break;
 		}
 
 		return true;
 	}
-	else if (config->isMappedTo("x", input) && input.value) { // select
-		if (m_acceptCallback) {
-			switch (m_mode) {
-				case fssc::FilesHideFolders:
-				case fssc::FilesShowFolders: {
-					if (type & fssc::FileInternal) {
-						m_acceptCallback(path);
-						delete this;
-					}
-
-					break;
+	else if (config->isMappedTo("x", input) && input.value)
+	{ // select
+		if (m_acceptCallback)
+		{
+			switch (m_mode)
+			{
+			case fssc::FilesHideFolders:
+			case fssc::FilesShowFolders:
+			{
+				if (type & fssc::FileInternal)
+				{
+					m_acceptCallback(path);
+					delete this;
 				}
 
-				case fssc::FoldersHideFiles:
-				case fssc::FoldersShowFiles: {
-					if (type & fssc::FolderInternal) {
-						m_acceptCallback(path);
-						delete this;
-					}
+				break;
+			}
 
-					break;
+			case fssc::FoldersHideFiles:
+			case fssc::FoldersShowFiles:
+			{
+				if (type & fssc::FolderInternal)
+				{
+					m_acceptCallback(path);
+					delete this;
 				}
+
+				break;
+			}
 			}
 		}
 
 		return true;
 	}
-	else if (config->isMappedTo("y", input) && input.value) { // exit
+	else if (config->isMappedTo("y", input) && input.value)
+	{ // exit
 		delete this;
 		return true;
 	}
@@ -166,50 +186,62 @@ std::vector<HelpPrompt> FileSystemSelectorComponent::getHelpPrompts()
 
 	const fe::Type type = filePathType(selectedFilePath());
 
-	if (m_mode != fssc::FilesHideFolders) {
-		if (type & fssc::FolderInternal) {
+	if (m_mode != fssc::FilesHideFolders)
+	{
+		if (type & fssc::FolderInternal)
+		{
 			prompts.push_back(HelpPrompt("b", "cd in"));
 		}
 
-		if (m_currentPath != m_currentPath.root_path()) {
+		if (m_currentPath != m_currentPath.root_path())
+		{
 			prompts.push_back(HelpPrompt("a", "cd up"));
 		}
 	}
 
 	prompts.push_back(HelpPrompt("y", _("CANCEL")));
 
-	switch (m_mode) {
-		case fssc::FilesShowFolders: {
-			if (type & fssc::FileInternal) {
-				prompts.push_back(HelpPrompt("x", "select"));
-			}
-
-			break;
+	switch (m_mode)
+	{
+	case fssc::FilesShowFolders:
+	{
+		if (type & fssc::FileInternal)
+		{
+			prompts.push_back(HelpPrompt("x", "select"));
 		}
 
-		case fssc::FoldersShowFiles: {
-			if (type & fssc::FolderInternal) {
-				prompts.push_back(HelpPrompt("x", "select"));
-			}
+		break;
+	}
 
-			break;
+	case fssc::FoldersShowFiles:
+	{
+		if (type & fssc::FolderInternal)
+		{
+			prompts.push_back(HelpPrompt("x", "select"));
 		}
 
-		case fssc::FoldersHideFiles: {
-			if (type & fssc::FolderInternal) {
-				prompts.push_back(HelpPrompt("x", "select"));
-			}
+		break;
+	}
 
-			break;
+	case fssc::FoldersHideFiles:
+	{
+		if (type & fssc::FolderInternal)
+		{
+			prompts.push_back(HelpPrompt("x", "select"));
 		}
 
-		case fssc::FilesHideFolders: {
-			if (type & fssc::FileInternal) {
-				prompts.push_back(HelpPrompt("x", "select"));
-			}
+		break;
+	}
 
-			break;
+	case fssc::FilesHideFolders:
+	{
+		if (type & fssc::FileInternal)
+		{
+			prompts.push_back(HelpPrompt("x", "select"));
 		}
+
+		break;
+	}
 	}
 
 	return prompts;
@@ -232,11 +264,13 @@ bool FileSystemSelectorComponent::setCurrentPath(const fs::path& currentPath)
 {
 	fs::path path = currentPath;
 
-	if (!fs::is_directory(path)) {
+	if (!fs::is_directory(path))
+	{
 		path = path.parent_path();
 	}
 
-	if (!fs::exists(path) || path.empty() || m_currentPath == path) {
+	if (!fs::exists(path) || path.empty() || m_currentPath == path)
+	{
 		return false;
 	}
 
@@ -247,26 +281,31 @@ bool FileSystemSelectorComponent::setCurrentPath(const fs::path& currentPath)
 
 	const std::vector<const fe*> entries = entriesForCurrentMode();
 
-	for (auto ientry = entries.cbegin(), end = entries.cend(); ientry != end; ++ientry) {
+	for (auto ientry = entries.cbegin(), end = entries.cend(); ientry != end; ++ientry)
+	{
 		const fe* entry = (*ientry);
 		ComponentListRow row(entry->filePath.string());
 		unsigned int color = DEFAULT_DISABLED_COLOR;
-		
+
 		// A folder
-		if (entry->type & fssc::FolderInternal) {
+		if (entry->type & fssc::FolderInternal)
+		{
 			// We want a folder
-			if (m_mode & fssc::FolderInternal) {
+			if (m_mode & fssc::FolderInternal)
+			{
 				color = DEFAULT_COLOR;
 			}
 		}
 		// A file
-		else if (entry->type & fssc::FileInternal) {
+		else if (entry->type & fssc::FileInternal)
+		{
 			// We want a file
-			if (m_mode & fssc::FileInternal) {
+			if (m_mode & fssc::FileInternal)
+			{
 				color = DEFAULT_COLOR;
 			}
 		}
-		
+
 		row.addElement(std::make_shared<TextComponent>(mWindow, entry->filePath.filename().string(), DEFAULT_FONT, color), true);
 		addRow(row, false, std::next(ientry) == entries.cend());
 	}
@@ -289,7 +328,7 @@ void FileSystemSelectorComponent::setFilters(const std::vector<std::string>& fil
 
 fs::path FileSystemSelectorComponent::selectedFilePath() const
 {
-	ComponentList *list = getList();
+	ComponentList* list = getList();
 	return list->isEmpty() ? fs::path() : list->getSelectedName();
 }
 
@@ -298,22 +337,24 @@ void FileSystemSelectorComponent::setSelectedFilePath(const fs::path& filePath)
 	getList()->setSelectedName(filePath.string());
 }
 
-void FileSystemSelectorComponent::setAcceptCallback(const std::function<void (const fs::path&)>& callback)
+void FileSystemSelectorComponent::setAcceptCallback(const std::function<void(const fs::path&)>& callback)
 {
 	m_acceptCallback = callback;
 }
 
-void FileSystemSelectorComponent::setCancelCallback(const std::function<void ()>& callback)
+void FileSystemSelectorComponent::setCancelCallback(const std::function<void()>& callback)
 {
 	m_cancelCallback = callback;
 }
 
 std::string FileSystemSelectorComponent::titleForCurrentMode() const
 {
-	if (m_mode & fssc::FileInternal) {
+	if (m_mode & fssc::FileInternal)
+	{
 		return std::string("Select a file");
 	}
-	else if (m_mode & fssc::FolderInternal) {
+	else if (m_mode & fssc::FolderInternal)
+	{
 		return std::string("Select a folder");
 	}
 
@@ -322,16 +363,18 @@ std::string FileSystemSelectorComponent::titleForCurrentMode() const
 
 fe::Type FileSystemSelectorComponent::filePathType(const fs::path& filePath) const
 {
-	if (!filePath.empty()) {
-		switch (fs::status(filePath).type()) {
-			case fs::regular_file:
-				return fe::File;
+	if (!filePath.empty())
+	{
+		switch (fs::status(filePath).type())
+		{
+		case fs::regular_file:
+			return fe::File;
 
-			case fs::directory_file:
-				return fe::Folder;
+		case fs::directory_file:
+			return fe::Folder;
 
-			case fs::symlink_file:
-				return fs::is_directory(filePath) ? fe::FolderSymLink : fe::FileSymLink;
+		case fs::symlink_file:
+			return fs::is_directory(filePath) ? fe::FolderSymLink : fe::FileSymLink;
 		}
 	}
 
@@ -340,16 +383,18 @@ fe::Type FileSystemSelectorComponent::filePathType(const fs::path& filePath) con
 
 void FileSystemSelectorComponent::populate(const fs::path& path)
 {
-	if (m_entries.find(path) != m_entries.cend()) {
+	if (m_entries.find(path) != m_entries.cend())
+	{
 		return;
 	}
 
-	if (!fs::is_directory(path)) {
+	if (!fs::is_directory(path))
+	{
 		LOG(LogWarning) << "Error - folder with path \"" << path.string() << "\" is not a directory!";
 		return;
 	}
 
-	//make sure that this isn't a symlink to a thing we already have
+	// make sure that this isn't a symlink to a thing we already have
 	/*if (fs::is_symlink(path)) {
 		//if this symlink resolves to somewhere that's at the beginning of our path, it's gonna recurse
 		if(folderStr.find(fs::canonical(folderPath).generic_string()) == 0)
@@ -359,8 +404,10 @@ void FileSystemSelectorComponent::populate(const fs::path& path)
 		}
 	}*/
 
-	try {
-		for (fs::directory_iterator dir(path), end; dir != end; ++dir) {
+	try
+	{
+		for (fs::directory_iterator dir(path), end; dir != end; ++dir)
+		{
 			const fs::path filePath = (*dir).path();
 
 			// Don't show entries without extensions
@@ -369,14 +416,17 @@ void FileSystemSelectorComponent::populate(const fs::path& path)
 			}*/
 
 			// don't show hidden entries
-			if (filePath.filename().string().compare(0, 1, ".") == 0) {
+			if (filePath.filename().string().compare(0, 1, ".") == 0)
+			{
 				continue;
 			}
 
-			if (!m_filters.empty()) {
+			if (!m_filters.empty())
+			{
 				const std::string extension = filePath.extension().string();
 
-				if (std::find(m_filters.begin(), m_filters.end(), extension) == m_filters.end()) {
+				if (std::find(m_filters.begin(), m_filters.end(), extension) == m_filters.end())
+				{
 					continue;
 				}
 			}
@@ -394,7 +444,8 @@ void FileSystemSelectorComponent::populate(const fs::path& path)
 		std::vector<fe>& entries = m_entries[path];
 		std::stable_sort(entries.begin(), entries.end(), sortPredicter);
 	}
-	catch (...) {
+	catch (...)
+	{
 	}
 }
 
@@ -402,7 +453,8 @@ std::vector<const fe*> FileSystemSelectorComponent::entriesForCurrentMode() cons
 {
 	auto it = m_entries.find(m_currentPath);
 
-	if (it == m_entries.cend()) {
+	if (it == m_entries.cend())
+	{
 		return std::vector<const fe*>();
 	}
 
@@ -412,10 +464,12 @@ std::vector<const fe*> FileSystemSelectorComponent::entriesForCurrentMode() cons
 
 	matches.reserve(entries.size());
 
-	for (auto pit = entries.cbegin(), end = entries.cend(); pit != end; ++pit) {
+	for (auto pit = entries.cbegin(), end = entries.cend(); pit != end; ++pit)
+	{
 		const fe* entry = &(*pit);
 
-		if (modePredicter(entry)) {
+		if (modePredicter(entry))
+		{
 			matches.push_back(entry);
 		}
 	}

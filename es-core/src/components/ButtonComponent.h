@@ -1,9 +1,9 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include <functional>
-#include "resources/Font.h"
 #include "components/NinePatchComponent.h"
+#include "resources/Font.h"
+#include <functional>
 #include <string>
 
 class ButtonComponent : public GuiComponent
@@ -20,15 +20,30 @@ public:
 
 	void setText(const std::string& text, const std::string& helpText);
 
-	inline const std::string& getText() const { return mText; };
-	inline const std::function<void()>& getPressedFunc() const { return mPressedFunc; };
+	inline const std::string& getText() const
+	{
+		return mText;
+	};
+	inline const std::function<void()>& getPressedFunc() const
+	{
+		return mPressedFunc;
+	};
 
 	void onSizeChanged() override;
 	void onFocusGained() override;
 	void onFocusLost() override;
 
-	void setColorShift(unsigned int color) { mModdedColor = color; mNewColor = true; updateImage(); }
-	void removeColorShift() { mNewColor = false; updateImage(); }
+	void setColorShift(unsigned int color)
+	{
+		mModdedColor = color;
+		mNewColor = true;
+		updateImage();
+	}
+	void removeColorShift()
+	{
+		mNewColor = false;
+		updateImage();
+	}
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
@@ -42,7 +57,7 @@ private:
 	unsigned int mTextColorFocused;
 	unsigned int mTextColorUnfocused;
 	unsigned int mModdedColor;
-	
+
 	unsigned int getCurTextColor() const;
 	void updateImage();
 

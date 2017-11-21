@@ -1,41 +1,40 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include "components/MenuComponent.h"
 #include "components/BusyComponent.h"
-
+#include "components/MenuComponent.h"
 
 #include <boost/thread.hpp>
 
-class GuiInstall : public GuiComponent {
+class GuiInstall : public GuiComponent
+{
 public:
-    GuiInstall(Window *window, std::string storageDevice, std::string architecture);
+	GuiInstall(Window* window, std::string storageDevice, std::string architecture);
 
-    virtual ~GuiInstall();
+	virtual ~GuiInstall();
 
-    void render(const Eigen::Affine3f &parentTrans) override;
+	void render(const Eigen::Affine3f& parentTrans) override;
 
-    bool input(InputConfig *config, Input input) override;
+	bool input(InputConfig* config, Input input) override;
 
-    std::vector<HelpPrompt> getHelpPrompts() override;
+	std::vector<HelpPrompt> getHelpPrompts() override;
 
-    void update(int deltaTime) override;
+	void update(int deltaTime) override;
 
 private:
-    BusyComponent mBusyAnim;
-    bool mLoading;
-    int mState;
-    std::pair<std::string, int> mResult;
+	BusyComponent mBusyAnim;
+	bool mLoading;
+	int mState;
+	std::pair<std::string, int> mResult;
 
-    std::string mstorageDevice;
-    std::string marchitecture;
-    
-    boost::thread *mHandle;
+	std::string mstorageDevice;
+	std::string marchitecture;
 
-    void onInstallError(std::pair<std::string, int>);
+	boost::thread* mHandle;
 
-    void onInstallOk();
+	void onInstallError(std::pair<std::string, int>);
 
-    void threadInstall();
+	void onInstallOk();
 
+	void threadInstall();
 };

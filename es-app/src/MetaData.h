@@ -1,26 +1,26 @@
 #pragma once
 
-#include "pugixml/pugixml.hpp"
-#include <string>
-#include <map>
 #include "GuiComponent.h"
+#include "pugixml/pugixml.hpp"
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
+#include <map>
+#include <string>
 
 enum MetaDataType
 {
-	//generic types
+	// generic types
 	MD_STRING,
 	MD_INT,
 	MD_BOOL,
 	MD_FLOAT,
 
-	//specialized types
+	// specialized types
 	MD_MULTILINE_STRING,
 	MD_IMAGE_PATH,
 	MD_RATING,
 	MD_DATE,
-	MD_TIME,//used for lastplayed
+	MD_TIME, // used for lastplayed
 	MD_LIST
 };
 
@@ -29,25 +29,27 @@ struct MetaDataDecl
 	std::string key;
 	MetaDataType type;
 	std::string defaultValue;
-	bool isStatistic; //if true, ignore scraper values for this metadata
+	bool isStatistic; // if true, ignore scraper values for this metadata
 	std::string displayName; // displayed as this in editors
 	std::string displayPrompt; // phrase displayed in editors when prompted to enter value (currently only for strings)
 
-  MetaDataDecl(std::string key, MetaDataType type, std::string defaultValue, bool isStatistic, std::string displayName, std::string displayPrompt) {
-    this->key = key;
-    this->type = type;
-    this->defaultValue = defaultValue;
-    this->isStatistic = isStatistic;
-    this->displayName = displayName;
-    this->displayPrompt = displayPrompt;
-  }
+	MetaDataDecl(std::string key, MetaDataType type, std::string defaultValue, bool isStatistic, std::string displayName, std::string displayPrompt)
+	{
+		this->key = key;
+		this->type = type;
+		this->defaultValue = defaultValue;
+		this->isStatistic = isStatistic;
+		this->displayName = displayName;
+		this->displayPrompt = displayPrompt;
+	}
 
-  MetaDataDecl(std::string key, MetaDataType type, std::string defaultValue, bool isStatistic) {
-    this->key = key;
-    this->type = type;
-    this->defaultValue = defaultValue;
-    this->isStatistic = isStatistic;
-  }
+	MetaDataDecl(std::string key, MetaDataType type, std::string defaultValue, bool isStatistic)
+	{
+		this->key = key;
+		this->type = type;
+		this->defaultValue = defaultValue;
+		this->isStatistic = isStatistic;
+	}
 };
 
 enum MetaDataListType
@@ -69,7 +71,8 @@ public:
 
 	void set(const std::string& key, const std::string& value);
 	void merge(const MetaDataList& other);
-	void setTime(const std::string& key, const boost::posix_time::ptime& time); //times are internally stored as ISO strings (e.g. boost::posix_time::to_iso_string(ptime))
+	void setTime(const std::string& key,
+		const boost::posix_time::ptime& time); // times are internally stored as ISO strings (e.g. boost::posix_time::to_iso_string(ptime))
 
 	const std::string& get(const std::string& key) const;
 	int getInt(const std::string& key) const;
@@ -81,8 +84,14 @@ public:
 	bool wasChanged() const;
 	void resetChangedFlag();
 
-	inline MetaDataListType getType() const { return mType; }
-	inline const std::vector<MetaDataDecl>& getMDD() const { return getMDDByType(getType()); }
+	inline MetaDataListType getType() const
+	{
+		return mType;
+	}
+	inline const std::vector<MetaDataDecl>& getMDD() const
+	{
+		return getMDDByType(getType());
+	}
 
 private:
 	MetaDataListType mType;

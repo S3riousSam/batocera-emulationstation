@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include "components/NinePatchComponent.h"
 #include "components/ComponentGrid.h"
+#include "components/NinePatchComponent.h"
 #include "scrapers/Scraper.h"
 
 #include <queue>
@@ -23,7 +23,7 @@ private:
 	void acceptResult(const ScraperSearchResult& result);
 	void skip();
 	void doNextSearch();
-	
+
 	void finish();
 
 	unsigned int mTotalGames;

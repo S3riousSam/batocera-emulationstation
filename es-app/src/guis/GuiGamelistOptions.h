@@ -1,8 +1,8 @@
+#include "FileSorts.h"
 #include "GuiComponent.h"
 #include "components/MenuComponent.h"
 #include "components/OptionListComponent.h"
 #include "components/SwitchComponent.h"
-#include "FileSorts.h"
 
 class IGameListView;
 
@@ -13,7 +13,10 @@ public:
 	virtual ~GuiGamelistOptions();
 
 	void save();
-	inline void addSaveFunc(const std::function<void()>& func) { mSaveFuncs.push_back(func); };
+	inline void addSaveFunc(const std::function<void()>& func)
+	{
+		mSaveFuncs.push_back(func);
+	};
 
 	virtual bool input(InputConfig* config, Input input) override;
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
@@ -21,10 +24,10 @@ public:
 private:
 	void openMetaDataEd();
 	void jumpToLetter();
-	
+
 	MenuComponent mMenu;
 
-	std::vector< std::function<void()> > mSaveFuncs;
+	std::vector<std::function<void()>> mSaveFuncs;
 
 	typedef OptionListComponent<char> LetterList;
 	std::shared_ptr<LetterList> mJumpToLetterList;
@@ -37,7 +40,7 @@ private:
 
 	bool mFavoriteState;
 	bool mHiddenState;
-	
+
 	SystemData* mSystem;
 	IGameListView* getGamelist();
 };

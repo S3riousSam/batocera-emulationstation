@@ -1,112 +1,111 @@
 #ifndef RECALBOX_SYSTEM
-#define    RECALBOX_SYSTEM
+#define RECALBOX_SYSTEM
 
-#include <string>
 #include "Window.h"
 #include "components/BusyComponent.h"
+#include <string>
 
-struct BiosFile {
-  std::string status;
-  std::string md5;
-  std::string path;
+struct BiosFile
+{
+	std::string status;
+	std::string md5;
+	std::string path;
 };
 
-struct BiosSystem {
-  std::string name;
-  std::vector<BiosFile> bios;
+struct BiosSystem
+{
+	std::string name;
+	std::vector<BiosFile> bios;
 };
 
-class RecalboxSystem {
+class RecalboxSystem
+{
 public:
+	static RecalboxSystem* getInstance();
 
-    static RecalboxSystem *getInstance();
+	const static Uint32 SDL_FAST_QUIT = 0x800F;
+	const static Uint32 SDL_RB_SHUTDOWN = 0X4000;
+	const static Uint32 SDL_RB_REBOOT = 0x2000;
 
-    const static Uint32 SDL_FAST_QUIT = 0x800F;
-    const static Uint32 SDL_RB_SHUTDOWN = 0X4000;
-    const static Uint32 SDL_RB_REBOOT = 0x2000;
+	unsigned long getFreeSpaceGB(std::string mountpoint);
 
-    unsigned long getFreeSpaceGB(std::string mountpoint);
+	std::string getFreeSpaceInfo();
 
-    std::string getFreeSpaceInfo();
+	bool isFreeSpaceLimit();
 
-    bool isFreeSpaceLimit();
+	std::string getVersion();
+	std::string getRootPassword();
 
-    std::string getVersion();
-    std::string getRootPassword();
+	bool setOverscan(bool enable);
 
-    bool setOverscan(bool enable);
+	bool setOverclock(std::string mode);
 
-    bool setOverclock(std::string mode);
+	bool createLastVersionFileIfNotExisting();
 
-    bool createLastVersionFileIfNotExisting();
+	bool updateLastVersionFile();
 
-    bool updateLastVersionFile();
+	bool needToShowVersionMessage();
 
-    bool needToShowVersionMessage();
+	std::string getVersionMessage();
 
-    std::string getVersionMessage();
+	std::pair<std::string, int> updateSystem(BusyComponent* ui);
+	std::pair<std::string, int> backupSystem(BusyComponent* ui, std::string device);
+	std::pair<std::string, int> installSystem(BusyComponent* ui, std::string device, std::string architecture);
+	std::pair<std::string, int> scrape(BusyComponent* ui);
 
-    std::pair<std::string, int> updateSystem(BusyComponent* ui);
-    std::pair<std::string, int> backupSystem(BusyComponent* ui, std::string device);
-    std::pair<std::string, int> installSystem(BusyComponent* ui, std::string device, std::string architecture);
-    std::pair<std::string, int> scrape(BusyComponent* ui);
+	bool ping();
 
-    bool ping();
+	bool canUpdate();
 
-    bool canUpdate();
+	bool launchKodi(Window* window);
+	bool launchFileManager(Window* window);
 
-    bool launchKodi(Window *window);
-    bool launchFileManager(Window *window);
+	bool enableWifi(std::string ssid, std::string key);
 
-    bool enableWifi(std::string ssid, std::string key);
+	bool disableWifi();
 
-    bool disableWifi();
+	bool reboot();
 
-    bool reboot();
+	bool shutdown();
 
-    bool shutdown();
+	bool fastReboot();
 
-    bool fastReboot();
+	bool fastShutdown();
 
-    bool fastShutdown();
+	std::string getIpAdress();
 
-    std::string getIpAdress();
+	std::vector<std::string>* scanBluetooth();
 
+	bool pairBluetooth(std::string& basic_string);
 
-    std::vector<std::string> *scanBluetooth();
+	std::vector<std::string> getAvailableStorageDevices();
+	std::vector<std::string> getAvailableBackupDevices();
+	std::vector<std::string> getAvailableInstallDevices();
+	std::vector<std::string> getAvailableInstallArchitectures();
+	std::vector<std::string> getSystemInformations();
+	std::vector<BiosSystem> getBiosInformations();
+	bool generateSupportFile();
 
-    bool pairBluetooth(std::string &basic_string);
+	std::string getCurrentStorage();
 
-    std::vector<std::string> getAvailableStorageDevices();
-    std::vector<std::string> getAvailableBackupDevices();
-    std::vector<std::string> getAvailableInstallDevices();
-    std::vector<std::string> getAvailableInstallArchitectures();
-    std::vector<std::string> getSystemInformations();
-    std::vector<BiosSystem> getBiosInformations();
-    bool generateSupportFile();
+	bool setStorage(std::string basic_string);
 
-    std::string getCurrentStorage();
+	bool forgetBluetoothControllers();
 
-    bool setStorage(std::string basic_string);
+	/* audio card */
+	bool setAudioOutputDevice(std::string device);
+	std::vector<std::string> getAvailableAudioOutputDevices();
+	std::string getCurrentAudioOutputDevice();
 
-    bool forgetBluetoothControllers();
-
-    /* audio card */
-    bool setAudioOutputDevice(std::string device);
-    std::vector<std::string> getAvailableAudioOutputDevices();
-    std::string getCurrentAudioOutputDevice();
-
-    /* video output */
-    std::vector<std::string> getAvailableVideoOutputDevices();
+	/* video output */
+	std::vector<std::string> getAvailableVideoOutputDevices();
 
 private:
-    static RecalboxSystem *instance;
+	static RecalboxSystem* instance;
 
-    RecalboxSystem();
+	RecalboxSystem();
 
-    bool halt(bool reboot, bool fast);
-
+	bool halt(bool reboot, bool fast);
 };
 
 #endif
-

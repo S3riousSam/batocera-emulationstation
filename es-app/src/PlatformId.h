@@ -26,7 +26,7 @@ namespace PlatformIds
 		COMMODORE_64,
 		FAMILY_COMPUTER_DISK_SYSTEM,
 		INTELLIVISION,
-        	MACOS,
+		MACOS,
 		XBOX,
 		XBOX_360,
 		MSX,
@@ -84,4 +84,4 @@ namespace PlatformIds
 	const char* getPlatformName(PlatformId id);
 
 	const char* getCleanMameName(const char* from);
-}
+} // namespace PlatformIds

@@ -2,14 +2,16 @@
 
 #include "views/gamelist/IGameListView.h"
 
-#include "components/TextComponent.h"
 #include "components/ImageComponent.h"
+#include "components/TextComponent.h"
 
 class ISimpleGameListView : public IGameListView
 {
 public:
 	ISimpleGameListView(Window* window, FileData* root);
-	virtual ~ISimpleGameListView() {}
+	virtual ~ISimpleGameListView()
+	{
+	}
 
 	// Called when a new file is added, a file is removed, a file's metadata changes, or a file's children are sorted.
 	// NOTE: FILE_SORTED is only reported for the topmost FileData, where the sort started.
@@ -26,9 +28,13 @@ public:
 
 	virtual bool input(InputConfig* config, Input input) override;
 
-	virtual inline void updateInfoPanel() override {}
+	virtual inline void updateInfoPanel() override
+	{
+	}
 
-	virtual inline void populateList(const std::vector<FileData*>& files) override {}
+	virtual inline void populateList(const std::vector<FileData*>& files) override
+	{
+	}
 
 protected:
 	virtual void launch(FileData* game) = 0;
@@ -42,5 +48,5 @@ protected:
 	std::stack<FileData*> mCursorStack;
 
 private:
-   bool mFavoriteChange;
+	bool mFavoriteChange;
 };

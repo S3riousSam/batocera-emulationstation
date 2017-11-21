@@ -11,18 +11,33 @@ public:
 	virtual ~GuiSettings(); // just calls save();
 
 	void save();
-	inline void addRow(const ComponentListRow& row) { mMenu.addRow(row); };
-	inline void addWithLabel(const std::string& label, const std::shared_ptr<GuiComponent>& comp) { mMenu.addWithLabel(label, comp); };
-	inline void addSaveFunc(const std::function<void()>& func) { mSaveFuncs.push_back(func); };
-        inline void setSave(bool sav) { doSave = sav; };
+	inline void addRow(const ComponentListRow& row)
+	{
+		mMenu.addRow(row);
+	};
+	inline void addWithLabel(const std::string& label, const std::shared_ptr<GuiComponent>& comp)
+	{
+		mMenu.addWithLabel(label, comp);
+	};
+	inline void addSaveFunc(const std::function<void()>& func)
+	{
+		mSaveFuncs.push_back(func);
+	};
+	inline void setSave(bool sav)
+	{
+		doSave = sav;
+	};
 
 	bool input(InputConfig* config, Input input) override;
 	std::vector<HelpPrompt> getHelpPrompts() override;
 
-	inline MenuComponent *getMenu() const { return &mMenu; }
+	inline MenuComponent* getMenu() const
+	{
+		return &mMenu;
+	}
 
 private:
-        bool doSave = true;
+	bool doSave = true;
 	mutable MenuComponent mMenu;
-	std::vector< std::function<void()> > mSaveFuncs;
+	std::vector<std::function<void()>> mSaveFuncs;
 };

@@ -2,10 +2,10 @@
 
 #include "resources/ResourceManager.h"
 
-#include <string>
-#include <Eigen/Dense>
 #include "platform.h"
 #include "platform_gl.h"
+#include <Eigen/Dense>
+#include <string>
 
 // An OpenGL texture.
 // Automatically recreates the texture with renderer deinit/reinit.
@@ -18,12 +18,12 @@ public:
 
 	virtual void unload(std::shared_ptr<ResourceManager>& rm) override;
 	virtual void reload(std::shared_ptr<ResourceManager>& rm) override;
-	
+
 	bool isInitialized() const;
 	bool isTiled() const;
 	const Eigen::Vector2i& getSize() const;
 	void bind() const;
-	
+
 	// Warning: will NOT correctly reinitialize when this texture is reloaded (e.g. ES starts/stops playing a game).
 	virtual void initFromMemory(const char* file, size_t length);
 
@@ -45,7 +45,7 @@ private:
 	GLuint mTextureID;
 
 	typedef std::pair<std::string, bool> TextureKeyType;
-	static std::map< TextureKeyType, std::weak_ptr<TextureResource> > sTextureMap; // map of textures, used to prevent duplicate textures
+	static std::map<TextureKeyType, std::weak_ptr<TextureResource>> sTextureMap; // map of textures, used to prevent duplicate textures
 
-	static std::list< std::weak_ptr<TextureResource> > sTextureList; // list of all textures, used for memory approximations
+	static std::list<std::weak_ptr<TextureResource>> sTextureList; // list of all textures, used for memory approximations
 };

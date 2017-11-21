@@ -1,8 +1,8 @@
 #pragma once
-#include <string>
 #include <map>
+#include <string>
 
-//This is a singleton for storing settings.
+// This is a singleton for storing settings.
 class Settings
 {
 public:
@@ -11,7 +11,7 @@ public:
 	void loadFile();
 	void saveFile();
 
-	//You will get a warning if you try a get on a key that is not already present.
+	// You will get a warning if you try a get on a key that is not already present.
 	bool getBool(const std::string& name);
 	int getInt(const std::string& name);
 	float getFloat(const std::string& name);
@@ -27,7 +27,7 @@ private:
 
 	Settings();
 
-	//Clear everything and load default values.
+	// Clear everything and load default values.
 	void setDefaults();
 
 	std::map<std::string, bool> mBoolMap;

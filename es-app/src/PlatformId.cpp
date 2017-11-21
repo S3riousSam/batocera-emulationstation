@@ -5,32 +5,13 @@ extern const char* mameNameToRealName[];
 
 namespace PlatformIds
 {
-	const char* PlatformNames[PLATFORM_COUNT + 1] = {
-		"unknown", // nothing set
+	const char* PlatformNames[PLATFORM_COUNT + 1] = {"unknown", // nothing set
 
-		"3do",
-		"amiga",
-		"amstradcpc",
-		"apple2",
-		"arcade",
-		"atari800",
-		"atari2600",
-		"atari5200",
-		"atari7800",
-		"atarilynx",
-		"atarist",
-		"atarijaguar",
-		"atarijaguarcd",
-		"atarixe",
-		"colecovision",
+		"3do", "amiga", "amstradcpc", "apple2", "arcade", "atari800", "atari2600", "atari5200", "atari7800", "atarilynx", "atarist", "atarijaguar",
+		"atarijaguarcd", "atarixe", "colecovision",
 		"c64", // commodore 64,
 		"fds", // Nintendo Family Computer Disk System
-		"intellivision",
-		"macintosh",
-		"xbox",
-		"xbox360",
-		"msx",
-		"neogeo",
+		"intellivision", "macintosh", "xbox", "xbox360", "msx", "neogeo",
 		"ngp", // neo geo pocket
 		"ngpc", // neo geo pocket color
 		"n3ds", // nintendo 3DS
@@ -41,53 +22,30 @@ namespace PlatformIds
 		"gba", // game boy advance
 		"gbc", // game boy color
 		"gc", // gamecube
-		"wii",
-		"wiiu",
-		"pc",
-		"sega32x",
-		"segacd",
-		"dreamcast",
-		"gamegear",
+		"wii", "wiiu", "pc", "sega32x", "segacd", "dreamcast", "gamegear",
 		"genesis", // sega genesis
 		"mastersystem", // sega master system
 		"megadrive", // sega megadrive
 		"saturn", // sega saturn
-		"psx",
-		"ps2",
-		"ps3",
-		"ps4",
-		"psvita",
+		"psx", "ps2", "ps3", "ps4", "psvita",
 		"psp", // playstation portable
 		"sg1000", // Sega SG1000
 		"snes", // super nintendo entertainment system
 		"pcengine", // turbografx-16/pcengine
-		"wonderswan",
-		"wonderswancolor",
-		"zxspectrum",
-		"virtualboy",
-		"gw",
-		"pcenginecd",
-		"supergrafx",
-		"prboom",
-		"vectrex",
-		"lutro",
-		"cavestory",
-		"odyssey2",
-		"zx81",
-		"moonlight",
+		"wonderswan", "wonderswancolor", "zxspectrum", "virtualboy", "gw", "pcenginecd", "supergrafx", "prboom", "vectrex", "lutro", "cavestory",
+		"odyssey2", "zx81", "moonlight",
 
 		"ignore", // do not allow scraping for this system
-		"invalid"
-	};
+		"invalid"};
 
 	PlatformId getPlatformId(const char* str)
 	{
-		if(str == NULL)
+		if (str == NULL)
 			return PLATFORM_UNKNOWN;
 
-		for(unsigned int i = 1; i < PLATFORM_COUNT; i++)
+		for (unsigned int i = 1; i < PLATFORM_COUNT; i++)
 		{
-			if(strcmp(PlatformNames[i], str) == 0)
+			if (strcmp(PlatformNames[i], str) == 0)
 				return (PlatformId)i;
 		}
 
@@ -103,12 +61,12 @@ namespace PlatformIds
 	{
 		const char** mameNames = mameNameToRealName;
 
-		while(*mameNames != NULL && strcmp(from, *mameNames) != 0)
+		while (*mameNames != NULL && strcmp(from, *mameNames) != 0)
 			mameNames += 2;
 
-		if(*mameNames)
+		if (*mameNames)
 			return *(mameNames + 1);
-		
+
 		return from;
 	}
-}
+} // namespace PlatformIds

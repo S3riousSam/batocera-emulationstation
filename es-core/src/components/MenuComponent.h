@@ -1,18 +1,18 @@
 #pragma once
 
-#include "components/NinePatchComponent.h"
-#include "components/ComponentList.h"
-#include "components/TextComponent.h"
-#include "components/ComponentGrid.h"
 #include "Util.h"
+#include "components/ComponentGrid.h"
+#include "components/ComponentList.h"
+#include "components/NinePatchComponent.h"
+#include "components/TextComponent.h"
 
 class ButtonComponent;
 class ImageComponent;
 
-std::shared_ptr<ComponentGrid> makeButtonGrid(Window* window, const std::vector< std::shared_ptr<ButtonComponent> >& buttons);
+std::shared_ptr<ComponentGrid> makeButtonGrid(Window* window, const std::vector<std::shared_ptr<ButtonComponent>>& buttons);
 std::shared_ptr<ImageComponent> makeArrow(Window* window);
 
-#define TITLE_VERT_PADDING (Renderer::getScreenHeight()*0.0637f)
+#define TITLE_VERT_PADDING (Renderer::getScreenHeight() * 0.0637f)
 
 class MenuComponent : public GuiComponent
 {
@@ -21,14 +21,21 @@ public:
 
 	void onSizeChanged() override;
 
-	inline void addRow(const ComponentListRow& row, bool setCursorHere = false, bool updateGeometry = true) { mList->addRow(row, setCursorHere, updateGeometry); if (updateGeometry) updateSize(); }
+	inline void addRow(const ComponentListRow& row, bool setCursorHere = false, bool updateGeometry = true)
+	{
+		mList->addRow(row, setCursorHere, updateGeometry);
+		if (updateGeometry)
+			updateSize();
+	}
 
-	inline void addWithLabel(const std::string& label, const std::shared_ptr<GuiComponent>& comp, bool setCursorHere = false, bool invert_when_selected = true, const std::function<void()>& acceptCallback = nullptr)
+	inline void addWithLabel(const std::string& label, const std::shared_ptr<GuiComponent>& comp, bool setCursorHere = false,
+		bool invert_when_selected = true, const std::function<void()>& acceptCallback = nullptr)
 	{
 		ComponentListRow row;
 		row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(label), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		row.addElement(comp, false, invert_when_selected);
-		if (acceptCallback) {
+		if (acceptCallback)
+		{
 			row.makeAcceptInputHandler(acceptCallback);
 		}
 		addRow(row, setCursorHere);
@@ -38,14 +45,27 @@ public:
 
 	void setTitle(const char* title, const std::shared_ptr<Font>& font = Font::get(FONT_SIZE_LARGE));
 
-	inline void setCursorToList() { mGrid.setCursorTo(mList); }
-	inline void setCursorToButtons() { assert(mButtonGrid); mGrid.setCursorTo(mButtonGrid); }
-	inline void clear() { mList->clear(); }
+	inline void setCursorToList()
+	{
+		mGrid.setCursorTo(mList);
+	}
+	inline void setCursorToButtons()
+	{
+		assert(mButtonGrid);
+		mGrid.setCursorTo(mButtonGrid);
+	}
+	inline void clear()
+	{
+		mList->clear();
+	}
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 protected:
-	inline ComponentList* getList() const { return mList.get(); }
+	inline ComponentList* getList() const
+	{
+		return mList.get();
+	}
 
 private:
 	void updateSize();
@@ -58,5 +78,5 @@ private:
 	std::shared_ptr<TextComponent> mTitle;
 	std::shared_ptr<ComponentList> mList;
 	std::shared_ptr<ComponentGrid> mButtonGrid;
-	std::vector< std::shared_ptr<ButtonComponent> > mButtons;
+	std::vector<std::shared_ptr<ButtonComponent>> mButtons;
 };

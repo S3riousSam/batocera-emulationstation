@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include <boost/date_time.hpp>
 #include "resources/Font.h"
+#include <boost/date_time.hpp>
 
 // Used to enter or display a specific point in time.
 class DateTimeComponent : public GuiComponent
@@ -28,7 +28,8 @@ public:
 	// Set how the point in time will be displayed:
 	//  * DISP_DATE - only display the date.
 	//  * DISP_DATE_TIME - display both the date and the time on that date.
-	//  * DISP_RELATIVE_TO_NOW - intelligently display the point in time relative to right now (e.g. "5 secs ago", "3 minutes ago", "1 day ago".  Automatically updates as time marches on.
+	//  * DISP_RELATIVE_TO_NOW - intelligently display the point in time relative to right now (e.g. "5 secs ago", "3 minutes ago", "1 day ago".
+	//  Automatically updates as time marches on.
 	// The initial value is DISP_DATE.
 	void setDisplayMode(DisplayMode mode);
 
@@ -36,14 +37,15 @@ public:
 	void setFont(std::shared_ptr<Font> font); // Font to display with. Default is Font::get(FONT_SIZE_MEDIUM).
 	void setUppercase(bool uppercase); // Force text to be uppercase when in DISP_RELATIVE_TO_NOW mode.
 
-	virtual void applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
+	virtual void applyTheme(
+		const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
 
 private:
 	std::shared_ptr<Font> getFont() const;
 
 	std::string getDisplayString(DisplayMode mode) const;
 	DisplayMode getCurrentDisplayMode() const;
-	
+
 	void updateTextCache();
 
 	boost::posix_time::ptime mTime;

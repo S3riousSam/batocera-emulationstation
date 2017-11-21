@@ -1,22 +1,24 @@
 #include "guis/GuiScraperMulti.h"
-#include "Renderer.h"
-#include "Log.h"
-#include "views/ViewController.h"
 #include "Gamelist.h"
+#include "Log.h"
+#include "Renderer.h"
+#include "views/ViewController.h"
 
-#include "components/TextComponent.h"
-#include "components/ButtonComponent.h"
-#include "components/ScraperSearchComponent.h"
-#include "components/MenuComponent.h" // for makeButtonGrid
-#include "guis/GuiMsgBox.h"
 #include "LocaleES.h"
+#include "components/ButtonComponent.h"
+#include "components/MenuComponent.h" // for makeButtonGrid
+#include "components/ScraperSearchComponent.h"
+#include "components/TextComponent.h"
+#include "guis/GuiMsgBox.h"
 
 using namespace boost::locale;
 using namespace Eigen;
 
-GuiScraperMulti::GuiScraperMulti(Window* window, const std::queue<ScraperSearchParams>& searches, bool approveResults) : 
-	GuiComponent(window), mBackground(window, ":/frame.png"), mGrid(window, Vector2i(1, 5)), 
-	mSearchQueue(searches)
+GuiScraperMulti::GuiScraperMulti(Window* window, const std::queue<ScraperSearchParams>& searches, bool approveResults)
+	: GuiComponent(window)
+	, mBackground(window, ":/frame.png")
+	, mGrid(window, Vector2i(1, 5))
+	, mSearchQueue(searches)
 {
 	assert(mSearchQueue.size());
 
@@ -40,23 +42,23 @@ GuiScraperMulti::GuiScraperMulti(Window* window, const std::queue<ScraperSearchP
 	mSubtitle = std::make_shared<TextComponent>(mWindow, _("subtitle text"), Font::get(FONT_SIZE_SMALL), 0x888888FF, ALIGN_CENTER);
 	mGrid.setEntry(mSubtitle, Vector2i(0, 2), false, true);
 
-	mSearchComp = std::make_shared<ScraperSearchComponent>(mWindow, 
-		approveResults ? ScraperSearchComponent::ALWAYS_ACCEPT_MATCHING_CRC : ScraperSearchComponent::ALWAYS_ACCEPT_FIRST_RESULT);
+	mSearchComp = std::make_shared<ScraperSearchComponent>(
+		mWindow, approveResults ? ScraperSearchComponent::ALWAYS_ACCEPT_MATCHING_CRC : ScraperSearchComponent::ALWAYS_ACCEPT_FIRST_RESULT);
 	mSearchComp->setAcceptCallback(std::bind(&GuiScraperMulti::acceptResult, this, std::placeholders::_1));
 	mSearchComp->setSkipCallback(std::bind(&GuiScraperMulti::skip, this));
 	mSearchComp->setCancelCallback(std::bind(&GuiScraperMulti::finish, this));
 	mGrid.setEntry(mSearchComp, Vector2i(0, 3), mSearchComp->getSearchType() != ScraperSearchComponent::ALWAYS_ACCEPT_FIRST_RESULT, true);
 
-	std::vector< std::shared_ptr<ButtonComponent> > buttons;
+	std::vector<std::shared_ptr<ButtonComponent>> buttons;
 
-	if(approveResults)
+	if (approveResults)
 	{
-	  buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("INPUT"), _("search"), [&] { 
-			mSearchComp->openInputScreen(mSearchQueue.front()); 
-			mGrid.resetCursor(); 
+		buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("INPUT"), _("search"), [&] {
+			mSearchComp->openInputScreen(mSearchQueue.front());
+			mGrid.resetCursor();
 		}));
 
-	  buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("SKIP"), _("SKIP"), [&] {
+		buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("SKIP"), _("SKIP"), [&] {
 			skip();
 			mGrid.resetCursor();
 		}));
@@ -76,7 +78,7 @@ GuiScraperMulti::GuiScraperMulti(Window* window, const std::queue<ScraperSearchP
 GuiScraperMulti::~GuiScraperMulti()
 {
 	// view type probably changed (basic -> detailed)
-	for(auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
 		ViewController::get()->reloadGameListView(*it, false);
 }
 
@@ -93,7 +95,7 @@ void GuiScraperMulti::onSizeChanged()
 
 void GuiScraperMulti::doNextSearch()
 {
-	if(mSearchQueue.empty())
+	if (mSearchQueue.empty())
 	{
 		finish();
 		return;
@@ -138,25 +140,27 @@ void GuiScraperMulti::skip()
 void GuiScraperMulti::finish()
 {
 	std::stringstream ss;
-	if(mTotalSuccessful == 0)
+	if (mTotalSuccessful == 0)
 	{
 		ss << _("WE CAN'T FIND ANY SYSTEMS!\n"
-			"CHECK THAT YOUR PATHS ARE CORRECT IN THE SYSTEMS CONFIGURATION FILE, AND "
-			"YOUR GAME DIRECTORY HAS AT LEAST ONE GAME WITH THE CORRECT EXTENSION."
-			);
-	} else {
-	  char strbuf[256];
-	  snprintf(strbuf, 256, ngettext("%i GAME SUCCESSFULLY SCRAPED!", "%i GAMES SUCCESSFULLY SCRAPED!", mTotalSuccessful).c_str(), mTotalSuccessful);
-	  ss << strbuf;
+				"CHECK THAT YOUR PATHS ARE CORRECT IN THE SYSTEMS CONFIGURATION FILE, AND "
+				"YOUR GAME DIRECTORY HAS AT LEAST ONE GAME WITH THE CORRECT EXTENSION.");
+	}
+	else
+	{
+		char strbuf[256];
+		snprintf(
+			strbuf, 256, ngettext("%i GAME SUCCESSFULLY SCRAPED!", "%i GAMES SUCCESSFULLY SCRAPED!", mTotalSuccessful).c_str(), mTotalSuccessful);
+		ss << strbuf;
 
-	  if(mTotalSkipped > 0) {
-	    snprintf(strbuf, 256, ngettext("%i GAME SKIPPED.", "%i GAMES SKIPPED.", mTotalSkipped).c_str(), mTotalSkipped);
-	    ss << "\n" << strbuf;
-	  }
+		if (mTotalSkipped > 0)
+		{
+			snprintf(strbuf, 256, ngettext("%i GAME SKIPPED.", "%i GAMES SKIPPED.", mTotalSkipped).c_str(), mTotalSkipped);
+			ss << "\n" << strbuf;
+		}
 	}
 
-	mWindow->pushGui(new GuiMsgBox(mWindow, ss.str(), 
-				       _("OK"), [&] { delete this; }));
+	mWindow->pushGui(new GuiMsgBox(mWindow, ss.str(), _("OK"), [&] { delete this; }));
 
 	mIsProcessing = false;
 }

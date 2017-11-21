@@ -1,10 +1,10 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include "components/ImageComponent.h"
-#include "components/TextComponent.h"
-#include "components/ScrollableContainer.h"
 #include "components/IList.h"
+#include "components/ImageComponent.h"
+#include "components/ScrollableContainer.h"
+#include "components/TextComponent.h"
 #include "resources/TextureResource.h"
 
 class SystemData;
@@ -33,14 +33,16 @@ public:
 	void populate();
 	void removeFavoriteSystem();
 	void manageFavorite();
-	void addSystem(SystemData * it);
+	void addSystem(SystemData* it);
 
 protected:
 	void onCursorChanged(const CursorState& state) override;
 
 private:
-	inline Eigen::Vector2f logoSize() const { return Eigen::Vector2f(mSize.x() * 0.25f, mSize.y() * 0.155f); }
-
+	inline Eigen::Vector2f logoSize() const
+	{
+		return Eigen::Vector2f(mSize.x() * 0.25f, mSize.y() * 0.155f);
+	}
 
 	TextComponent mSystemInfo;
 
@@ -48,5 +50,5 @@ private:
 	float mCamOffset;
 	float mExtrasCamOffset;
 	float mExtrasFadeOpacity;
-        SystemData * lastSystem;
+	SystemData* lastSystem;
 };

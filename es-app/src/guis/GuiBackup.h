@@ -1,40 +1,39 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include "components/MenuComponent.h"
 #include "components/BusyComponent.h"
-
+#include "components/MenuComponent.h"
 
 #include <boost/thread.hpp>
 
-class GuiBackup : public GuiComponent {
+class GuiBackup : public GuiComponent
+{
 public:
-    GuiBackup(Window *window, std::string storageDevice);
+	GuiBackup(Window* window, std::string storageDevice);
 
-    virtual ~GuiBackup();
+	virtual ~GuiBackup();
 
-    void render(const Eigen::Affine3f &parentTrans) override;
+	void render(const Eigen::Affine3f& parentTrans) override;
 
-    bool input(InputConfig *config, Input input) override;
+	bool input(InputConfig* config, Input input) override;
 
-    std::vector<HelpPrompt> getHelpPrompts() override;
+	std::vector<HelpPrompt> getHelpPrompts() override;
 
-    void update(int deltaTime) override;
+	void update(int deltaTime) override;
 
 private:
-    BusyComponent mBusyAnim;
-    bool mLoading;
-    int mState;
-    std::pair<std::string, int> mResult;
+	BusyComponent mBusyAnim;
+	bool mLoading;
+	int mState;
+	std::pair<std::string, int> mResult;
 
-    std::string mstorageDevice;
-    
-    boost::thread *mHandle;
+	std::string mstorageDevice;
 
-    void onBackupError(std::pair<std::string, int>);
+	boost::thread* mHandle;
 
-    void onBackupOk();
+	void onBackupError(std::pair<std::string, int>);
 
-    void threadBackup();
+	void onBackupOk();
 
+	void threadBackup();
 };

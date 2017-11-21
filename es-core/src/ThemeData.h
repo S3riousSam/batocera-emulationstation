@@ -1,16 +1,16 @@
 #pragma once
 
-#include <iostream>
-#include <sstream>
-#include <memory>
-#include <map>
-#include <deque>
-#include <string>
+#include "GuiComponent.h"
+#include "pugixml/pugixml.hpp"
+#include <Eigen/Dense>
 #include <boost/filesystem.hpp>
 #include <boost/variant.hpp>
-#include <Eigen/Dense>
-#include "pugixml/pugixml.hpp"
-#include "GuiComponent.h"
+#include <deque>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <sstream>
+#include <string>
 
 template<typename T>
 class TextListComponent;
@@ -47,15 +47,18 @@ class ThemeException : public std::exception
 public:
 	std::string msg;
 
-	virtual const char* what() const throw() { return msg.c_str(); }
+	virtual const char* what() const throw()
+	{
+		return msg.c_str();
+	}
 
 	template<typename T>
 	friend ThemeException& operator<<(ThemeException& e, T msg);
-	
+
 	inline void setFiles(const std::deque<boost::filesystem::path>& deque)
 	{
 		*this << "from theme \"" << deque.front().string() << "\"\n";
-		for(auto it = deque.begin() + 1; it != deque.end(); it++)
+		for (auto it = deque.begin() + 1; it != deque.end(); it++)
 			*this << "  (from included file \"" << (*it).string() << "\")\n";
 		*this << "    ";
 	}
@@ -73,7 +76,8 @@ ThemeException& operator<<(ThemeException& e, T appendMsg)
 class ThemeExtras : public GuiComponent
 {
 public:
-	ThemeExtras(Window* window) : GuiComponent(window) {};
+	ThemeExtras(Window* window)
+		: GuiComponent(window){};
 	virtual ~ThemeExtras();
 
 	// will take ownership of the components within extras (delete them in destructor or when setExtras is called again)
@@ -87,26 +91,37 @@ struct ThemeSet
 {
 	boost::filesystem::path path;
 
-	inline std::string getName() const { return path.stem().string(); }
-	inline boost::filesystem::path getThemePath(const std::string& system) const { return path/system/"theme.xml"; }
+	inline std::string getName() const
+	{
+		return path.stem().string();
+	}
+	inline boost::filesystem::path getThemePath(const std::string& system) const
+	{
+		return path / system / "theme.xml";
+	}
 };
 
 class ThemeData
 {
 public:
-
 	class ThemeElement
 	{
 	public:
 		bool extra;
 		std::string type;
 
-		std::map< std::string, boost::variant<Eigen::Vector2f, std::string, unsigned int, float, bool> > properties;
+		std::map<std::string, boost::variant<Eigen::Vector2f, std::string, unsigned int, float, bool>> properties;
 
 		template<typename T>
-		T get(const std::string& prop) const { return boost::get<T>(properties.at(prop)); }
+		T get(const std::string& prop) const
+		{
+			return boost::get<T>(properties.at(prop));
+		}
 
-		inline bool has(const std::string& prop) const { return (properties.find(prop) != properties.end()); }
+		inline bool has(const std::string& prop) const
+		{
+			return (properties.find(prop) != properties.end());
+		}
 	};
 
 private:
@@ -118,7 +133,6 @@ private:
 	};
 
 public:
-
 	ThemeData();
 
 	// throws ThemeException
@@ -147,7 +161,7 @@ public:
 	bool getHasFavoritesInTheme();
 
 private:
-	static std::map< std::string, std::map<std::string, ElementPropertyType> > sElementMap;
+	static std::map<std::string, std::map<std::string, ElementPropertyType>> sElementMap;
 
 	std::deque<boost::filesystem::path> mPaths;
 	float mVersion;

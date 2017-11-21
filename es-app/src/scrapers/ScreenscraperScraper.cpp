@@ -1,11 +1,11 @@
 #include "scrapers/ScreenscraperScraper.h"
 #include "Log.h"
-#include "pugixml/pugixml.hpp"
 #include "MetaData.h"
+#include "RecalboxConf.h"
 #include "Settings.h"
 #include "Util.h"
+#include "pugixml/pugixml.hpp"
 #include <boost/assign.hpp>
-#include "RecalboxConf.h"
 
 using namespace PlatformIds;
 const std::map<PlatformId, const char*> gamesdb_platformid_map = boost::assign::map_list_of
@@ -83,16 +83,18 @@ static const std::map<std::string, const char*> system_language_map = boost::ass
 	("en_US", "forcelangue=en&")
 	("pt_BR", "forcelangue=pt&");
 
-void screenscraper_generate_scraper_requests(const ScraperSearchParams& params, std::queue< std::unique_ptr<ScraperRequest> >& requests, 
-	std::vector<ScraperSearchResult>& results)
+void screenscraper_generate_scraper_requests(
+	const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results)
 {
 	std::string path = "screenscraper.recalbox.com/api/thegamedb/GetGame.php?";
 	std::string languageSystem = RecalboxConf::getInstance()->get("system.language");
 
-	if((system_language_map.find(languageSystem)) != system_language_map.end())
+	if ((system_language_map.find(languageSystem)) != system_language_map.end())
 	{
 		path += (system_language_map.find(languageSystem)->second);
-	}else{
+	}
+	else
+	{
 		path += "forcelangue=en&";
 	}
 
@@ -100,24 +102,28 @@ void screenscraper_generate_scraper_requests(const ScraperSearchParams& params, 
 
 	path += "name=" + HttpReq::urlEncode(cleanName);
 
-	if(params.system->getPlatformIds().empty())
+	if (params.system->getPlatformIds().empty())
 	{
 		// no platform specified, we're done
 		requests.push(std::unique_ptr<ScraperRequest>(new ScreenscraperRequest(results, path)));
-	}else{
-		// go through the list, we need to split this into multiple requests 
+	}
+	else
+	{
+		// go through the list, we need to split this into multiple requests
 		// because TheGamesDB API either sucks or I don't know how to use it properly...
 		std::string urlBase = path;
 		auto& platforms = params.system->getPlatformIds();
-		for(auto platformIt = platforms.begin(); platformIt != platforms.end(); platformIt++)
+		for (auto platformIt = platforms.begin(); platformIt != platforms.end(); platformIt++)
 		{
 			path = urlBase;
 			auto mapIt = gamesdb_platformid_map.find(*platformIt);
-			if(mapIt != gamesdb_platformid_map.end())
+			if (mapIt != gamesdb_platformid_map.end())
 			{
 				path += "&platform=";
 				path += HttpReq::urlEncode(mapIt->second);
-			}else{
+			}
+			else
+			{
 				LOG(LogWarning) << "Screenscraper scraper warning - no support for platform " << getPlatformName(*platformIt);
 			}
 
@@ -132,7 +138,7 @@ void ScreenscraperRequest::process(const std::unique_ptr<HttpReq>& req, std::vec
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result parseResult = doc.load(req->getContent().c_str());
-	if(!parseResult)
+	if (!parseResult)
 	{
 		std::stringstream ss;
 		ss << "ScreenscraperRequest - Error parsing XML. \n\t" << parseResult.description() << "";
@@ -147,7 +153,7 @@ void ScreenscraperRequest::process(const std::unique_ptr<HttpReq>& req, std::vec
 	std::string baseImageUrl = data.child("baseImgUrl").text().get();
 
 	pugi::xml_node game = data.child("Game");
-	while(game && results.size() < MAX_SCRAPER_RESULTS)
+	while (game && results.size() < MAX_SCRAPER_RESULTS)
 	{
 		ScraperSearchResult result;
 
@@ -162,18 +168,18 @@ void ScreenscraperRequest::process(const std::unique_ptr<HttpReq>& req, std::vec
 		result.mdl.set("genre", game.child("Genres").first_child().text().get());
 		result.mdl.set("players", game.child("Players").text().get());
 
-		if(Settings::getInstance()->getBool("ScrapeRatings") && game.child("Rating"))
+		if (Settings::getInstance()->getBool("ScrapeRatings") && game.child("Rating"))
 		{
 			result.mdl.set("rating", game.child("Rating").text().get());
 		}
 
 		pugi::xml_node images = game.child("Images");
 
-		if(images)
+		if (images)
 		{
 			pugi::xml_node art = images.find_child_by_attribute("boxart", "side", "front");
 
-			if(art)
+			if (art)
 			{
 				result.thumbnailUrl = baseImageUrl + art.attribute("thumb").as_string();
 				result.imageUrl = baseImageUrl + art.text().get();

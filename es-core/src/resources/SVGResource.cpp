@@ -1,13 +1,15 @@
 #include "SVGResource.h"
-#include "nanosvg/nanosvg.h"
-#include "nanosvg/nanosvgrast.h"
+#include "ImageIO.h"
 #include "Log.h"
 #include "Util.h"
-#include "ImageIO.h"
+#include "nanosvg/nanosvg.h"
+#include "nanosvg/nanosvgrast.h"
 
 #define DPI 96
 
-SVGResource::SVGResource(const std::string& path, bool tile) : TextureResource(path, tile), mSVGImage(NULL)
+SVGResource::SVGResource(const std::string& path, bool tile)
+	: TextureResource(path, tile)
+	, mSVGImage(NULL)
 {
 	mLastWidth = 0;
 	mLastHeight = 0;
@@ -38,13 +40,13 @@ void SVGResource::initFromMemory(const char* file, size_t length)
 	mSVGImage = nsvgParse(copy, "px", DPI);
 	free(copy);
 
-	if(!mSVGImage)
+	if (!mSVGImage)
 	{
 		LOG(LogError) << "Error parsing SVG image.";
 		return;
 	}
 
-	if(mLastWidth && mLastHeight)
+	if (mLastWidth && mLastHeight)
 		rasterizeAt(mLastWidth, mLastHeight);
 	else
 		rasterizeAt((size_t)round(mSVGImage->width), (size_t)round(mSVGImage->height));
@@ -52,20 +54,21 @@ void SVGResource::initFromMemory(const char* file, size_t length)
 
 void SVGResource::rasterizeAt(size_t width, size_t height)
 {
-	if(!mSVGImage || (width == 0 && height == 0))
+	if (!mSVGImage || (width == 0 && height == 0))
 		return;
 
-	if(width == 0)
+	if (width == 0)
 	{
 		// auto scale width to keep aspect
 		width = (size_t)round((height / mSVGImage->height) * mSVGImage->width);
-	}else if(height == 0)
+	}
+	else if (height == 0)
 	{
 		// auto scale height to keep aspect
 		height = (size_t)round((width / mSVGImage->width) * mSVGImage->height);
 	}
 
-	if(width != (size_t)round(mSVGImage->width) && height != (size_t)round(mSVGImage->height))
+	if (width != (size_t)round(mSVGImage->width) && height != (size_t)round(mSVGImage->height))
 	{
 		mLastWidth = width;
 		mLastHeight = height;
@@ -86,7 +89,7 @@ void SVGResource::rasterizeAt(size_t width, size_t height)
 
 Eigen::Vector2f SVGResource::getSourceImageSize() const
 {
-	if(mSVGImage)
+	if (mSVGImage)
 		return Eigen::Vector2f(mSVGImage->width, mSVGImage->height);
 
 	return Eigen::Vector2f::Zero();
@@ -94,7 +97,7 @@ Eigen::Vector2f SVGResource::getSourceImageSize() const
 
 void SVGResource::deinitSVG()
 {
-	if(mSVGImage)
+	if (mSVGImage)
 		nsvgDelete(mSVGImage);
 
 	mSVGImage = NULL;

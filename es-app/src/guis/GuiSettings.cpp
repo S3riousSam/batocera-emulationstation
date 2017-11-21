@@ -1,10 +1,12 @@
 #include "guis/GuiSettings.h"
-#include "Window.h"
-#include "Settings.h"
-#include "views/ViewController.h"
 #include "LocaleES.h"
+#include "Settings.h"
+#include "Window.h"
+#include "views/ViewController.h"
 
-GuiSettings::GuiSettings(Window* window, const char* title) : GuiComponent(window), mMenu(window, title)
+GuiSettings::GuiSettings(Window* window, const char* title)
+	: GuiComponent(window)
+	, mMenu(window, title)
 {
 	addChild(&mMenu);
 
@@ -16,15 +18,16 @@ GuiSettings::GuiSettings(Window* window, const char* title) : GuiComponent(windo
 
 GuiSettings::~GuiSettings()
 {
-	if(doSave) save();
+	if (doSave)
+		save();
 }
 
 void GuiSettings::save()
 {
-	if(!mSaveFuncs.size())
+	if (!mSaveFuncs.size())
 		return;
 
-	for(auto it = mSaveFuncs.begin(); it != mSaveFuncs.end(); it++)
+	for (auto it = mSaveFuncs.begin(); it != mSaveFuncs.end(); it++)
 		(*it)();
 
 	Settings::getInstance()->saveFile();
@@ -32,21 +35,21 @@ void GuiSettings::save()
 
 bool GuiSettings::input(InputConfig* config, Input input)
 {
-	if(config->isMappedTo("a", input) && input.value != 0)
+	if (config->isMappedTo("a", input) && input.value != 0)
 	{
 		delete this;
 		return true;
 	}
 
-	if(config->isMappedTo("start", input) && input.value != 0)
+	if (config->isMappedTo("start", input) && input.value != 0)
 	{
 		// close everything
 		Window* window = mWindow;
-		while(window->peekGui() && window->peekGui() != ViewController::get())
+		while (window->peekGui() && window->peekGui() != ViewController::get())
 			delete window->peekGui();
 		return true;
 	}
-	
+
 	return GuiComponent::input(config, input);
 }
 

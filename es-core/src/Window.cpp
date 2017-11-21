@@ -1,20 +1,27 @@
 #include "Window.h"
-#include <iostream>
-#include "Renderer.h"
 #include "AudioManager.h"
+#include "LocaleES.h"
 #include "Log.h"
+#include "RecalboxConf.h"
+#include "RecalboxSystem.h"
+#include "Renderer.h"
 #include "Settings.h"
-#include <algorithm>
-#include <iomanip>
 #include "components/HelpComponent.h"
 #include "components/ImageComponent.h"
 #include "guis/GuiMsgBox.h"
-#include "RecalboxSystem.h"
-#include "RecalboxConf.h"
-#include "LocaleES.h"
+#include <algorithm>
+#include <iomanip>
+#include <iostream>
 
-Window::Window() : mNormalizeNextUpdate(false), mFrameTimeElapsed(0), mFrameCountElapsed(0), mAverageDeltaTime(10), 
-	mAllowSleep(true), mSleeping(false), mTimeSinceLastInput(0), launchKodi(false)
+Window::Window()
+	: mNormalizeNextUpdate(false)
+	, mFrameTimeElapsed(0)
+	, mFrameCountElapsed(0)
+	, mAverageDeltaTime(10)
+	, mAllowSleep(true)
+	, mSleeping(false)
+	, mTimeSinceLastInput(0)
+	, launchKodi(false)
 {
 	mHelp = new HelpComponent(this);
 	mBackgroundOverlay = new ImageComponent(this);
@@ -26,9 +33,9 @@ Window::~Window()
 	delete mBackgroundOverlay;
 
 	// delete all our GUIs
-	while(peekGui())
+	while (peekGui())
 		delete peekGui();
-	
+
 	delete mHelp;
 }
 
@@ -40,18 +47,18 @@ void Window::pushGui(GuiComponent* gui)
 
 void Window::displayMessage(std::string message)
 {
-    mMessages.push_back(message);
+	mMessages.push_back(message);
 }
 
 void Window::removeGui(GuiComponent* gui)
 {
-	for(auto i = mGuiStack.begin(); i != mGuiStack.end(); i++)
+	for (auto i = mGuiStack.begin(); i != mGuiStack.end(); i++)
 	{
-		if(*i == gui)
+		if (*i == gui)
 		{
 			i = mGuiStack.erase(i);
 
-			if(i == mGuiStack.end() && mGuiStack.size()) // we just popped the stack and the stack is not empty
+			if (i == mGuiStack.end() && mGuiStack.size()) // we just popped the stack and the stack is not empty
 				mGuiStack.back()->updateHelpPrompts();
 
 			return;
@@ -61,7 +68,7 @@ void Window::removeGui(GuiComponent* gui)
 
 GuiComponent* Window::peekGui()
 {
-	if(mGuiStack.size() == 0)
+	if (mGuiStack.size() == 0)
 		return NULL;
 
 	return mGuiStack.back();
@@ -69,20 +76,21 @@ GuiComponent* Window::peekGui()
 
 bool Window::init(unsigned int width, unsigned int height, bool initRenderer)
 {
-    if (initRenderer) {
-        if(!Renderer::init(width, height))
-        {
-            LOG(LogError) << "Renderer failed to initialize!";
-            return false;
-        }
-    }
+	if (initRenderer)
+	{
+		if (!Renderer::init(width, height))
+		{
+			LOG(LogError) << "Renderer failed to initialize!";
+			return false;
+		}
+	}
 
 	InputManager::getInstance()->init();
 
 	ResourceManager::getInstance()->reloadAll();
 
-	//keep a reference to the default fonts, so they don't keep getting destroyed/recreated
-	if(mDefaultFonts.empty())
+	// keep a reference to the default fonts, so they don't keep getting destroyed/recreated
+	if (mDefaultFonts.empty())
 	{
 		mDefaultFonts.push_back(Font::get(FONT_SIZE_SMALL));
 		mDefaultFonts.push_back(Font::get(FONT_SIZE_MEDIUM));
@@ -92,7 +100,7 @@ bool Window::init(unsigned int width, unsigned int height, bool initRenderer)
 	mBackgroundOverlay->setResize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 
 	// update our help because font sizes probably changed
-	if(peekGui())
+	if (peekGui())
 		peekGui()->updateHelpPrompts();
 
 	return true;
@@ -107,13 +115,13 @@ void Window::deinit()
 
 void Window::textInput(const char* text)
 {
-	if(peekGui())
+	if (peekGui())
 		peekGui()->textInput(text);
 }
 
 void Window::input(InputConfig* config, Input input)
 {
-	if(mSleeping)
+	if (mSleeping)
 	{
 		// wake up
 		mTimeSinceLastInput = 0;
@@ -124,73 +132,81 @@ void Window::input(InputConfig* config, Input input)
 
 	mTimeSinceLastInput = 0;
 
-	if(config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_g && SDL_GetModState() & KMOD_LCTRL && Settings::getInstance()->getBool("Debug"))
+	if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_g && SDL_GetModState() & KMOD_LCTRL &&
+		Settings::getInstance()->getBool("Debug"))
 	{
 		// toggle debug grid with Ctrl-G
 		Settings::getInstance()->setBool("DebugGrid", !Settings::getInstance()->getBool("DebugGrid"));
 	}
-	else if(config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_t && SDL_GetModState() & KMOD_LCTRL && Settings::getInstance()->getBool("Debug"))
+	else if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_t && SDL_GetModState() & KMOD_LCTRL &&
+		Settings::getInstance()->getBool("Debug"))
 	{
 		// toggle TextComponent debug view with Ctrl-T
 		Settings::getInstance()->setBool("DebugText", !Settings::getInstance()->getBool("DebugText"));
 	}
-	else if(config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_F1)
+	else if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_F1)
 	{
-	  RecalboxSystem::getInstance()->launchFileManager(this);
+		RecalboxSystem::getInstance()->launchFileManager(this);
 	}
 	else
 	{
-            if(config->isMappedTo("x", input) && input.value && !launchKodi && RecalboxConf::getInstance()->get("kodi.enabled") == "1" && RecalboxConf::getInstance()->get("kodi.xbutton") == "1"){
-                launchKodi = true;
-                Window * window = this;
-                this->pushGui(new GuiMsgBox(this, _("DO YOU WANT TO START KODI MEDIA CENTER ?"), _("YES"),
-				[window, this] { 
-                                    if( ! RecalboxSystem::getInstance()->launchKodi(window)) {
-                                        LOG(LogWarning) << "Shutdown terminated with non-zero result!";
-                                    }
-                                    launchKodi = false;
-					    }, _("NO"), [this] {
-                                    launchKodi = false;
-                                }));
-            }else {
-		if(peekGui())
-			this->peekGui()->input(config, input);
-            }
+		if (config->isMappedTo("x", input) && input.value && !launchKodi && RecalboxConf::getInstance()->get("kodi.enabled") == "1" &&
+			RecalboxConf::getInstance()->get("kodi.xbutton") == "1")
+		{
+			launchKodi = true;
+			Window* window = this;
+			this->pushGui(new GuiMsgBox(this, _("DO YOU WANT TO START KODI MEDIA CENTER ?"), _("YES"),
+				[window, this] {
+					if (!RecalboxSystem::getInstance()->launchKodi(window))
+					{
+						LOG(LogWarning) << "Shutdown terminated with non-zero result!";
+					}
+					launchKodi = false;
+				},
+				_("NO"), [this] { launchKodi = false; }));
+		}
+		else
+		{
+			if (peekGui())
+				this->peekGui()->input(config, input);
+		}
 	}
 }
 
 void Window::update(int deltaTime)
 {
-    
-        if(!mMessages.empty()){
+	if (!mMessages.empty())
+	{
 		std::string message = mMessages.back();
 		mMessages.pop_back();
-                pushGui(new GuiMsgBox(this, message));
+		pushGui(new GuiMsgBox(this, message));
 	}
-	if(mNormalizeNextUpdate)
+	if (mNormalizeNextUpdate)
 	{
 		mNormalizeNextUpdate = false;
-		if(deltaTime > mAverageDeltaTime)
+		if (deltaTime > mAverageDeltaTime)
 			deltaTime = mAverageDeltaTime;
 	}
 
 	mFrameTimeElapsed += deltaTime;
 	mFrameCountElapsed++;
-	if(mFrameTimeElapsed > 500)
+	if (mFrameTimeElapsed > 500)
 	{
 		mAverageDeltaTime = mFrameTimeElapsed / mFrameCountElapsed;
-		
-		if(Settings::getInstance()->getBool("DrawFramerate"))
+
+		if (Settings::getInstance()->getBool("DrawFramerate"))
 		{
 			std::stringstream ss;
-			
+
 			// fps
 			ss << std::fixed << std::setprecision(1) << (1000.0f * (float)mFrameCountElapsed / (float)mFrameTimeElapsed) << "fps, ";
 			ss << std::fixed << std::setprecision(2) << ((float)mFrameTimeElapsed / (float)mFrameCountElapsed) << "ms";
 
 			// vram
-			float textureVramUsageMb = TextureResource::getTotalMemUsage() / 1000.0f / 1000.0f;;
-			float fontVramUsageMb = Font::getTotalMemUsage() / 1000.0f / 1000.0f;;
+			float textureVramUsageMb = TextureResource::getTotalMemUsage() / 1000.0f / 1000.0f;
+			;
+			float fontVramUsageMb = Font::getTotalMemUsage() / 1000.0f / 1000.0f;
+			;
 			float totalVramUsageMb = textureVramUsageMb + fontVramUsageMb;
 			ss << "\nVRAM: " << totalVramUsageMb << "mb (texs: " << textureVramUsageMb << "mb, fonts: " << fontVramUsageMb << "mb)";
 
@@ -203,7 +219,7 @@ void Window::update(int deltaTime)
 
 	mTimeSinceLastInput += deltaTime;
 
-	if(peekGui())
+	if (peekGui())
 		peekGui()->update(deltaTime);
 }
 
@@ -214,30 +230,30 @@ void Window::render()
 	mRenderedHelpPrompts = false;
 
 	// draw only bottom and top of GuiStack (if they are different)
-	if(mGuiStack.size())
+	if (mGuiStack.size())
 	{
 		auto& bottom = mGuiStack.front();
 		auto& top = mGuiStack.back();
 
 		bottom->render(transform);
-		if(bottom != top)
+		if (bottom != top)
 		{
 			mBackgroundOverlay->render(transform);
 			top->render(transform);
 		}
 	}
 
-	if(!mRenderedHelpPrompts)
+	if (!mRenderedHelpPrompts)
 		mHelp->render(transform);
 
-	if(Settings::getInstance()->getBool("DrawFramerate") && mFrameDataText)
+	if (Settings::getInstance()->getBool("DrawFramerate") && mFrameDataText)
 	{
 		Renderer::setMatrix(Eigen::Affine3f::Identity());
 		mDefaultFonts.at(1)->renderTextCache(mFrameDataText.get());
 	}
 
 	unsigned int screensaverTime = (unsigned int)Settings::getInstance()->getInt("ScreenSaverTime");
-	if(mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
+	if (mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 	{
 		renderScreenSaver();
 
@@ -279,8 +295,8 @@ void Window::renderWaitingScreen(const std::string& text)
 
 	auto& font = mDefaultFonts.at(1);
 	TextCache* cache = font->buildTextCache(text, 0, 0, 0x656565FF);
-	trans = trans.translate(Eigen::Vector3f(round((Renderer::getScreenWidth() - cache->metrics.size.x()) / 2.0f),
-											round(Renderer::getScreenHeight() * 0.835f), 0.0f));
+	trans = trans.translate(
+		Eigen::Vector3f(round((Renderer::getScreenWidth() - cache->metrics.size.x()) / 2.0f), round(Renderer::getScreenHeight() * 0.835f), 0.0f));
 	Renderer::setMatrix(trans);
 	font->renderTextCache(cache);
 	delete cache;
@@ -289,7 +305,7 @@ void Window::renderWaitingScreen(const std::string& text)
 }
 void Window::renderLoadingScreen()
 {
-  renderWaitingScreen(_("LOADING..."));
+	renderWaitingScreen(_("LOADING..."));
 }
 
 void Window::renderHelpPromptsEarly()
@@ -307,29 +323,33 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 
 	std::map<std::string, bool> inputSeenMap;
 	std::map<std::string, int> mappedToSeenMap;
-	for(auto it = prompts.begin(); it != prompts.end(); it++)
+	for (auto it = prompts.begin(); it != prompts.end(); it++)
 	{
 		// only add it if the same icon hasn't already been added
-	  if(inputSeenMap.insert(std::make_pair<std::string, bool>(it->first.c_str(), true)).second)
+		if (inputSeenMap.insert(std::make_pair<std::string, bool>(it->first.c_str(), true)).second)
 		{
 			// this symbol hasn't been seen yet, what about the action name?
 			auto mappedTo = mappedToSeenMap.find(it->second);
-			if(mappedTo != mappedToSeenMap.end())
+			if (mappedTo != mappedToSeenMap.end())
 			{
 				// yes, it has!
 
 				// can we combine? (dpad only)
-			  if((strcmp(it->first.c_str(), "up/down") == 0 && strcmp(addPrompts.at(mappedTo->second).first.c_str(), "left/right") == 0) ||
-			     (strcmp(it->first.c_str(), "left/right") == 0 && strcmp(addPrompts.at(mappedTo->second).first.c_str(), "up/down") == 0))
+				if ((strcmp(it->first.c_str(), "up/down") == 0 && strcmp(addPrompts.at(mappedTo->second).first.c_str(), "left/right") == 0) ||
+					(strcmp(it->first.c_str(), "left/right") == 0 && strcmp(addPrompts.at(mappedTo->second).first.c_str(), "up/down") == 0))
 				{
 					// yes!
-				  addPrompts.at(mappedTo->second).first = "up/down/left/right";
+					addPrompts.at(mappedTo->second).first = "up/down/left/right";
 					// don't need to add this to addPrompts since we just merged
-				}else{
+				}
+				else
+				{
 					// no, we can't combine!
 					addPrompts.push_back(*it);
 				}
-			}else{
+			}
+			else
+			{
 				// no, it hasn't!
 				mappedToSeenMap.insert(std::pair<std::string, int>(it->second, addPrompts.size()));
 				addPrompts.push_back(*it);
@@ -339,24 +359,17 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 
 	// sort prompts so it goes [dpad_all] [dpad_u/d] [dpad_l/r] [a/b/x/y/l/r] [start/select]
 	std::sort(addPrompts.begin(), addPrompts.end(), [](const HelpPrompt& a, const HelpPrompt& b) -> bool {
-		
-		static const char* map[] = {
-			"up/down/left/right",
-			"up/down",
-			"left/right",
-			"a", "b", "x", "y", "l", "r", 
-			"start", "select", 
-			NULL
-		};
-		
+
+		static const char* map[] = {"up/down/left/right", "up/down", "left/right", "a", "b", "x", "y", "l", "r", "start", "select", NULL};
+
 		int i = 0;
 		int aVal = 0;
 		int bVal = 0;
-		while(map[i] != NULL)
+		while (map[i] != NULL)
 		{
-			if(a.first == map[i])
+			if (a.first == map[i])
 				aVal = i;
-			if(b.first == map[i])
+			if (b.first == map[i])
 				bVal = i;
 			i++;
 		}
@@ -367,20 +380,17 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 	mHelp->setPrompts(addPrompts);
 }
 
-
 void Window::onSleep()
 {
-
 }
 
 void Window::onWake()
 {
-
 }
 
-void Window::renderShutdownScreen() {
-  renderWaitingScreen(_("PLEASE WAIT..."));
-
+void Window::renderShutdownScreen()
+{
+	renderWaitingScreen(_("PLEASE WAIT..."));
 }
 
 bool Window::isProcessing()

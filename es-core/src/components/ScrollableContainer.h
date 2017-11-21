@@ -19,12 +19,10 @@ public:
 	int mAutoScrollResetAccumulator;
 	int mAutoScrollAccumulator;
 
-
 private:
 	Eigen::Vector2f getContentSize();
 
 	Eigen::Vector2f mScrollPos;
 	Eigen::Vector2f mScrollDir;
 	bool mAtEnd;
-
 };

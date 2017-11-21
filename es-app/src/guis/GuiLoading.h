@@ -5,38 +5,36 @@
 #ifndef EMULATIONSTATION_ALL_GUILOADING_H
 #define EMULATIONSTATION_ALL_GUILOADING_H
 
-
 #include "GuiComponent.h"
-#include "components/MenuComponent.h"
 #include "components/BusyComponent.h"
-
+#include "components/MenuComponent.h"
 
 #include <boost/thread.hpp>
 
-class GuiLoading  : public GuiComponent {
+class GuiLoading : public GuiComponent
+{
 public:
-    GuiLoading(Window *window, const std::function<void *()> &mFunc, const std::function<void(void *)> &mFunc2);
-    GuiLoading(Window *window, const std::function<void *()> &mFunc);
+	GuiLoading(Window* window, const std::function<void*()>& mFunc, const std::function<void(void*)>& mFunc2);
+	GuiLoading(Window* window, const std::function<void*()>& mFunc);
 
-    virtual ~GuiLoading();
+	virtual ~GuiLoading();
 
-    void render(const Eigen::Affine3f &parentTrans) override;
+	void render(const Eigen::Affine3f& parentTrans) override;
 
-    bool input(InputConfig *config, Input input) override;
+	bool input(InputConfig* config, Input input) override;
 
-    std::vector<HelpPrompt> getHelpPrompts() override;
+	std::vector<HelpPrompt> getHelpPrompts() override;
 
-    void update(int deltaTime) override;
+	void update(int deltaTime) override;
 
 private:
-    BusyComponent mBusyAnim;
-    boost::thread *mHandle;
-    bool mRunning;
-    const std::function<void*()>& mFunc;
-    const std::function<void(void *)>& mFunc2;
-    void threadLoading();
-    void * result;
+	BusyComponent mBusyAnim;
+	boost::thread* mHandle;
+	bool mRunning;
+	const std::function<void*()>& mFunc;
+	const std::function<void(void*)>& mFunc2;
+	void threadLoading();
+	void* result;
 };
 
-
-#endif //EMULATIONSTATION_ALL_GUILOADING_H
+#endif // EMULATIONSTATION_ALL_GUILOADING_H

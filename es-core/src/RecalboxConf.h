@@ -5,31 +5,29 @@
 #ifndef EMULATIONSTATION_ALL_RECALBOXCONF_H
 #define EMULATIONSTATION_ALL_RECALBOXCONF_H
 
-
-#include <string>
 #include <map>
+#include <string>
 
-class RecalboxConf {
-
+class RecalboxConf
+{
 public:
-    RecalboxConf();
+	RecalboxConf();
 
-    bool loadRecalboxConf();
+	bool loadRecalboxConf();
 
-    bool saveRecalboxConf();
+	bool saveRecalboxConf();
 
-    std::string get(const std::string &name);
-    std::string get(const std::string &name, const std::string &defaut);
+	std::string get(const std::string& name);
+	std::string get(const std::string& name, const std::string& defaut);
 
-    void set(const std::string &name, const std::string &value);
+	void set(const std::string& name, const std::string& value);
 
-    static RecalboxConf *sInstance;
+	static RecalboxConf* sInstance;
 
-    static RecalboxConf *getInstance();
+	static RecalboxConf* getInstance();
+
 private:
-    std::map<std::string, std::string> confMap;
-
+	std::map<std::string, std::string> confMap;
 };
 
-
-#endif //EMULATIONSTATION_ALL_RECALBOXCONF_H
+#endif // EMULATIONSTATION_ALL_RECALBOXCONF_H

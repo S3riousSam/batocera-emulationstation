@@ -18,7 +18,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
-*/
+ */
 #pragma once
 
 #include "components/MenuComponent.h"
@@ -31,7 +31,8 @@
 class FileSystemSelectorComponent : public MenuComponent
 {
 private:
-	enum InternalType {
+	enum InternalType
+	{
 		InvalidInternal = 0x0,
 		FileInternal = 0x1,
 		FolderInternal = 0x2,
@@ -41,15 +42,18 @@ private:
 	};
 
 public:
-	enum Mode {
+	enum Mode
+	{
 		FilesShowFolders = FileInternal | ShowInternal,
 		FilesHideFolders = FileInternal | HideInternal,
 		FoldersShowFiles = FolderInternal | ShowInternal,
 		FoldersHideFiles = FolderInternal | HideInternal
 	};
 
-	struct FileEntry {
-		enum Type {
+	struct FileEntry
+	{
+		enum Type
+		{
 			InvalidType = InvalidInternal,
 			File = FileInternal,
 			FileSymLink = FileInternal | SymLinkInternal,
@@ -62,7 +66,8 @@ public:
 	};
 
 	FileSystemSelectorComponent(Window* window, const FileSystemSelectorComponent::Mode mode = FileSystemSelectorComponent::FilesShowFolders);
-	FileSystemSelectorComponent(Window* window, const boost::filesystem::path& path, const FileSystemSelectorComponent::Mode mode = FileSystemSelectorComponent::FilesShowFolders);
+	FileSystemSelectorComponent(Window* window, const boost::filesystem::path& path,
+		const FileSystemSelectorComponent::Mode mode = FileSystemSelectorComponent::FilesShowFolders);
 
 	bool input(InputConfig* config, Input input) override;
 	std::vector<HelpPrompt> getHelpPrompts() override;
@@ -98,4 +103,3 @@ private:
 	friend class ModePredicter;
 	friend bool sortPredicter(const FileSystemSelectorComponent::FileEntry&, const FileSystemSelectorComponent::FileEntry&);
 };
-

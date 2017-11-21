@@ -1,13 +1,13 @@
 #pragma once
 
-#include <stddef.h>
-#include <memory>
-#include <map>
 #include <list>
+#include <map>
+#include <memory>
+#include <stddef.h>
 
-//The ResourceManager exists to...
-//Allow loading resources embedded into the executable like an actual file.
-//Allow embedded resources to be optionally remapped to actual files for further customization.
+// The ResourceManager exists to...
+// Allow loading resources embedded into the executable like an actual file.
+// Allow embedded resources to be optionally remapped to actual files for further customization.
 
 struct ResourceData
 {
@@ -44,5 +44,5 @@ private:
 
 	ResourceData loadFile(const std::string& path) const;
 
-	std::list< std::weak_ptr<IReloadable> > mReloadables;
+	std::list<std::weak_ptr<IReloadable>> mReloadables;
 };

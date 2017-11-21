@@ -4,12 +4,12 @@
 #include "Settings.h"
 #include "ThemeData.h"
 
-std::map< std::string, std::shared_ptr<Sound> > Sound::sMap;
+std::map<std::string, std::shared_ptr<Sound>> Sound::sMap;
 
 std::shared_ptr<Sound> Sound::get(const std::string& path)
 {
 	auto it = sMap.find(path);
-	if(it != sMap.end())
+	if (it != sMap.end())
 		return it->second;
 
 	std::shared_ptr<Sound> sound = std::shared_ptr<Sound>(new Sound(path));
@@ -23,7 +23,7 @@ std::shared_ptr<Sound> Sound::getFromTheme(const std::shared_ptr<ThemeData>& the
 	LOG(LogInfo) << " req sound [" << view << "." << element << "]";
 
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "sound");
-	if(!elem || !elem->has("path"))
+	if (!elem || !elem->has("path"))
 	{
 		LOG(LogInfo) << "   (missing)";
 		return get("");
@@ -32,7 +32,9 @@ std::shared_ptr<Sound> Sound::getFromTheme(const std::shared_ptr<ThemeData>& the
 	return get(elem->get<std::string>("path"));
 }
 
-Sound::Sound(const std::string & path) : mSampleData(NULL), playing(false)
+Sound::Sound(const std::string& path)
+	: mSampleData(NULL)
+	, playing(false)
 {
 	loadFile(path);
 }
@@ -42,7 +44,7 @@ Sound::~Sound()
 	deinit();
 }
 
-void Sound::loadFile(const std::string & path)
+void Sound::loadFile(const std::string& path)
 {
 	mPath = path;
 	init();
@@ -50,16 +52,18 @@ void Sound::loadFile(const std::string & path)
 
 void Sound::init()
 {
-	if(mSampleData != NULL)
+	if (mSampleData != NULL)
 		deinit();
 
-	if(mPath.empty())
+	if (mPath.empty())
 		return;
 
-	//load wav file via SDL
+	// load wav file via SDL
 	mSampleData = Mix_LoadWAV(mPath.c_str());
-	if(mSampleData == NULL) {
-		LOG(LogError) << "Error loading sound \"" << mPath << "\"!\n" << "	" << SDL_GetError();
+	if (mSampleData == NULL)
+	{
+		LOG(LogError) << "Error loading sound \"" << mPath << "\"!\n"
+					  << "	" << SDL_GetError();
 		return;
 	}
 }
@@ -68,24 +72,23 @@ void Sound::deinit()
 {
 	playing = false;
 
-	if(mSampleData != NULL)
+	if (mSampleData != NULL)
 	{
-            Mix_FreeChunk( mSampleData );
+		Mix_FreeChunk(mSampleData);
 	}
 }
 
 void Sound::play()
 {
-	if(mSampleData == NULL)
+	if (mSampleData == NULL)
 		return;
-	
 
 	if (!playing)
 	{
-		//flag our sample as playing
+		// flag our sample as playing
 		playing = true;
 	}
-	Mix_PlayChannel( -1, mSampleData, 0 );
+	Mix_PlayChannel(-1, mSampleData, 0);
 }
 
 bool Sound::isPlaying() const
@@ -96,5 +99,4 @@ bool Sound::isPlaying() const
 void Sound::stop()
 {
 	playing = false;
-	
 }

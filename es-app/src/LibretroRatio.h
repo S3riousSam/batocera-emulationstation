@@ -8,15 +8,16 @@
 #include <map>
 #include <string>
 
-class LibretroRatio {
-public :
-    std::map<std::string,std::string> * getRatio();
-    static LibretroRatio* getInstance();
+class LibretroRatio
+{
+public:
+	std::map<std::string, std::string>* getRatio();
+	static LibretroRatio* getInstance();
+
 private:
-    static LibretroRatio* sInstance;
-    std::map<std::string,std::string> * ratioMap;
-    LibretroRatio();
+	static LibretroRatio* sInstance;
+	std::map<std::string, std::string>* ratioMap;
+	LibretroRatio();
 };
 
-
-#endif //EMULATIONSTATION_ALL_LIBRETRORATIO_H
+#endif // EMULATIONSTATION_ALL_LIBRETRORATIO_H

@@ -1,13 +1,13 @@
 #include "ResourceManager.h"
-#include "Log.h"
 #include "../data/Resources.h"
-#include <fstream>
+#include "Log.h"
 #include <boost/filesystem.hpp>
+#include <fstream>
 
 namespace fs = boost::filesystem;
 
 auto array_deleter = [](unsigned char* p) { delete[] p; };
-auto nop_deleter = [](unsigned char* p) { };
+auto nop_deleter = [](unsigned char* p) {};
 
 std::shared_ptr<ResourceManager> ResourceManager::sInstance = nullptr;
 
@@ -17,7 +17,7 @@ ResourceManager::ResourceManager()
 
 std::shared_ptr<ResourceManager>& ResourceManager::getInstance()
 {
-	if(!sInstance)
+	if (!sInstance)
 		sInstance = std::shared_ptr<ResourceManager>(new ResourceManager());
 
 	return sInstance;
@@ -25,26 +25,25 @@ std::shared_ptr<ResourceManager>& ResourceManager::getInstance()
 
 const ResourceData ResourceManager::getFileData(const std::string& path) const
 {
-	//check if its embedded
-	
-	if(res2hMap.find(path) != res2hMap.end())
+	// check if its embedded
+
+	if (res2hMap.find(path) != res2hMap.end())
 	{
-		//it is
+		// it is
 		Res2hEntry embeddedEntry = res2hMap.find(path)->second;
-		ResourceData data = { 
-			std::shared_ptr<unsigned char>(const_cast<unsigned char*>(embeddedEntry.data), nop_deleter), 
-			embeddedEntry.size
-		};
+		ResourceData data = {std::shared_ptr<unsigned char>(const_cast<unsigned char*>(embeddedEntry.data), nop_deleter), embeddedEntry.size};
 		return data;
 	}
 
-	//it's not embedded; load the file
-	if(!fs::exists(path))
+	// it's not embedded; load the file
+	if (!fs::exists(path))
 	{
-		//if the file doesn't exist, return an "empty" ResourceData
+		// if the file doesn't exist, return an "empty" ResourceData
 		ResourceData data = {NULL, 0};
 		return data;
-	}else{
+	}
+	else
+	{
 		ResourceData data = loadFile(path);
 		return data;
 	}
@@ -58,7 +57,7 @@ ResourceData ResourceManager::loadFile(const std::string& path) const
 	size_t size = (size_t)stream.tellg();
 	stream.seekg(0, stream.beg);
 
-	//supply custom deleter to properly free array
+	// supply custom deleter to properly free array
 	std::shared_ptr<unsigned char> data(new unsigned char[size], array_deleter);
 	stream.read((char*)data.get(), size);
 	stream.close();
@@ -69,8 +68,8 @@ ResourceData ResourceManager::loadFile(const std::string& path) const
 
 bool ResourceManager::fileExists(const std::string& path) const
 {
-	//if it exists as an embedded file, return true
-	if(res2hMap.find(path) != res2hMap.end())
+	// if it exists as an embedded file, return true
+	if (res2hMap.find(path) != res2hMap.end())
 		return true;
 
 	return fs::exists(path);
@@ -79,13 +78,15 @@ bool ResourceManager::fileExists(const std::string& path) const
 void ResourceManager::unloadAll()
 {
 	auto iter = mReloadables.begin();
-	while(iter != mReloadables.end())
+	while (iter != mReloadables.end())
 	{
-		if(!iter->expired())
+		if (!iter->expired())
 		{
 			iter->lock()->unload(sInstance);
 			iter++;
-		}else{
+		}
+		else
+		{
 			iter = mReloadables.erase(iter);
 		}
 	}
@@ -94,13 +95,15 @@ void ResourceManager::unloadAll()
 void ResourceManager::reloadAll()
 {
 	auto iter = mReloadables.begin();
-	while(iter != mReloadables.end())
+	while (iter != mReloadables.end())
 	{
-		if(!iter->expired())
+		if (!iter->expired())
 		{
 			iter->lock()->reload(sInstance);
 			iter++;
-		}else{
+		}
+		else
+		{
 			iter = mReloadables.erase(iter);
 		}
 	}

@@ -1,14 +1,15 @@
-#include "platform.h"
+#include "Log.h"
 #include "Renderer.h"
+#include "Util.h"
+#include "platform.h"
 #include "platform_gl.h"
-#include <iostream>
 #include "resources/Font.h"
 #include <boost/filesystem.hpp>
-#include "Log.h"
+#include <iostream>
 #include <stack>
-#include "Util.h"
 
-namespace Renderer {
+namespace Renderer
+{
 	std::stack<Eigen::Vector4i> clipStack;
 
 	void setColor4bArray(GLubyte* array, unsigned int color)
@@ -23,7 +24,7 @@ namespace Renderer {
 	{
 		unsigned int colorGl;
 		setColor4bArray((GLubyte*)&colorGl, color);
-		for(unsigned int i = 0; i < vertCount; i++)
+		for (unsigned int i = 0; i < vertCount; i++)
 		{
 			((GLuint*)ptr)[i] = colorGl;
 		}
@@ -32,34 +33,34 @@ namespace Renderer {
 	void pushClipRect(Eigen::Vector2i pos, Eigen::Vector2i dim)
 	{
 		Eigen::Vector4i box(pos.x(), pos.y(), dim.x(), dim.y());
-		if(box[2] == 0)
+		if (box[2] == 0)
 			box[2] = Renderer::getScreenWidth() - box.x();
-		if(box[3] == 0)
+		if (box[3] == 0)
 			box[3] = Renderer::getScreenHeight() - box.y();
 
-		//glScissor starts at the bottom left of the window
-		//so (0, 0, 1, 1) is the bottom left pixel
-		//everything else uses y+ = down, so flip it to be consistent
-		//rect.pos.y = Renderer::getScreenHeight() - rect.pos.y - rect.size.y;
+		// glScissor starts at the bottom left of the window
+		// so (0, 0, 1, 1) is the bottom left pixel
+		// everything else uses y+ = down, so flip it to be consistent
+		// rect.pos.y = Renderer::getScreenHeight() - rect.pos.y - rect.size.y;
 		box[1] = Renderer::getScreenHeight() - box.y() - box[3];
 
-		//make sure the box fits within clipStack.top(), and clip further accordingly
-		if(clipStack.size())
+		// make sure the box fits within clipStack.top(), and clip further accordingly
+		if (clipStack.size())
 		{
 			Eigen::Vector4i& top = clipStack.top();
-			if(top[0] > box[0])
+			if (top[0] > box[0])
 				box[0] = top[0];
-			if(top[1] > box[1])
+			if (top[1] > box[1])
 				box[1] = top[1];
-			if(top[0] + top[2] < box[0] + box[2])
+			if (top[0] + top[2] < box[0] + box[2])
 				box[2] = (top[0] + top[2]) - box[0];
-			if(top[1] + top[3] < box[1] + box[3])
+			if (top[1] + top[3] < box[1] + box[3])
 				box[3] = (top[1] + top[3]) - box[1];
 		}
 
-		if(box[2] < 0)
+		if (box[2] < 0)
 			box[2] = 0;
-		if(box[3] < 0)
+		if (box[3] < 0)
 			box[3] = 0;
 
 		clipStack.push(box);
@@ -69,17 +70,19 @@ namespace Renderer {
 
 	void popClipRect()
 	{
-		if(clipStack.empty())
+		if (clipStack.empty())
 		{
 			LOG(LogError) << "Tried to popClipRect while the stack was empty!";
 			return;
 		}
 
 		clipStack.pop();
-		if(clipStack.empty())
+		if (clipStack.empty())
 		{
 			glDisable(GL_SCISSOR_TEST);
-		}else{
+		}
+		else
+		{
 			Eigen::Vector4i top = clipStack.top();
 			glScissor(top[0], top[1], top[2], top[3]);
 		}
@@ -98,15 +101,21 @@ namespace Renderer {
 		GLint points[12];
 #endif
 
-		points[0] = x; points [1] = y;
-		points[2] = x; points[3] = y + h;
-		points[4] = x + w; points[5] = y;
+		points[0] = x;
+		points[1] = y;
+		points[2] = x;
+		points[3] = y + h;
+		points[4] = x + w;
+		points[5] = y;
 
-		points[6] = x + w; points[7] = y;
-		points[8] = x; points[9] = y + h;
-		points[10] = x + w; points[11] = y + h;
+		points[6] = x + w;
+		points[7] = y;
+		points[8] = x;
+		points[9] = y + h;
+		points[10] = x + w;
+		points[11] = y + h;
 
-		GLubyte colors[6*4];
+		GLubyte colors[6 * 4];
 		buildGLColorArray(colors, color, 6);
 
 		glEnable(GL_BLEND);
@@ -137,4 +146,4 @@ namespace Renderer {
 	{
 		setMatrix((float*)matrix.data());
 	}
-};
+}; // namespace Renderer

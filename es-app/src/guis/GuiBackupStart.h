@@ -18,5 +18,5 @@ private:
 	void start();
 
 	MenuComponent mMenu;
-	std::shared_ptr< OptionListComponent<std::string> >moptionsStorage;
+	std::shared_ptr<OptionListComponent<std::string>> moptionsStorage;
 };
