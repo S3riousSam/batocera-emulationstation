@@ -69,7 +69,6 @@ public:
 	MetaDataList(MetaDataListType type);
 
 	void set(const std::string& key, const std::string& value);
-	void merge(const MetaDataList& other);
 	void setTime(const std::string& key,
 		const boost::posix_time::ptime& time); // times are internally stored as ISO strings (e.g. boost::posix_time::to_iso_string(ptime))
 
@@ -78,8 +77,8 @@ public:
 	float getFloat(const std::string& key) const;
 	boost::posix_time::ptime getTime(const std::string& key) const;
 
+	void merge(const MetaDataList& other);
 	bool isDefault();
-
 	bool wasChanged() const;
 	void resetChangedFlag();
 

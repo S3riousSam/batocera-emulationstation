@@ -99,11 +99,6 @@ public:
 	{
 		return mDeviceId;
 	};
-
-	inline int getDeviceIndex() const
-	{
-		return mDeviceIndex;
-	};
 	inline const std::string& getDeviceName()
 	{
 		return mDeviceName;
@@ -112,6 +107,10 @@ public:
 	{
 		return mDeviceGUID;
 	}
+	inline int getDeviceIndex() const
+	{
+		return mDeviceIndex;
+	};
 	inline int getDeviceNbAxes() const
 	{
 		return mDeviceNbAxes;
@@ -135,9 +134,9 @@ private:
 
 	std::map<std::string, Input> mNameMap;
 	const int mDeviceId;
-	const int mDeviceIndex;
 	const std::string mDeviceName;
 	const std::string mDeviceGUID;
+	const int mDeviceIndex;
 	const int mDeviceNbAxes; // number of axes of the device
 };
 

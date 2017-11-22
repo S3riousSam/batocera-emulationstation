@@ -14,7 +14,7 @@ FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& pa
 	FileData* root = system->getRootFolder();
 
 	bool contains = false;
-	fs::path relative = removeCommonPath(path, root->getPath(), contains);
+	const fs::path relative = removeCommonPath(path, root->getPath(), contains);
 	if (!contains)
 	{
 		LOG(LogError) << "File path \"" << path << "\" is outside system path \"" << system->getStartPath() << "\"";
@@ -24,7 +24,7 @@ FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& pa
 	auto path_it = relative.begin();
 	FileData* treeNode = root;
 	bool found = false;
-	while (path_it != relative.end())
+	while (path_it != relative.end()) // TODO: For loop!
 	{
 		const std::vector<FileData*>& children = treeNode->getChildren();
 		found = false;
@@ -79,7 +79,7 @@ FileData* findOrCreateFile(SystemData* system, const boost::filesystem::path& pa
 
 void parseGamelist(SystemData* system)
 {
-	std::string xmlpath = system->getGamelistPath(false);
+	const std::string xmlpath = system->getGamelistPath(false);
 
 	if (!boost::filesystem::exists(xmlpath))
 		return;
@@ -102,18 +102,17 @@ void parseGamelist(SystemData* system)
 		return;
 	}
 
-	fs::path relativeTo = system->getStartPath();
+	const fs::path relativeTo = system->getStartPath();
 
-	const char* tagList[2] = {"game", "folder"};
-	FileType typeList[2] = {GAME, FOLDER};
+	const char* const tagList[2] = {"game", "folder"};
+	const FileType typeList[2] = {GAME, FOLDER};
 	for (int i = 0; i < 2; i++)
 	{
-		const char* tag = tagList[i];
-		FileType type = typeList[i];
+		const char* const tag = tagList[i];
+		const FileType type = typeList[i];
 		for (pugi::xml_node fileNode = root.child(tag); fileNode; fileNode = fileNode.next_sibling(tag))
 		{
-			fs::path path = resolvePath(fileNode.child("path").text().get(), relativeTo, false);
-
+			const fs::path path = resolvePath(fileNode.child("path").text().get(), relativeTo, false);
 			if (!boost::filesystem::exists(path))
 			{
 				LOG(LogWarning) << "File \"" << path << "\" does not exist! Ignoring.";
@@ -121,27 +120,26 @@ void parseGamelist(SystemData* system)
 			}
 
 			FileData* file = findOrCreateFile(system, path, type);
-			if (!file)
+			if (file == nullptr)
 			{
 				LOG(LogError) << "Error finding/creating FileData for \"" << path << "\", skipping.";
 				continue;
 			}
 
 			// load the metadata
-			std::string defaultName = file->metadata.get("name");
+			const std::string defaultName = file->metadata.get("name");
 			file->metadata = MetaDataList::createFromXML(GAME_METADATA, fileNode, relativeTo);
 
 			// make sure name gets set if one didn't exist
 			if (file->metadata.get("name").empty())
 				file->metadata.set("name", defaultName);
 			file->metadata.set("system", system->getName());
-
 			file->metadata.resetChangedFlag();
 		}
 	}
 }
 
-void addFileDataNode(pugi::xml_node& parent, const FileData* file, const char* tag, SystemData* system)
+void addFileDataNode(pugi::xml_node& parent, const FileData* file, const char* tag, const SystemData* system)
 {
 	// create game and add to parent node
 	pugi::xml_node newNode = parent.append_child(tag);
@@ -166,10 +164,10 @@ void addFileDataNode(pugi::xml_node& parent, const FileData* file, const char* t
 	}
 }
 
-void updateGamelist(SystemData* system)
+void updateGamelist(const SystemData* system)
 {
 	// We do this by reading the XML again, adding changes and then writing it back,
-	// because there might be information missing in our systemdata which would then miss in the new XML.
+	// because there might be information missing in our system data which would then miss in the new XML.
 	// We have the complete information for every game though, so we can simply remove a game
 	// we already have in the system from the XML, and then add it back from its GameData information...
 
@@ -178,7 +176,7 @@ void updateGamelist(SystemData* system)
 
 	pugi::xml_document doc;
 	pugi::xml_node root;
-	std::string xmlReadPath = system->getGamelistPath(false);
+	const std::string xmlReadPath = system->getGamelistPath(false);
 
 	if (boost::filesystem::exists(xmlReadPath))
 	{
@@ -200,8 +198,7 @@ void updateGamelist(SystemData* system)
 	}
 	else
 	{
-		// set up an empty gamelist to append to
-		root = doc.append_child("gameList");
+		root = doc.append_child("gameList"); // set up an empty gamelist to append to
 	}
 
 	// now we have all the information from the XML. now iterate through all our games and add information from there
@@ -211,7 +208,7 @@ void updateGamelist(SystemData* system)
 		int numUpdated = 0;
 
 		// get only files, no folders
-		std::vector<FileData*> files = rootFolder->getFilesRecursive(GAME | FOLDER);
+		const std::vector<FileData*> files = rootFolder->getFilesRecursive(GAME | FOLDER);
 		// iterate through all files, checking if they're already in the XML
 		for (std::vector<FileData*>::const_iterator fit = files.cbegin(); fit != files.cend(); ++fit)
 		{
@@ -219,9 +216,7 @@ void updateGamelist(SystemData* system)
 
 			// check if current file has metadata, if no, skip it as it wont be in the gamelist anyway.
 			if ((*fit)->metadata.isDefault())
-			{
 				continue;
-			}
 
 			// do not touch if it wasn't changed anyway
 			if (!(*fit)->metadata.wasChanged())
@@ -231,15 +226,15 @@ void updateGamelist(SystemData* system)
 			// if it does, remove it before adding
 			for (pugi::xml_node fileNode = root.child(tag); fileNode; fileNode = fileNode.next_sibling(tag))
 			{
-				pugi::xml_node pathNode = fileNode.child("path");
+				const pugi::xml_node pathNode = fileNode.child("path");
 				if (!pathNode)
 				{
 					LOG(LogError) << "<" << tag << "> node contains no <path> child!";
 					continue;
 				}
 
-				fs::path nodePath = resolvePath(pathNode.text().get(), system->getStartPath(), true);
-				fs::path gamePath((*fit)->getPath());
+				const fs::path nodePath = resolvePath(pathNode.text().get(), system->getStartPath(), true);
+				const fs::path gamePath((*fit)->getPath());
 				if (nodePath == gamePath || (fs::exists(nodePath) && fs::exists(gamePath) && fs::equivalent(nodePath, gamePath)))
 				{
 					// found it
@@ -264,9 +259,7 @@ void updateGamelist(SystemData* system)
 			LOG(LogInfo) << "Added/Updated " << numUpdated << " entities in '" << xmlReadPath << "'";
 
 			if (!doc.save_file(xmlWritePath.c_str()))
-			{
 				LOG(LogError) << "Error saving gamelist.xml to \"" << xmlWritePath << "\" (for system " << system->getName() << ")!";
-			}
 		}
 	}
 	else

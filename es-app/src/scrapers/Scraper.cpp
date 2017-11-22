@@ -217,11 +217,10 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 	if (maxWidth == 0 && maxHeight == 0)
 		return true;
 
-	FREE_IMAGE_FORMAT format = FIF_UNKNOWN;
 	FIBITMAP* image = NULL;
 
 	// detect the filetype
-	format = FreeImage_GetFileType(path.c_str(), 0);
+	FREE_IMAGE_FORMAT format = FreeImage_GetFileType(path.c_str(), 0);
 	if (format == FIF_UNKNOWN)
 		format = FreeImage_GetFIFFromFilename(path.c_str());
 	if (format == FIF_UNKNOWN)
@@ -262,7 +261,7 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 		return false;
 	}
 
-	const bool saved = FreeImage_Save(format, imageRescaled, path.c_str());
+	const bool saved = (FreeImage_Save(format, imageRescaled, path.c_str()) != FALSE);
 	FreeImage_Unload(imageRescaled);
 
 	if (!saved)

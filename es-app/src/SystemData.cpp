@@ -6,16 +6,16 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Settings.h"
-#include "Util.h"
 #include "VolumeControl.h"
 #include <SDL_joystick.h>
-#include <boost/asio/io_service.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/thread.hpp>
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
+#include "Util.h"
+#include <boost/asio/io_service.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/thread.hpp>
 #include <utility>
 
 std::vector<SystemData*> SystemData::sSystemVector;
@@ -91,10 +91,7 @@ SystemData::~SystemData()
 {
 	// save changed game data back to xml
 	if (!Settings::getInstance()->getBool("IgnoreGamelist"))
-	{
 		updateGamelist(this);
-	}
-
 	delete mRootFolder;
 }
 
@@ -148,16 +145,15 @@ void SystemData::launchGame(Window* window, FileData* game)
 	AudioManager::getInstance()->deinit();
 	VolumeControl::getInstance()->deinit();
 
-	std::string controlersConfig = InputManager::getInstance()->configureEmulators();
+	const std::string controlersConfig = InputManager::getInstance()->configureEmulators();
 	LOG(LogInfo) << "Controllers config : " << controlersConfig;
 	window->deinit();
-
-	std::string command = mLaunchCommand;
 
 	const std::string rom = escapePath(game->getPath());
 	const std::string basename = game->getPath().stem().string();
 	const std::string rom_raw = fs::path(game->getPath()).make_preferred().string();
 
+	std::string command = mLaunchCommand;
 	command = strreplace(command, "%ROM%", rom);
 	command = strreplace(command, "%CONTROLLERSCONFIG%", controlersConfig);
 	command = strreplace(command, "%SYSTEM%", game->metadata.get("system"));
@@ -198,19 +194,16 @@ void SystemData::populateFolder(FileData* folder)
 
 std::vector<std::string> readList(const std::string& str, const char* delims = " \t\r\n,")
 {
-	std::vector<std::string> ret;
-
+	std::vector<std::string> result;
 	size_t prevOff = str.find_first_not_of(delims, 0);
 	size_t off = str.find_first_of(delims, prevOff);
 	while (off != std::string::npos || prevOff != std::string::npos)
 	{
-		ret.push_back(str.substr(prevOff, off - prevOff));
-
+		result.push_back(str.substr(prevOff, off - prevOff));
 		prevOff = str.find_first_not_of(delims, off);
 		off = str.find_first_of(delims, prevOff);
 	}
-
-	return ret;
+	return result;
 }
 
 SystemData* createSystem(pugi::xml_node* systemsNode, int index)
@@ -312,8 +305,8 @@ SystemData* createSystem(pugi::xml_node* systemsNode, int index)
 bool SystemData::loadConfig()
 {
 	deleteSystems();
-	std::string path = getConfigPath(false);
 
+	const std::string path = getConfigPath(false);
 	LOG(LogInfo) << "Loading system config file " << path << "...";
 
 	if (!fs::exists(path))
@@ -324,19 +317,16 @@ bool SystemData::loadConfig()
 	}
 
 	pugi::xml_document doc;
-	pugi::xml_parse_result res = doc.load_file(path.c_str());
-
-	if (!res)
+	const pugi::xml_parse_result result = doc.load_file(path.c_str());
+	if (!result)
 	{
-		LOG(LogError) << "Could not parse es_systems.cfg file!";
-		LOG(LogError) << res.description();
+		LOG(LogError) << "Could not parse es_systems.cfg file: " << result.description();
 		return false;
 	}
 
-	// actually read the file
+	// Read the file
 	pugi::xml_node systemList = doc.child("systemList");
-
-	if (!systemList)
+	if (systemList == nullptr)
 	{
 		LOG(LogError) << "es_systems.cfg is missing the <systemList> tag!";
 		return false;
@@ -348,15 +338,14 @@ bool SystemData::loadConfig()
 	boost::asio::io_service::work work(ioService);
 	std::vector<boost::thread*> threads;
 	for (int i = 0; i < 4; i++)
-	{
 		threadpool.create_thread(boost::bind(&boost::asio::io_service::run, &ioService));
-	}
 
 	int index = 0;
 	std::vector<boost::unique_future<SystemData*>> pending_data;
 	for (pugi::xml_node system = systemList.child("system"); system; system = system.next_sibling("system"))
 	{
 		LOG(LogInfo) << "creating thread for system " << system.child("name").text().get();
+
 		typedef boost::packaged_task<SystemData*> task_t;
 		boost::shared_ptr<task_t> task = boost::make_shared<task_t>(boost::bind(&createSystem, &systemList, index++));
 		boost::unique_future<SystemData*> fut = task->get_future();
@@ -377,10 +366,10 @@ bool SystemData::loadConfig()
 	// Favorite system
 	for (pugi::xml_node system = systemList.child("system"); system; system = system.next_sibling("system"))
 	{
-		std::string name = system.child("name").text().get();
-		std::string fullname = system.child("fullname").text().get();
-		std::string cmd = system.child("command").text().get();
-		std::string themeFolder = system.child("theme").text().as_string(name.c_str());
+		const std::string name = system.child("name").text().get();
+		const std::string fullname = system.child("fullname").text().get();
+		const std::string cmd = system.child("command").text().get();
+		const std::string themeFolder = system.child("theme").text().as_string(name.c_str());
 
 		if (name == "favorites")
 		{
@@ -484,11 +473,8 @@ void SystemData::deleteSystems()
 
 std::string SystemData::getConfigPath(bool forWrite)
 {
-	fs::path path = getHomePath() + "/.emulationstation/es_systems.cfg";
-	if (forWrite || fs::exists(path))
-		return path.generic_string();
-
-	return "/etc/emulationstation/es_systems.cfg";
+	const fs::path path = getHomePath() + "/.emulationstation/es_systems.cfg";
+	return (forWrite || fs::exists(path)) ? path.generic_string() : "/etc/emulationstation/es_systems.cfg";
 }
 
 std::string SystemData::getGamelistPath(bool forWrite) const
@@ -501,12 +487,10 @@ std::string SystemData::getGamelistPath(bool forWrite) const
 		return filePath.generic_string();
 
 	// else we try to create it
-	if (forWrite)
-	{ // make sure the directory exists if we're going to write to it, or crashes will happen
+	if (forWrite) // make sure the directory exists if we're going to write to it, or crashes will happen
+	{
 		if (fs::exists(filePath.parent_path()) || fs::create_directories(filePath.parent_path()))
-		{
 			return filePath.generic_string();
-		}
 	}
 	// Unable to get or create directory in roms, fallback on ~
 	filePath = getHomePath() + "/.emulationstation/gamelists/" + mName + "/gamelist.xml";
@@ -521,7 +505,7 @@ std::string SystemData::getThemePath() const
 	// 2. currently selected theme set
 
 	// first, check game folder
-	fs::path localThemePath = mRootFolder->getPath() / "theme.xml";
+	const fs::path localThemePath = mRootFolder->getPath() / "theme.xml";
 	if (fs::exists(localThemePath))
 		return localThemePath.generic_string();
 
@@ -553,7 +537,7 @@ void SystemData::loadTheme()
 {
 	mTheme = std::make_shared<ThemeData>();
 
-	std::string path = getThemePath();
+	const std::string path = getThemePath();
 
 	if (!fs::exists(path)) // no theme available for this platform
 		return;
@@ -587,9 +571,7 @@ SystemData* SystemData::getFavoriteSystem()
 	for (auto system = sSystemVector.begin(); system != sSystemVector.end(); system++)
 	{
 		if ((*system)->isFavorite())
-		{
 			return (*system);
-		}
 	}
 	return NULL;
 }

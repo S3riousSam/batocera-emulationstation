@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GuiComponent.h"
-#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Window.h"
@@ -10,6 +9,7 @@
 #include "components/TextComponent.h"
 #include "resources/Font.h"
 #include <sstream>
+#include "LocaleES.h"
 
 using namespace boost::locale;
 
@@ -21,9 +21,6 @@ using namespace boost::locale;
 
 // always
 // * press a -> open full list
-
-#define CHECKED_PATH ":/checkbox_checked.svg"
-#define UNCHECKED_PATH ":/checkbox_unchecked.svg"
 
 template<typename T>
 class OptionListComponent : public GuiComponent
@@ -48,6 +45,9 @@ private:
 			, mMenu(window, title.c_str())
 			, mParent(parent)
 		{
+			static const char* const CHECK_PATH_ON = ":/checkbox_checked.svg";
+			static const char* const CHECK_PATH_OFF = ":/checkbox_unchecked.svg";
+
 			auto font = Font::get(FONT_SIZE_MEDIUM);
 			ComponentListRow row;
 
@@ -65,7 +65,7 @@ private:
 				{
 					// add checkbox
 					auto checkbox = std::make_shared<ImageComponent>(mWindow);
-					checkbox->setImage(it->selected ? CHECKED_PATH : UNCHECKED_PATH);
+					checkbox->setImage(it->selected ? CHECK_PATH_ON : CHECK_PATH_OFF);
 					checkbox->setResize(0, font->getLetterHeight());
 					row.addElement(checkbox, false);
 
@@ -73,7 +73,7 @@ private:
 					// update checkbox state & selected value
 					row.makeAcceptInputHandler([this, &e, checkbox] {
 						e.selected = !e.selected;
-						checkbox->setImage(e.selected ? CHECKED_PATH : UNCHECKED_PATH);
+						checkbox->setImage(e.selected ? CHECK_PATH_ON : CHECK_PATH_OFF);
 						mParent->onSelectedChanged();
 					});
 
@@ -104,7 +104,7 @@ private:
 					for (unsigned int i = 0; i < mParent->mEntries.size(); i++)
 					{
 						mParent->mEntries.at(i).selected = true;
-						checkboxes.at(i)->setImage(CHECKED_PATH);
+						checkboxes.at(i)->setImage(CHECK_PATH_ON);
 					}
 					mParent->onSelectedChanged();
 				});
@@ -113,7 +113,7 @@ private:
 					for (unsigned int i = 0; i < mParent->mEntries.size(); i++)
 					{
 						mParent->mEntries.at(i).selected = false;
-						checkboxes.at(i)->setImage(UNCHECKED_PATH);
+						checkboxes.at(i)->setImage(CHECK_PATH_OFF);
 					}
 					mParent->onSelectedChanged();
 				});

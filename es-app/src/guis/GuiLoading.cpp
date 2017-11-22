@@ -4,6 +4,7 @@
 
 #include "Log.h"
 #include "RecalboxSystem.h"
+#include "Renderer.h"
 #include "Settings.h"
 #include "Window.h"
 #include <boost/thread.hpp>

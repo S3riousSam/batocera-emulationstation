@@ -6,17 +6,16 @@
 #include "guis/GuiGameScraper.h"
 #include "guis/GuiMsgBox.h"
 #include "views/ViewController.h"
-#include <LibretroRatio.h>
-#include <RecalboxConf.h>
 #include <boost/filesystem.hpp>
-#include <components/SwitchComponent.h>
-
 #include "components/DateTimeComponent.h"
-#include "components/OptionListComponent.h"
 #include "components/RatingComponent.h"
 #include "components/TextEditComponent.h"
 #include "guis/GuiTextEditPopup.h"
+#include "components/OptionListComponent.h"
 #include "guis/GuiTextEditPopupKeyboard.h"
+#include <LibretroRatio.h>
+#include <RecalboxConf.h>
+#include <components/SwitchComponent.h>
 
 using namespace Eigen;
 
@@ -155,13 +154,9 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 				row.addElement(ratio_choice, true);
 				std::map<std::string, std::string>* ratioMap = LibretroRatio::getInstance()->getRatio();
 				if (mMetaData->get("ratio") == "")
-				{
 					mMetaData->set("ratio", "auto");
-				}
 				for (auto ratio = ratioMap->begin(); ratio != ratioMap->end(); ratio++)
-				{
 					ratio_choice->add(ratio->first, ratio->second, mMetaData->get("ratio") == ratio->second);
-				}
 				ed = ratio_choice;
 			}
 			break;
@@ -186,9 +181,13 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 			auto updateVal = [ed](const std::string& newVal) { ed->setValue(newVal); }; // ok callback (apply new value to ed)
 			row.makeAcceptInputHandler([this, title, ed, updateVal, multiLine] {
 				if (Settings::getInstance()->getBool("UseOSK") && (!multiLine))
+				{
 					mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, title, ed->getValue(), updateVal, multiLine));
+				}
 				else
+				{
 					mWindow->pushGui(new GuiTextEditPopup(mWindow, title, ed->getValue(), updateVal, multiLine));
+				}
 			});
 			break;
 		}
@@ -257,7 +256,9 @@ void GuiMetaDataEd::save()
 			continue;
 
 		if (mMetaDataDecl.at(i).type != MD_LIST)
+		{
 			mMetaData->set(mMetaDataDecl.at(i).key, mEditors.at(i)->getValue());
+		}
 		else
 		{
 			std::shared_ptr<GuiComponent> ed = mEditors.at(i);

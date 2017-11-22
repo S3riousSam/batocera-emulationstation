@@ -1,22 +1,16 @@
-/*
- * File:   NetworkThread.cpp
- * Author: matthieu
- *
- * Created on 6 février 2015, 11:40
- */
-
+// Author: matthieu  2015-02-06
 #include "NetworkThread.h"
 #include "LocaleES.h"
 #include "RecalboxConf.h"
 #include "RecalboxSystem.h"
+#include "Window.h"
 #include "guis/GuiMsgBox.h"
 
 NetworkThread::NetworkThread(Window* window)
 	: mWindow(window)
+	, mFirstRun(true)
+	, mRunning(true)
 {
-	// creer le thread
-	mFirstRun = true;
-	mRunning = true;
 	mThreadHandle = new boost::thread(boost::bind(&NetworkThread::run, this));
 }
 

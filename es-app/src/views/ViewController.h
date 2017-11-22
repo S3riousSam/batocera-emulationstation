@@ -95,11 +95,10 @@ private:
 	std::map<SystemData*, std::shared_ptr<IGameListView>> mGameListViews;
 	std::shared_ptr<SystemView> mSystemListView;
 
-	std::map<SystemData*, bool> mInvalidGameList;
-
 	Eigen::Affine3f mCamera;
 	float mFadeOpacity;
 	bool mLockInput;
+	std::map<SystemData*, bool> mInvalidGameList;
 	bool mFavoritesOnly;
 
 	State mState;

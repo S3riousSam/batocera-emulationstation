@@ -50,9 +50,9 @@ std::string toLower(std::string str)
 
 InputConfig::InputConfig(int deviceId, int deviceIndex, const std::string& deviceName, const std::string& deviceGUID, int deviceNbAxes)
 	: mDeviceId(deviceId)
-	, mDeviceIndex(deviceIndex)
 	, mDeviceName(deviceName)
 	, mDeviceGUID(deviceGUID)
+	, mDeviceIndex(deviceIndex)
 	, mDeviceNbAxes(deviceNbAxes)
 {
 }

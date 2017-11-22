@@ -1,5 +1,4 @@
 #include "guis/GuiDetectDevice.h"
-#include "LocaleES.h"
 #include "Renderer.h"
 #include "Util.h"
 #include "Window.h"
@@ -9,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "LocaleES.h"
 
 #define HOLD_TIME 1000
 
@@ -52,14 +52,8 @@ GuiDetectDevice::GuiDetectDevice(Window* window, bool firstRun, const std::funct
 		mWindow, _("HOLD A BUTTON ON YOUR DEVICE TO CONFIGURE IT."), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
 	mGrid.setEntry(mMsg1, Vector2i(0, 2), false, true);
 
-	if (firstRun)
-	{
-		mMsg2 = std::make_shared<TextComponent>(mWindow, _("PRESS F4 TO QUIT AT ANY TIME."), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
-	}
-	else
-	{
-		mMsg2 = std::make_shared<TextComponent>(mWindow, _("PRESS ESC OR THE HOTKEY TO CANCEL."), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
-	}
+	const std::string msg2str = firstRun ? _("PRESS F4 TO QUIT AT ANY TIME.") : _("PRESS ESC OR THE HOTKEY TO CANCEL.");
+	mMsg2 = std::make_shared<TextComponent>(mWindow, msg2str.c_str(), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
 	mGrid.setEntry(mMsg2, Vector2i(0, 3), false, true);
 
 	// currently held device

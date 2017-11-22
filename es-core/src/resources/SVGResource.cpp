@@ -1,18 +1,18 @@
 #include "SVGResource.h"
-#include "ImageIO.h"
-#include "Log.h"
-#include "Util.h"
 #include "nanosvg/nanosvg.h"
 #include "nanosvg/nanosvgrast.h"
+#include "ImageIO.h"
+#include "Log.h"
+//#include "Util.h"
 
 #define DPI 96
 
 SVGResource::SVGResource(const std::string& path, bool tile)
 	: TextureResource(path, tile)
 	, mSVGImage(NULL)
+    , mLastWidth{}
+    , mLastHeight{}
 {
-	mLastWidth = 0;
-	mLastHeight = 0;
 }
 
 SVGResource::~SVGResource()
@@ -40,7 +40,7 @@ void SVGResource::initFromMemory(const char* file, size_t length)
 	mSVGImage = nsvgParse(copy, "px", DPI);
 	free(copy);
 
-	if (!mSVGImage)
+	if(mSVGImage == nullptr)
 	{
 		LOG(LogError) << "Error parsing SVG image.";
 		return;
@@ -49,24 +49,18 @@ void SVGResource::initFromMemory(const char* file, size_t length)
 	if (mLastWidth && mLastHeight)
 		rasterizeAt(mLastWidth, mLastHeight);
 	else
-		rasterizeAt((size_t)round(mSVGImage->width), (size_t)round(mSVGImage->height));
+		rasterizeAt(static_cast<size_t>(round(mSVGImage->width)), static_cast<size_t>(round(mSVGImage->height)));
 }
 
 void SVGResource::rasterizeAt(size_t width, size_t height)
 {
-	if (!mSVGImage || (width == 0 && height == 0))
+	if (mSVGImage == nullptr || (width == 0 && height == 0))
 		return;
 
 	if (width == 0)
-	{
-		// auto scale width to keep aspect
-		width = (size_t)round((height / mSVGImage->height) * mSVGImage->width);
-	}
+		width = (size_t)round((height / mSVGImage->height) * mSVGImage->width); // auto scale width to keep aspect
 	else if (height == 0)
-	{
-		// auto scale height to keep aspect
-		height = (size_t)round((width / mSVGImage->width) * mSVGImage->height);
-	}
+		height = (size_t)round((width / mSVGImage->width) * mSVGImage->height); // auto scale height to keep aspect
 
 	if (width != (size_t)round(mSVGImage->width) && height != (size_t)round(mSVGImage->height))
 	{
@@ -74,8 +68,8 @@ void SVGResource::rasterizeAt(size_t width, size_t height)
 		mLastHeight = height;
 	}
 
-	unsigned char* imagePx = (unsigned char*)malloc(width * height * 4);
-	assert(imagePx != NULL);
+	unsigned char* imagePx = static_cast<unsigned char*>(malloc(width * height * 4));
+	assert(imagePx != nullptr);
 
 	NSVGrasterizer* rast = nsvgCreateRasterizer();
 	nsvgRasterize(rast, mSVGImage, 0, 0, height / mSVGImage->height, imagePx, width, height, width * 4);
@@ -89,15 +83,12 @@ void SVGResource::rasterizeAt(size_t width, size_t height)
 
 Eigen::Vector2f SVGResource::getSourceImageSize() const
 {
-	if (mSVGImage)
-		return Eigen::Vector2f(mSVGImage->width, mSVGImage->height);
-
-	return Eigen::Vector2f::Zero();
+	return (mSVGImage != nullptr) ? Eigen::Vector2f(mSVGImage->width, mSVGImage->height) : Eigen::Vector2f::Zero();
 }
 
 void SVGResource::deinitSVG()
 {
-	if (mSVGImage)
+	if(mSVGImage != nullptr)
 		nsvgDelete(mSVGImage);
 
 	mSVGImage = NULL;

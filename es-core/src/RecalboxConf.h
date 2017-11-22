@@ -1,10 +1,5 @@
-//
 // Created by matthieu on 12/09/15.
-//
-
-#ifndef EMULATIONSTATION_ALL_RECALBOXCONF_H
-#define EMULATIONSTATION_ALL_RECALBOXCONF_H
-
+#pragma once
 #include <map>
 #include <string>
 
@@ -29,5 +24,3 @@ public:
 private:
 	std::map<std::string, std::string> confMap;
 };
-
-#endif // EMULATIONSTATION_ALL_RECALBOXCONF_H

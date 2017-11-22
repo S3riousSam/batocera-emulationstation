@@ -1,15 +1,15 @@
 #include "views/SystemView.h"
-#include "AudioManager.h"
-#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Settings.h"
 #include "SystemData.h"
-#include "ThemeData.h"
 #include "Util.h"
 #include "Window.h"
 #include "animations/LambdaAnimation.h"
 #include "views/ViewController.h"
+#include "AudioManager.h"
+#include "LocaleES.h"
+#include "ThemeData.h"
 #include <RecalboxConf.h>
 #include <RecalboxSystem.h>
 #include <components/ComponentList.h>
@@ -83,6 +83,7 @@ void SystemView::addSystem(SystemData* it)
 
 	this->add(e);
 }
+
 void SystemView::populate()
 {
 	mEntries.clear();
@@ -136,6 +137,8 @@ bool SystemView::input(InputConfig* config, Input input)
 		}
 		if (config->isMappedTo("select", input) && RecalboxConf::getInstance()->get("system.es.menu") != "none")
 		{
+			// TODO: Duplicate Code!
+
 			auto s = new GuiSettings(mWindow, _("QUIT").c_str());
 
 			Window* window = mWindow;

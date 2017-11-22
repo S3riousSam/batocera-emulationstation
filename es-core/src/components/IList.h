@@ -191,9 +191,7 @@ public:
 	bool changeCursorName(int cursor, const std::string& name)
 	{
 		if (cursor >= static_cast<int>(mEntries.size()))
-		{
 			return false;
-		}
 
 		auto& entry = mEntries.at(cursor);
 		entry.name = name;
@@ -216,9 +214,7 @@ public:
 			{
 				remove(it);
 				if (mCursor > index)
-				{
 					mCursor = mCursor - 1;
-				}
 				return true;
 			}
 			index++;

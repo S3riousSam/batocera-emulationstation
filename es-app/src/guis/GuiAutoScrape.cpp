@@ -69,35 +69,27 @@ void GuiAutoScrape::update(int deltaTime)
 		mHandle = new boost::thread(boost::bind(&GuiAutoScrape::threadAutoScrape, this));
 		mState = 0;
 	}
-
 	if (mState == 4)
 	{
 		window->pushGui(new GuiMsgBox(window, _("FINNISHED"), _("OK"), [this] { mState = -1; }));
 		mState = 0;
 	}
-
 	if (mState == 5)
 	{
 		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = -1; }));
 		mState = 0;
 	}
 	if (mState == -1)
-	{
 		delete this;
-	}
 }
 
 void GuiAutoScrape::threadAutoScrape()
 {
 	std::pair<std::string, int> scrapeStatus = RecalboxSystem::getInstance()->scrape(&mBusyAnim);
 	if (scrapeStatus.second == 0)
-	{
 		this->onAutoScrapeOk();
-	}
 	else
-	{
 		this->onAutoScrapeError(scrapeStatus);
-	}
 }
 
 void GuiAutoScrape::onAutoScrapeError(std::pair<std::string, int> result)

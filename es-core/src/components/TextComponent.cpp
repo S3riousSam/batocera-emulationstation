@@ -1,5 +1,4 @@
 #include "components/TextComponent.h"
-#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Settings.h"
@@ -231,16 +230,14 @@ void TextComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const st
 {
 	GuiComponent::applyTheme(theme, view, element, properties);
 
-	using namespace ThemeFlags;
-
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "text");
 	if (elem == nullptr)
 		return;
 
-	if (properties & COLOR && elem->has("color"))
+	if (properties & ThemeFlags::COLOR && elem->has("color"))
 		setColor(elem->get<unsigned int>("color"));
 
-	if (properties & ALIGNMENT && elem->has("alignment"))
+	if (properties & ThemeFlags::ALIGNMENT && elem->has("alignment"))
 	{
 		const std::string str = elem->get<std::string>("alignment");
 		if (str == "left")
@@ -253,13 +250,13 @@ void TextComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const st
 			LOG(LogError) << "Unknown text alignment string: " << str;
 	}
 
-	if (properties & TEXT && elem->has("text"))
+	if (properties & ThemeFlags::TEXT && elem->has("text"))
 		setText(elem->get<std::string>("text"));
 
-	if (properties & FORCE_UPPERCASE && elem->has("forceUppercase"))
+	if (properties & ThemeFlags::FORCE_UPPERCASE && elem->has("forceUppercase"))
 		setUppercase(elem->get<bool>("forceUppercase"));
 
-	if (properties & LINE_SPACING && elem->has("lineSpacing"))
+	if (properties & ThemeFlags::LINE_SPACING && elem->has("lineSpacing"))
 		setLineSpacing(elem->get<float>("lineSpacing"));
 
 	setFont(Font::getFromTheme(elem, properties, mFont));

@@ -54,10 +54,10 @@ bool RecalboxConf::saveRecalboxConf()
 	std::ifstream filein(recalboxConfFile); // File to read from
 	if (!filein)
 	{
-		LOG(LogError) << "Unable to open for saving :  " << recalboxConfFile << "\n";
+		LOG(LogError) << "Unable to open for saving:  " << recalboxConfFile << "\n";
 		return false;
 	}
-	/* Read all lines in a vector */
+	// Read all lines in a vector
 	std::vector<std::string> fileLines;
 	std::string line;
 	while (std::getline(filein, line))
@@ -66,15 +66,15 @@ bool RecalboxConf::saveRecalboxConf()
 	}
 	filein.close();
 
-	/* Save new value if exists */
+	// Save new value if exists
 	for (std::map<std::string, std::string>::iterator it = confMap.begin(); it != confMap.end(); ++it)
 	{
-		std::string key = it->first;
-		std::string val = it->second;
+		const std::string key = it->first;
+		const std::string val = it->second;
 		bool lineFound = false;
 		for (size_t i = 0; i < fileLines.size(); i++)
 		{
-			std::string currentLine = fileLines[i];
+			const std::string currentLine = fileLines[i];
 
 			if (boost::starts_with(currentLine, key + "=") || boost::starts_with(currentLine, ";" + key + "="))
 			{
@@ -120,11 +120,7 @@ std::string RecalboxConf::get(const std::string& name)
 }
 std::string RecalboxConf::get(const std::string& name, const std::string& defaut)
 {
-	if (confMap.count(name))
-	{
-		return confMap[name];
-	}
-	return defaut;
+	return confMap.count(name) != 0 ? confMap.at(name) : defaut;
 }
 
 void RecalboxConf::set(const std::string& name, const std::string& value)

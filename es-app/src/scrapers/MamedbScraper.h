@@ -6,7 +6,7 @@ void mamedb_generate_scraper_requests(
 
 void mamedb_process_httpreq(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results);
 
-class MamedbRequest : public ScraperHttpRequest
+class MamedbRequest final : public ScraperHttpRequest
 {
 public:
 	MamedbRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url)
@@ -14,6 +14,6 @@ public:
 	{
 	}
 
-protected:
+private:
 	void process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results) override;
 };
