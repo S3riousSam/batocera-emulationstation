@@ -116,6 +116,7 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 				auto emu_choice = std::make_shared<OptionListComponent<std::string>>(mWindow, "emulator", false, FONT_SIZE_SMALL);
 				row.addElement(emu_choice, true);
 				bool selected = false;
+
 				for (auto it = system->getEmulators()->begin(); it != system->getEmulators()->end(); it++)
 				{
 					selected = selected || mMetaData->get("emulator") == it->first;

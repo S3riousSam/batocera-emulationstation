@@ -1,13 +1,13 @@
 #include "views/gamelist/ISimpleGameListView.h"
-#include "Gamelist.h"
-#include "LocaleES.h"
 #include "Settings.h"
 #include "Sound.h"
-#include "SystemData.h"
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
 #include <Log.h>
+#include "Gamelist.h"
+#include "LocaleES.h"
+#include "SystemData.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root)
 	: IGameListView(window, root)
@@ -58,15 +58,15 @@ void ISimpleGameListView::onFileChanged(FileData* file, FileChangeType change)
 	// we could be tricky here to be efficient;
 	// but this shouldn't happen very often so we'll just always repopulate
 	FileData* cursor = getCursor();
-	int index = getCursorIndex();
+	const int index = getCursorIndex();
 	populateList(getRoot()->getChildren());
 	setCursorIndex(index);
 
 	/* Favorite */
 	if (file->getType() == GAME)
 	{
-		SystemData* favoriteSystem = SystemData::getFavoriteSystem();
-		bool isFavorite = file->metadata.get("favorite") == "true";
+		const SystemData* favoriteSystem = SystemData::getFavoriteSystem();
+		const bool isFavorite = (file->metadata.get("favorite") == "true");
 		bool foundInFavorite = false;
 		// Removing favorite case:
 		for (auto gameInFavorite = favoriteSystem->getRootFolder()->getChildren().begin();
@@ -158,17 +158,13 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 					{
 						md->set("favorite", "true");
 						if (favoriteSystem != NULL)
-						{
 							favoriteSystem->getRootFolder()->addAlreadyExisitingChild(cursor);
-						}
 					}
 					else
 					{
 						md->set("favorite", "false");
 						if (favoriteSystem != NULL)
-						{
 							favoriteSystem->getRootFolder()->removeAlreadyExisitingChild(cursor);
-						}
 						removeFavorite = true;
 					}
 					if (favoriteSystem != NULL)
@@ -176,7 +172,7 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 						ViewController::get()->setInvalidGamesList(favoriteSystem);
 						ViewController::get()->getSystemListView()->manageFavorite();
 					}
-					int cursorPlace = getCursorIndex();
+					const int cursorPlace = getCursorIndex();
 					populateList(cursor->getParent()->getChildren());
 					setCursorIndex(cursorPlace + (removeFavorite ? -1 : 1));
 					updateInfoPanel();

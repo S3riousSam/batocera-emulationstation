@@ -82,8 +82,8 @@ public:
 	struct SortType
 	{
 		ComparisonFunction* comparisonFunction;
-		bool ascending;
-		std::string description;
+		const bool ascending;
+		const std::string description;
 
 		SortType(ComparisonFunction* sortFunction, bool sortAscending, const std::string& sortDescription)
 			: comparisonFunction(sortFunction)

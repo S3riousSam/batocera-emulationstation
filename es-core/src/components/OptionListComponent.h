@@ -146,7 +146,7 @@ private:
 	};
 
 public:
-	OptionListComponent(Window* window, const std::string& name, bool multiSelect = false, unsigned int font_size = FONT_SIZE_MEDIUM)
+	OptionListComponent(Window* window, const std::string& name, bool multiSelect = false, unsigned int fontSize = FONT_SIZE_MEDIUM)
 		: GuiComponent(window)
 		, mMultiSelect(multiSelect)
 		, mName(name)
@@ -154,7 +154,7 @@ public:
 		, mLeftArrow(window)
 		, mRightArrow(window)
 	{
-		auto font = Font::get(font_size, FONT_PATH_LIGHT);
+		auto font = Font::get(fontSize, FONT_PATH_LIGHT);
 		mText.setFont(font);
 		mText.setColor(0x777777FF);
 		mText.setAlignment(ALIGN_CENTER);

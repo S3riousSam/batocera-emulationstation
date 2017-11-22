@@ -30,9 +30,7 @@ VolumeControl::VolumeControl()
 #endif
 {
 	init();
-
-	// get original volume levels for system
-	originalVolume = getVolume();
+	originalVolume = getVolume(); // get original volume levels for system
 }
 
 VolumeControl::VolumeControl(const VolumeControl& right)

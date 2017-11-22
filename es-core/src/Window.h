@@ -14,7 +14,7 @@ public:
 	~Window();
 
 	void pushGui(GuiComponent* gui);
-	void displayMessage(std::string message);
+	void displayMessage(const std::string& message);
 	void removeGui(GuiComponent* gui);
 	GuiComponent* peekGui();
 

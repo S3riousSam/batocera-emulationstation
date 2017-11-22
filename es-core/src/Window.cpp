@@ -45,7 +45,7 @@ void Window::pushGui(GuiComponent* gui)
 	gui->updateHelpPrompts();
 }
 
-void Window::displayMessage(std::string message)
+void Window::displayMessage(const std::string& message)
 {
 	mMessages.push_back(message);
 }
@@ -158,9 +158,7 @@ void Window::input(InputConfig* config, Input input)
 			this->pushGui(new GuiMsgBox(this, _("DO YOU WANT TO START KODI MEDIA CENTER ?"), _("YES"),
 				[window, this] {
 					if (!RecalboxSystem::getInstance()->launchKodi(window))
-					{
 						LOG(LogWarning) << "Shutdown terminated with non-zero result!";
-					}
 					launchKodi = false;
 				},
 				_("NO"), [this] { launchKodi = false; }));

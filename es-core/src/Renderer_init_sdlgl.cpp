@@ -42,7 +42,7 @@ namespace Renderer
 			return false;
 		}
 
-		// hide mouse cursor
+		// hide mouse cursor early
 		initialCursorState = SDL_ShowCursor(0) == 1;
 
 		SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);

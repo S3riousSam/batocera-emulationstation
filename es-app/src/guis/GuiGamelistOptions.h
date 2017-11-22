@@ -27,13 +27,13 @@ private:
 
 	MenuComponent mMenu;
 
-	std::vector<std::function<void()>> mSaveFuncs;
-
 	typedef OptionListComponent<char> LetterList;
 	std::shared_ptr<LetterList> mJumpToLetterList;
 
 	typedef OptionListComponent<const FileData::SortType*> SortList;
 	std::shared_ptr<SortList> mListSort;
+
+	std::vector<std::function<void()>> mSaveFuncs;
 
 	std::shared_ptr<SwitchComponent> mFavoriteOption;
 	std::shared_ptr<SwitchComponent> mShowHidden;

@@ -12,8 +12,8 @@ public:
 
 private:
 	Window* mWindow;
-	bool mRunning;
 	bool mFirstRun;
+	bool mRunning;
 	boost::thread* mThreadHandle;
 	void run();
 };

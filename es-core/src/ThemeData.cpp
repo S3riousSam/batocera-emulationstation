@@ -258,7 +258,7 @@ void ThemeData::parseElement(const pugi::xml_node& root, const std::map<std::str
 			break;
 		case PATH:
 		{
-			std::string path = resolvePath(node.text().as_string(), mPaths.back().string());
+			const std::string path = resolvePath(node.text().as_string(), mPaths.back().string());
 			if (!ResourceManager::getInstance()->fileExists(path))
 			{
 				std::stringstream ss;
@@ -341,7 +341,7 @@ std::vector<GuiComponent*> ThemeData::makeExtras(const std::shared_ptr<ThemeData
 
 	for (auto it = viewIt->second.orderedKeys.begin(); it != viewIt->second.orderedKeys.end(); it++)
 	{
-		ThemeElement& elem = viewIt->second.elements.at(*it);
+		const ThemeElement& elem = viewIt->second.elements.at(*it);
 		if (elem.extra)
 		{
 			GuiComponent* comp = NULL;
@@ -407,10 +407,7 @@ fs::path ThemeData::getThemeFromCurrentSet(const std::string& system)
 {
 	auto themeSets = ThemeData::getThemeSets();
 	if (themeSets.empty())
-	{
-		// no theme sets available
-		return "";
-	}
+		return fs::path(); // no theme sets available
 
 	auto set = themeSets.find(Settings::getInstance()->getString("ThemeSet"));
 	if (set == themeSets.end())
