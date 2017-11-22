@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "pugixml/pugixml.hpp"
 #include <Eigen/Dense>
@@ -77,7 +76,9 @@ class ThemeExtras : public GuiComponent
 {
 public:
 	ThemeExtras(Window* window)
-		: GuiComponent(window){};
+		: GuiComponent(window)
+	{
+	}
 	virtual ~ThemeExtras();
 
 	// will take ownership of the components within extras (delete them in destructor or when setExtras is called again)

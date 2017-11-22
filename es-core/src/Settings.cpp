@@ -185,9 +185,6 @@ void Settings::setMethodName(const std::string& name, type value)          \
 }
 
 SETTINGS_GETSET(bool, mBoolMap, getBool, setBool);
-
 SETTINGS_GETSET(int, mIntMap, getInt, setInt);
-
 SETTINGS_GETSET(float, mFloatMap, getFloat, setFloat);
-
 SETTINGS_GETSET(const std::string&, mStringMap, getString, setString);

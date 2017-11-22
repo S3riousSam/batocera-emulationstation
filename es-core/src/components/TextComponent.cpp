@@ -234,7 +234,7 @@ void TextComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const st
 	using namespace ThemeFlags;
 
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "text");
-	if (!elem)
+	if (elem == nullptr)
 		return;
 
 	if (properties & COLOR && elem->has("color"))
@@ -242,7 +242,7 @@ void TextComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const st
 
 	if (properties & ALIGNMENT && elem->has("alignment"))
 	{
-		std::string str = elem->get<std::string>("alignment");
+		const std::string str = elem->get<std::string>("alignment");
 		if (str == "left")
 			setAlignment(ALIGN_LEFT);
 		else if (str == "center")

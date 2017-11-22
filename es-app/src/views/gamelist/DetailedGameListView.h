@@ -1,5 +1,4 @@
 #pragma once
-
 #include "SystemData.h"
 #include "components/DateTimeComponent.h"
 #include "components/RatingComponent.h"

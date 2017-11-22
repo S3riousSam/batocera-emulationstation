@@ -40,7 +40,7 @@ BusyComponent::~BusyComponent()
 	SDL_DestroyMutex(mutex);
 }
 
-void BusyComponent::setText(std::string txt)
+void BusyComponent::setText(const std::string& txt)
 {
 	if (SDL_LockMutex(mutex) == 0)
 	{

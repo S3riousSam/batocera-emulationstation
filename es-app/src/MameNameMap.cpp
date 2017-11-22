@@ -1,6 +1,6 @@
-#define NULL 0
-
-const char* mameNameToRealName[] = {"005", "005", "10yard", "10-Yard Fight (World, set 1)", "10yard85", "10-Yard Fight '85 (US, Taito license)",
+const char* mameNameToRealName[] = {
+	"005", "005",
+    "10yard", "10-Yard Fight (World, set 1)", "10yard85", "10-Yard Fight '85 (US, Taito license)",
 	"10yardj", "10-Yard Fight (Japan)", "11beat", "Eleven Beat", "18w", "18 Wheeler (set 1)", "18w2", "18 Wheeler (set 2)", "18wheelr",
 	"18 Wheeler (Deluxe) (Rev A)", "18wheels", "18 Wheeler (Standard)", "18wheelu", "18 Wheeler (Upright)", "1941",
 	"1941: Counter Attack (World 900227)", "1941j", "1941: Counter Attack (Japan)", "1941r1", "1941: Counter Attack (World)", "1941u",
@@ -12866,4 +12866,5 @@ const char* mameNameToRealName[] = {"005", "005", "10yard", "10-Yard Fight (Worl
 	"Wonder Boy (set 4 not encrypted)", "wexpresb", "Western Express (bootleg)", "wwester1", "Wild Western (set 2)", "yard", "10 Yard Fight",
 	"yokaidko", "Yokai Douchuuki (Japan old version)", "youkaidk", "Yokai Douchuuki (Japan new version)", "zzyzzyx2", "Zzyzzyxx (set 2)",
 
-	NULL};
+	0 // NULL
+};

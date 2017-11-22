@@ -1,7 +1,4 @@
-//
 // Created by matthieu on 03/04/16.
-//
-
 #include "LibretroRatio.h"
 
 LibretroRatio* LibretroRatio::sInstance = NULL;

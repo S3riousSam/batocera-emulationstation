@@ -1,6 +1,5 @@
 #include "MamedbScraper.h"
 #include "Log.h"
-
 #include <boost/regex.hpp>
 
 void mamedb_generate_scraper_requests(
@@ -43,23 +42,19 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 			result.mdl.set("name", std::string(linematches["title"]));
 			boost::smatch tmatches;
 			if (boost::regex_match(std::string(linematches["title"]), tmatches, cleantitleregex))
-			{
 				result.mdl.set("name", std::string(tmatches["title"]));
-			}
+
 			// DATE
 			result.mdl.set("releasedate", std::string(linematches["date"]));
 
 			// DEVELOPPER
 			if (std::string(linematches["developer"]).compare(std::string("<unknown></unknown>")) != 0)
-			{
 				result.mdl.set("developer", std::string(linematches["developer"]));
-			}
+
 			// GENRE
 			boost::smatch genrematches;
 			if (boost::regex_match(line, genrematches, genreregex))
-			{
 				result.mdl.set("genre", std::string(genrematches["genre"]));
-			}
 
 			// RATING
 			boost::smatch scorematches;
@@ -74,9 +69,7 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 			// PLAYERS
 			boost::smatch playersmatches;
 			if (boost::regex_match(line, playersmatches, playersregex))
-			{
 				result.mdl.set("players", std::string(playersmatches["players"]));
-			}
 
 			// IMAGES
 			boost::smatch snapmatches;

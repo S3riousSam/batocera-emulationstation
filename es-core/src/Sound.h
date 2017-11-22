@@ -1,6 +1,4 @@
-#ifndef _SOUND_H_
-#define _SOUND_H_
-
+#pragma once
 #include "SDL_mixer.h"
 #include <map>
 #include <memory>
@@ -33,5 +31,3 @@ private:
 	Sound(const std::string& path = "");
 	static std::map<std::string, std::shared_ptr<Sound>> sMap;
 };
-
-#endif

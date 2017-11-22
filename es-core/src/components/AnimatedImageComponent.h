@@ -1,5 +1,6 @@
+#pragma once
 #include "GuiComponent.h"
-#include "ImageComponent.h"
+#include "components/ImageComponent.h"
 
 struct AnimationFrame
 {

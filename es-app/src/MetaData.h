@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "pugixml/pugixml.hpp"
 #include <boost/date_time.hpp>

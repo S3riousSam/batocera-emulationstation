@@ -1,9 +1,7 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
 #include "components/MenuComponent.h"
-
 #include <boost/thread.hpp>
 
 class GuiUpdate : public GuiComponent
@@ -31,16 +29,10 @@ private:
 	boost::thread* mPingHandle;
 
 	void onUpdateError(std::pair<std::string, int>);
-
 	void onUpdateOk();
-
 	void threadUpdate();
-
 	void threadPing();
-
 	void onUpdateAvailable();
-
 	void onNoUpdateAvailable();
-
 	void onPingError();
 };

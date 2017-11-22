@@ -1,5 +1,4 @@
 #pragma once
-
 #include "FileData.h"
 #include "MetaData.h"
 #include "PlatformId.h"
@@ -69,6 +68,7 @@ public:
 
 	std::string getGamelistPath(bool forWrite) const;
 	bool hasGamelist() const;
+
 	std::string getThemePath() const;
 
 	unsigned int getGameCount() const;

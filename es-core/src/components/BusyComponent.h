@@ -13,7 +13,7 @@ public:
 	~BusyComponent();
 
 	void onSizeChanged() override;
-	void setText(std::string txt);
+	void setText(const std::string& txt);
 
 	void reset(); // reset to frame 0
 	virtual void render(const Eigen::Affine3f& parentTrans);

@@ -1,11 +1,11 @@
 #include "Log.h"
-#include "platform.h"
+#include "platform.h" // getHomePath()
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
 LogLevel Log::reportingLevel = LogInfo;
-FILE* Log::file = NULL; // fopen(getLogPath().c_str(), "w");
+FILE* Log::file = NULL;
 
 LogLevel Log::getReportingLevel()
 {
@@ -14,8 +14,7 @@ LogLevel Log::getReportingLevel()
 
 std::string Log::getLogPath()
 {
-	std::string home = getHomePath();
-	return home + "/.emulationstation/es_log.txt";
+	return getHomePath() + "/.emulationstation/es_log.txt";
 }
 
 void Log::setReportingLevel(LogLevel level)
@@ -32,7 +31,6 @@ std::ostringstream& Log::get(LogLevel level)
 {
 	os << "lvl" << level << ": \t";
 	messageLevel = level;
-
 	return os;
 }
 

@@ -11,7 +11,7 @@ std::string HttpReq::urlEncode(const std::string& s)
 {
 	const std::string unreserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
 
-	std::string escaped = "";
+	std::string escaped;
 	for (size_t i = 0; i < s.length(); i++)
 	{
 		if (unreserved.find_first_of(s[i]) != std::string::npos)
@@ -37,12 +37,12 @@ bool HttpReq::isUrl(const std::string& str)
 }
 
 HttpReq::HttpReq(const std::string& url)
-	: mStatus(REQ_IN_PROGRESS)
-	, mHandle(NULL)
+	: mHandle(nullptr)
+	, mStatus(REQ_IN_PROGRESS)
 {
 	mHandle = curl_easy_init();
 
-	if (mHandle == NULL)
+	if (mHandle == nullptr)
 	{
 		mStatus = REQ_IO_ERROR;
 		onError("curl_easy_init failed");
@@ -94,12 +94,9 @@ HttpReq::~HttpReq()
 	{
 		s_requests.erase(mHandle);
 
-		CURLMcode merr = curl_multi_remove_handle(s_multi_handle, mHandle);
-
+		const CURLMcode merr = curl_multi_remove_handle(s_multi_handle, mHandle);
 		if (merr != CURLM_OK)
-		{
 			LOG(LogError) << "Error removing curl_easy handle from curl_multi: " << curl_multi_strerror(merr);
-		}
 
 		curl_easy_cleanup(mHandle);
 	}
@@ -120,13 +117,13 @@ HttpReq::Status HttpReq::status()
 
 		int msgs_left;
 		CURLMsg* msg;
-		while ((msg = curl_multi_info_read(s_multi_handle, &msgs_left)))
+		while (msg = curl_multi_info_read(s_multi_handle, &msgs_left))
 		{
 			if (msg->msg == CURLMSG_DONE)
 			{
 				HttpReq* req = s_requests[msg->easy_handle];
 
-				if (req == NULL)
+				if (req == nullptr)
 				{
 					LOG(LogError) << "Cannot find easy handle!";
 					continue;
@@ -178,5 +175,4 @@ size_t HttpReq::write_content(void* buff, size_t size, size_t nmemb, void* req_p
 // used as a curl callback
 /*int HttpReq::update_progress(void* req_ptr, double dlTotal, double dlNow, double ulTotal, double ulNow)
 {
-	
 }*/

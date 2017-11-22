@@ -1,6 +1,4 @@
-#ifndef _MUSIC_H_
-#define _MUSIC_H_
-
+#pragma once
 #include "SDL_mixer.h"
 #include <map>
 #include <memory>
@@ -28,5 +26,3 @@ private:
 	void initMusic();
 	void deinitMusic();
 };
-
-#endif

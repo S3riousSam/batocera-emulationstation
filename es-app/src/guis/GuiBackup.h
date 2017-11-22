@@ -1,16 +1,13 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
 #include "components/MenuComponent.h"
-
 #include <boost/thread.hpp>
 
 class GuiBackup : public GuiComponent
 {
 public:
 	GuiBackup(Window* window, std::string storageDevice);
-
 	virtual ~GuiBackup();
 
 	void render(const Eigen::Affine3f& parentTrans) override;

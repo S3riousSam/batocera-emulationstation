@@ -116,9 +116,7 @@ void AudioManager::themeChanged(const std::shared_ptr<ThemeData>& theme)
 		}
 
 		if (!runningFromPlaylist)
-		{
 			playRandomMusic();
-		}
 	}
 }
 
@@ -164,7 +162,7 @@ void AudioManager::registerMusic(std::shared_ptr<Music>& music)
 void AudioManager::unregisterSound(std::shared_ptr<Sound>& sound)
 {
 	getInstance();
-	for (unsigned int i = 0; i < sSoundVector.size(); i++)
+	for (size_t i = 0; i < sSoundVector.size(); i++)
 	{
 		if (sSoundVector.at(i) == sound)
 		{
@@ -179,7 +177,7 @@ void AudioManager::unregisterSound(std::shared_ptr<Sound>& sound)
 void AudioManager::unregisterMusic(std::shared_ptr<Music>& music)
 {
 	getInstance();
-	for (unsigned int i = 0; i < sMusicVector.size(); i++)
+	for (size_t i = 0; i < sMusicVector.size(); i++)
 	{
 		if (sMusicVector.at(i) == music)
 		{
@@ -205,9 +203,7 @@ void AudioManager::stop()
 	for (unsigned int i = 0; i < sSoundVector.size(); i++)
 	{
 		if (sSoundVector.at(i)->isPlaying())
-		{
 			sSoundVector[i]->stop();
-		}
 	}
 	// stop playing all Musics
 
@@ -220,9 +216,8 @@ std::vector<std::string> getMusicIn(const std::string& path)
 	std::vector<std::string> all_matching_files;
 
 	if (!boost::filesystem::is_directory(path))
-	{
 		return all_matching_files;
-	}
+
 	const std::string target_path(path);
 	const boost::regex my_filter(".*\\.(mp3|ogg)$");
 
@@ -277,23 +272,17 @@ void AudioManager::musicEnd()
 {
 	LOG(LogInfo) << "MusicEnded";
 	if (runningFromPlaylist && RecalboxConf::getInstance()->get("audio.bgmusic") == "1")
-	{
 		playRandomMusic();
-	}
 }
 
 void AudioManager::playCheckSound()
 {
-	std::string selectedTheme = Settings::getInstance()->getString("ThemeSet");
+	const std::string selectedTheme = Settings::getInstance()->getString("ThemeSet");
 	std::string loadingMusic = getHomePath() + "/.emulationstation/themes/" + selectedTheme + "/fx/loading.ogg";
 
 	if (boost::filesystem::exists(loadingMusic) == false)
-	{
 		loadingMusic = "/recalbox/share_init/system/.emulationstation/themes/" + selectedTheme + "/fx/loading.ogg";
-	}
 
 	if (boost::filesystem::exists(loadingMusic))
-	{
 		Music::get(loadingMusic)->play(false, NULL);
-	}
 }

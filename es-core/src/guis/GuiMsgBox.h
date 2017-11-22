@@ -3,7 +3,7 @@
 #include "GuiComponent.h"
 #include "components/ComponentGrid.h"
 #include "components/NinePatchComponent.h"
-#include "resources/Font.h"
+#include "resources/Font.h" // Alignment
 
 class TextComponent;
 class ButtonComponent;

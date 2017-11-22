@@ -1,5 +1,4 @@
-#ifndef _RENDERER_H_
-#define _RENDERER_H_
+#pragma once
 
 #include "platform.h"
 #include "platform_gl.h"
@@ -36,5 +35,3 @@ namespace Renderer
 	void drawRect(
 		float x, float y, float w, float h, unsigned int color, GLenum blend_sfactor = GL_SRC_ALPHA, GLenum blend_dfactor = GL_ONE_MINUS_SRC_ALPHA);
 } // namespace Renderer
-
-#endif

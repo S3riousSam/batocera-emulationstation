@@ -129,6 +129,7 @@ void InputManager::addAllJoysticks()
 		addJoystickByDeviceIndex(i);
 	}
 }
+
 void InputManager::clearJoystick()
 {
 	for (auto iter = mJoysticks.begin(); iter != mJoysticks.end(); iter++)
@@ -149,6 +150,7 @@ void InputManager::clearJoystick()
 	}
 	mPrevAxisValues.clear();
 }
+
 void InputManager::deinit()
 {
 	if (!initialized())

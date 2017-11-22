@@ -182,9 +182,7 @@ public:
 		mRightArrow.setResize(0, mText.getFont()->getLetterHeight());
 
 		if (mSize.x() < (mLeftArrow.getSize().x() + mRightArrow.getSize().x()))
-		{
 			LOG(LogWarning) << "OptionListComponent too narrow!";
-		}
 
 		mText.setSize(mSize.x() - mLeftArrow.getSize().x() - mRightArrow.getSize().x(), mText.getFont()->getHeight());
 
@@ -248,15 +246,8 @@ public:
 	T getSelected()
 	{
 		assert(mMultiSelect == false);
-		auto selected = getSelectedObjects();
-		if (selected.size() == 1)
-		{
-			return selected.at(0);
-		}
-		else
-		{
-			return T();
-		}
+		const auto selected = getSelectedObjects();
+		return (selected.size() == 1) ? selected.at(0) : T();
 	}
 
 	std::string getSelectedName()
@@ -267,7 +258,7 @@ public:
 			if (mEntries.at(i).selected)
 				return mEntries.at(i).name;
 		}
-		return "";
+		return std::string();
 	}
 
 	void add(const std::string& name, const T& obj, bool selected)
@@ -344,9 +335,7 @@ private:
 		}
 
 		if (mSelectedChangedCallback)
-		{
 			mSelectedChangedCallback(mEntries.at(getSelectedId()).object);
-		}
 	}
 
 	std::vector<HelpPrompt> getHelpPrompts() override

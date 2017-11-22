@@ -35,9 +35,8 @@ public:
 		row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(label), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		row.addElement(comp, false, invert_when_selected);
 		if (acceptCallback)
-		{
 			row.makeAcceptInputHandler(acceptCallback);
-		}
+
 		addRow(row, setCursorHere);
 	}
 

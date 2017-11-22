@@ -1,10 +1,8 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/ComponentGrid.h"
 #include "components/NinePatchComponent.h"
 #include "scrapers/Scraper.h"
-
 #include <queue>
 
 class ScraperSearchComponent;

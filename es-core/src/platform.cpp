@@ -54,7 +54,7 @@ std::string getHomePath()
 
 int runShutdownCommand()
 {
-#ifdef WIN32 // windows
+#if defined(WIN32)
 	return system("shutdown -s -t 0");
 #else // osx / linux
 	return system("poweroff");
@@ -63,7 +63,7 @@ int runShutdownCommand()
 
 int runRestartCommand()
 {
-#ifdef WIN32 // windows
+#if defined(WIN32)
 	return system("shutdown -r -t 0");
 #else // osx / linux
 	return system("reboot");

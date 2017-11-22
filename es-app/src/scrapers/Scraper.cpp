@@ -28,7 +28,6 @@ std::vector<std::string> getScraperList()
 	{
 		list.push_back(it->first);
 	}
-
 	return list;
 }
 
@@ -50,7 +49,7 @@ void ScraperSearchHandle::update()
 
 		if (status == ASYNC_ERROR)
 		{
-			// propegate error
+			// propagate error
 			setError(req->getStatusString());
 
 			// empty our queue
@@ -94,7 +93,7 @@ ScraperHttpRequest::ScraperHttpRequest(std::vector<ScraperSearchResult>& results
 
 void ScraperHttpRequest::update()
 {
-	HttpReq::Status status = mReq->status();
+	const HttpReq::Status status = mReq->status();
 	if (status == HttpReq::REQ_SUCCESS)
 	{
 		setStatus(ASYNC_DONE); // if process() has an error, status will be changed to ASYNC_ERROR
@@ -242,8 +241,8 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 		return false;
 	}
 
-	float width = (float)FreeImage_GetWidth(image);
-	float height = (float)FreeImage_GetHeight(image);
+	const float width = (float)FreeImage_GetWidth(image);
+	const float height = (float)FreeImage_GetHeight(image);
 
 	if (maxWidth == 0)
 	{
@@ -263,13 +262,11 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 		return false;
 	}
 
-	bool saved = FreeImage_Save(format, imageRescaled, path.c_str());
+	const bool saved = FreeImage_Save(format, imageRescaled, path.c_str());
 	FreeImage_Unload(imageRescaled);
 
 	if (!saved)
-	{
 		LOG(LogError) << "Failed to save resized image!";
-	}
 
 	return saved;
 }

@@ -118,9 +118,7 @@ namespace Renderer
 			// if vsync is requested, try late swap tearing; if that doesn't work, try normal vsync
 			// if that doesn't work, report an error
 			if (SDL_GL_SetSwapInterval(-1) != 0 && SDL_GL_SetSwapInterval(1) != 0)
-			{
 				LOG(LogWarning) << "Tried to enable vsync, but failed! (" << SDL_GetError() << ")";
-			}
 		}
 
 		return true;

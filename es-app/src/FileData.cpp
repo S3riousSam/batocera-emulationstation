@@ -47,7 +47,7 @@ FileData::FileData(FileType type, const fs::path& path, SystemData* system)
 	: mType(type)
 	, mPath(path)
 	, mSystem(system)
-	, mParent(NULL)
+	, mParent(nullptr)
 	, metadata(type == GAME ? GAME_METADATA : FOLDER_METADATA) // metadata is REALLY set in the constructor!
 {
 	// metadata needs at least a name field (since that's what getName() will return)
@@ -58,7 +58,7 @@ FileData::FileData(FileType type, const fs::path& path, SystemData* system)
 
 FileData::~FileData()
 {
-	if (mParent)
+	if (mParent != nullptr)
 		mParent->removeChild(this);
 
 	clear();

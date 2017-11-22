@@ -1,5 +1,4 @@
 #pragma once
-
 #include "FileData.h"
 #include <vector>
 

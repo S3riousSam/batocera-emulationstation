@@ -109,7 +109,7 @@ public:
 		onCursorChanged(CURSOR_STOPPED);
 	}
 
-	inline const std::string& getSelectedName()
+	inline const std::string& getSelectedName() const
 	{
 		assert(size() > 0);
 		return mEntries.at(mCursor).name;

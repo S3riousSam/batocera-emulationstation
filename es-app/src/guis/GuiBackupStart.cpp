@@ -1,5 +1,5 @@
 #include "guis/GuiBackupStart.h"
-
+#include "LocaleES.h"
 #include "RecalboxSystem.h"
 #include "components/OptionListComponent.h"
 #include "guis/GuiBackup.h"
@@ -7,8 +7,6 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>
-
-#include "LocaleES.h"
 
 GuiBackupStart::GuiBackupStart(Window* window)
 	: GuiComponent(window)
@@ -27,7 +25,7 @@ GuiBackupStart::GuiBackupStart(Window* window)
 			boost::split(tokens, (*it), boost::is_any_of(" "));
 			if (tokens.size() >= 3)
 			{
-				// concatenat the ending words
+				// concatenate the ending words
 				std::string vname = "";
 				for (unsigned int i = 2; i < tokens.size(); i++)
 				{
@@ -44,7 +42,6 @@ GuiBackupStart::GuiBackupStart(Window* window)
 		}
 	}
 	mMenu.addWithLabel(_("TARGET DEVICE"), moptionsStorage);
-
 	mMenu.addButton(_("START"), "start", std::bind(&GuiBackupStart::start, this));
 	mMenu.addButton(_("BACK"), "back", [&] { delete this; });
 
@@ -53,7 +50,7 @@ GuiBackupStart::GuiBackupStart(Window* window)
 
 void GuiBackupStart::start()
 {
-	if (moptionsStorage->getSelected() != "")
+	if (!moptionsStorage->getSelected().empty())
 	{
 		mWindow->pushGui(new GuiBackup(mWindow, moptionsStorage->getSelected()));
 		delete this;
@@ -62,7 +59,7 @@ void GuiBackupStart::start()
 
 bool GuiBackupStart::input(InputConfig* config, Input input)
 {
-	bool consumed = GuiComponent::input(config, input);
+	const bool consumed = GuiComponent::input(config, input);
 	if (consumed)
 		return true;
 

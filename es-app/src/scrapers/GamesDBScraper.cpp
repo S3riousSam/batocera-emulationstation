@@ -29,10 +29,7 @@ void thegamesdb_generate_scraper_requests(
 {
 	std::string path = "thegamesdb.net/api/GetGame.php?";
 
-	std::string cleanName = params.nameOverride;
-	if (cleanName.empty())
-		cleanName = params.game->getCleanName();
-
+	const std::string cleanName = !params.nameOverride.empty() ? params.nameOverride : params.game->getCleanName();
 	path += "name=" + HttpReq::urlEncode(cleanName);
 
 	if (params.system->getPlatformIds().empty())
@@ -103,13 +100,13 @@ void TheGamesDBRequest::process(const std::unique_ptr<HttpReq>& req, std::vector
 
 		if (Settings::getInstance()->getBool("ScrapeRatings") && game.child("Rating"))
 		{
-			float ratingVal = (game.child("Rating").text().as_int() / 10.0f);
+			const float ratingVal = (game.child("Rating").text().as_int() / 10.0f);
 			std::stringstream ss;
 			ss << ratingVal;
 			result.mdl.set("rating", ss.str());
 		}
 
-		pugi::xml_node images = game.child("Images");
+		const pugi::xml_node images = game.child("Images");
 
 		if (images)
 		{

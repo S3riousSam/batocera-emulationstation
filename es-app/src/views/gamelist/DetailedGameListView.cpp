@@ -130,7 +130,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	}
 
 	initMDValues();
-	std::vector<GuiComponent*> values = getMDValues();
+	const std::vector<GuiComponent*> values = getMDValues();
 
 	if (mSystem->getHasFavorites())
 	{
@@ -198,10 +198,10 @@ void DetailedGameListView::initMDValues()
 {
 	using namespace Eigen;
 
-	std::vector<TextComponent*> labels = getMDLabels();
-	std::vector<GuiComponent*> values = getMDValues();
+	const std::vector<TextComponent*> labels = getMDLabels();
+	const std::vector<GuiComponent*> values = getMDValues();
 
-	std::shared_ptr<Font> defaultFont = Font::get(FONT_SIZE_SMALL);
+	const std::shared_ptr<Font> defaultFont = Font::get(FONT_SIZE_SMALL);
 	mRating.setSize(defaultFont->getHeight() * 5.0f, (float)defaultFont->getHeight());
 	mReleaseDate.setFont(defaultFont);
 	mDeveloper.setFont(defaultFont);
@@ -221,7 +221,7 @@ void DetailedGameListView::initMDValues()
 		values[i]->setPosition(labels[i]->getPosition() + Vector3f(labels[i]->getSize().x(), heightDiff, 0));
 		values[i]->setSize(colSize - labels[i]->getSize().x(), values[i]->getSize().y());
 
-		float testBot = values[i]->getPosition().y() + values[i]->getSize().y();
+		const float testBot = values[i]->getPosition().y() + values[i]->getSize().y();
 		if (testBot > bottom)
 			bottom = testBot;
 	}
@@ -232,7 +232,7 @@ void DetailedGameListView::initMDValues()
 
 void DetailedGameListView::updateInfoPanel()
 {
-	FileData* file = (mList.size() == 0 || mList.isScrolling()) ? NULL : mList.getSelected();
+	const FileData* file = (mList.size() == 0 || mList.isScrolling()) ? NULL : mList.getSelected();
 
 	bool fadingOut;
 	if (file == NULL)
@@ -297,6 +297,7 @@ void DetailedGameListView::launch(FileData* game)
 std::vector<TextComponent*> DetailedGameListView::getMDLabels()
 {
 	std::vector<TextComponent*> ret;
+	ret.reserve(9);
 	ret.push_back(&mLblRating);
 	ret.push_back(&mLblReleaseDate);
 	ret.push_back(&mLblDeveloper);
@@ -306,15 +307,15 @@ std::vector<TextComponent*> DetailedGameListView::getMDLabels()
 	ret.push_back(&mLblLastPlayed);
 	ret.push_back(&mLblPlayCount);
 	if (mSystem->getHasFavorites())
-	{
 		ret.push_back(&mLblFavorite);
-	}
+
 	return ret;
 }
 
 std::vector<GuiComponent*> DetailedGameListView::getMDValues()
 {
 	std::vector<GuiComponent*> ret;
+	ret.reserve(9);
 	ret.push_back(&mRating);
 	ret.push_back(&mReleaseDate);
 	ret.push_back(&mDeveloper);
@@ -335,9 +336,8 @@ std::vector<HelpPrompt> DetailedGameListView::getHelpPrompts()
 	std::vector<HelpPrompt> prompts;
 
 	if (Settings::getInstance()->getBool("QuickSystemSelect"))
-	{
 		prompts.push_back(HelpPrompt("left/right", _("SYSTEM")));
-	}
+
 	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
 	prompts.push_back(HelpPrompt("b", _("LAUNCH")));
 	prompts.push_back(HelpPrompt("a", _("BACK")));

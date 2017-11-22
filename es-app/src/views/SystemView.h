@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/IList.h"
 #include "components/ImageComponent.h"

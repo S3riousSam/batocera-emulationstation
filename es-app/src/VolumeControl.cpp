@@ -87,7 +87,7 @@ void VolumeControl::init()
 		if (snd_mixer_open(&mixerHandle, 0) >= 0)
 		{
 			LOG(LogDebug) << "VolumeControl::init() - Opened ALSA mixer";
-			// ok. attach to defualt card
+			// ok. attach to default card
 			if (snd_mixer_attach(mixerHandle, mixerCard) >= 0)
 			{
 				LOG(LogDebug) << "VolumeControl::init() - Attached to default card";

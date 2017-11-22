@@ -213,7 +213,7 @@ int run_scraper_cmdline()
 
 					int choice = -1;
 					std::string choice_str;
-					
+
 					out << "Your choice: ";
 
 					std::getline(std::cin, choice_str);

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "scrapers/Scraper.h"
 
 void mamedb_generate_scraper_requests(

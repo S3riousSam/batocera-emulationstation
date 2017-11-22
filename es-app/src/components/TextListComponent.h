@@ -1,5 +1,4 @@
 #pragma once
-
 #include "InputManager.h"
 #include "Log.h"
 #include "Renderer.h"
@@ -329,10 +328,10 @@ void TextListComponent<T>::add(const std::string& name, const T& obj, unsigned i
 {
 	assert(color < COLOR_ID_COUNT);
 
-	typename IList<TextListData, T>::Entry entry;
-	entry.name = name;
-	entry.object = obj;
-	entry.data.colorId = color;
+	const typename IList<TextListData, T>::Entry entry = {name, obj, TextListData{color}};
+	// entry.name = name;
+	// entry.object = obj;
+	// entry.data.colorId = color;
 	static_cast<IList<TextListData, T>*>(this)->add(entry);
 }
 

@@ -1,10 +1,5 @@
-//
 // Created by matthieu on 03/04/16.
-//
-
-#ifndef EMULATIONSTATION_ALL_LIBRETRORATIO_H
-#define EMULATIONSTATION_ALL_LIBRETRORATIO_H
-
+#pragma once
 #include <map>
 #include <string>
 
@@ -19,5 +14,3 @@ private:
 	std::map<std::string, std::string>* ratioMap;
 	LibretroRatio();
 };
-
-#endif // EMULATIONSTATION_ALL_LIBRETRORATIO_H

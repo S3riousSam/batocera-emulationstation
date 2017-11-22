@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "resources/Font.h"
 #include <boost/date_time.hpp>

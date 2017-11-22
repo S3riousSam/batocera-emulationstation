@@ -1,5 +1,4 @@
 #include "components/ScraperSearchComponent.h"
-
 #include "HttpReq.h"
 #include "LocaleES.h"
 #include "Log.h"

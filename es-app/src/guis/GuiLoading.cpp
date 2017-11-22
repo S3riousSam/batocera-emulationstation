@@ -1,7 +1,4 @@
-//
 // Created by matthieu on 03/08/15.
-//
-
 #include "GuiLoading.h"
 #include "guis/GuiMsgBox.h"
 
@@ -15,11 +12,11 @@
 GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc)
 	: GuiComponent(window)
 	, mBusyAnim(window)
-	, mFunc(mFunc)
+	, mFunc1(mFunc)
 	, mFunc2(NULL)
+	, mRunning(true)
 {
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
-	mRunning = true;
+	setSize(static_cast<float>(Renderer::getScreenWidth()), static_cast<float>(Renderer::getScreenHeight()));
 	mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
 	mBusyAnim.setSize(mSize);
 }
@@ -27,11 +24,11 @@ GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc)
 GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc, const std::function<void(void*)>& mFunc2)
 	: GuiComponent(window)
 	, mBusyAnim(window)
-	, mFunc(mFunc)
+	, mFunc1(mFunc)
 	, mFunc2(mFunc2)
+	, mRunning(true)
 {
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
-	mRunning = true;
+	setSize(static_cast<float>(Renderer::getScreenWidth()), static_cast<float>(Renderer::getScreenHeight()));
 	mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
 	mBusyAnim.setSize(mSize);
 }
@@ -54,7 +51,7 @@ std::vector<HelpPrompt> GuiLoading::getHelpPrompts()
 
 void GuiLoading::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
+	const Eigen::Affine3f trans = parentTrans * getTransform();
 
 	renderChildren(trans);
 
@@ -73,13 +70,13 @@ void GuiLoading::update(int deltaTime)
 	if (!mRunning)
 	{
 		if (mFunc2 != NULL)
-			mFunc2(result);
+			mFunc2(mResult);
 		delete this;
 	}
 }
 
 void GuiLoading::threadLoading()
 {
-	result = mFunc();
+	mResult = mFunc1();
 	mRunning = false;
 }

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
 #include "components/ComponentGrid.h"

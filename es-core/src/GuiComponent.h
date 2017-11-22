@@ -1,5 +1,4 @@
 #pragma once
-
 #include "HelpStyle.h"
 #include "InputConfig.h"
 #include <Eigen/Dense>

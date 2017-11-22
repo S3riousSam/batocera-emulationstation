@@ -58,8 +58,7 @@ GuiDetectDevice::GuiDetectDevice(Window* window, bool firstRun, const std::funct
 	}
 	else
 	{
-		mMsg2 =
-			std::make_shared<TextComponent>(mWindow, _("PRESS ESC OR THE HOTKEY TO CANCEL."), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
+		mMsg2 = std::make_shared<TextComponent>(mWindow, _("PRESS ESC OR THE HOTKEY TO CANCEL."), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
 	}
 	mGrid.setEntry(mMsg2, Vector2i(0, 3), false, true);
 

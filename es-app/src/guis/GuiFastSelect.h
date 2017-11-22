@@ -1,18 +1,16 @@
 #pragma once
-
 #include "GuiComponent.h"
-#include "views/gamelist/IGameListView.h"
-
 #include "components/NinePatchComponent.h"
 #include "components/TextComponent.h"
+#include "views/gamelist/IGameListView.h"
 
 class GuiFastSelect : public GuiComponent
 {
 public:
 	GuiFastSelect(Window* window, IGameListView* gamelist);
 
-	bool input(InputConfig* config, Input input);
-	void update(int deltaTime);
+	bool input(InputConfig* config, Input input) override;
+	void update(int deltaTime) override;
 	virtual void setScrollDir(int dir);
 
 private:

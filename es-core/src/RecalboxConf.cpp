@@ -100,7 +100,7 @@ bool RecalboxConf::saveRecalboxConf()
 
 	fileout.close();
 
-	/* Copy back the tmp to recalbox.conf */
+	// Copy back the tmp to recalbox.conf
 	std::ifstream src(recalboxConfFileTmp, std::ios::binary);
 	std::ofstream dst(recalboxConfFile, std::ios::binary);
 	dst << src.rdbuf();

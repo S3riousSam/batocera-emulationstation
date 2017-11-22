@@ -166,6 +166,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			});
 			row.addElement(std::make_shared<TextComponent>(window, _("SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 			s->addRow(row);
+
 			row.elements.clear();
 			row.makeAcceptInputHandler([window] {
 				window->pushGui(new GuiMsgBox(window, _("REALLY SHUTDOWN WITHOUT SAVING METADATAS?"), _("YES"),
@@ -450,11 +451,13 @@ HelpStyle SystemView::getHelpStyle()
 void SystemView::removeFavoriteSystem()
 {
 	for (auto it = mEntries.begin(); it != mEntries.end(); it++)
+	{
 		if (it->object->isFavorite())
 		{
 			mEntries.erase(it);
 			break;
 		}
+	}
 }
 
 void SystemView::manageFavorite()
@@ -469,15 +472,11 @@ void SystemView::manageFavorite()
 	if (hasFavorite)
 	{
 		if (favorite->getFavoritesCount() == 0)
-		{
 			removeFavoriteSystem();
-		}
 	}
 	else
 	{
 		if (favorite->getFavoritesCount() > 0)
-		{
 			addSystem(favorite);
-		}
 	}
 }

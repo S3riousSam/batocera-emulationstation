@@ -225,7 +225,7 @@ void Window::update(int deltaTime)
 
 void Window::render()
 {
-	Eigen::Affine3f transform = Eigen::Affine3f::Identity();
+	const Eigen::Affine3f transform = Eigen::Affine3f::Identity();
 
 	mRenderedHelpPrompts = false;
 
@@ -252,7 +252,7 @@ void Window::render()
 		mDefaultFonts.at(1)->renderTextCache(mFrameDataText.get());
 	}
 
-	unsigned int screensaverTime = (unsigned int)Settings::getInstance()->getInt("ScreenSaverTime");
+	const unsigned int screensaverTime = (unsigned int)Settings::getInstance()->getInt("ScreenSaverTime");
 	if (mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 	{
 		renderScreenSaver();
@@ -303,6 +303,7 @@ void Window::renderWaitingScreen(const std::string& text)
 
 	Renderer::swapBuffers();
 }
+
 void Window::renderLoadingScreen()
 {
 	renderWaitingScreen(_("LOADING..."));
