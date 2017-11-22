@@ -1,34 +1,12 @@
-/*
- * Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- */
+//  Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
 #include "GuiRomsManager.h"
 #include "Settings.h"
 #include "SystemData.h"
 #include "Util.h"
 #include "Window.h"
+#include "components/FileSystemSelectorComponent.h"
 #include "guis/GuiTextEditPopup.h"
 #include "views/gamelist/BasicGameListView.h"
-
-#include "components/FileSystemSelectorComponent.h"
-
 #include <boost/format.hpp>
 #include <boost/system/error_code.hpp>
 
@@ -47,13 +25,7 @@ namespace
 	{
 		const std::string leftName = strToUpper(lhs->getName());
 		const std::string rightName = strToUpper(rhs->getName());
-
-		if (lhs->getType() == rhs->getType())
-		{
-			return leftName.compare(rightName) < 0;
-		}
-
-		return lhs->getType() == FOLDER;
+		return (lhs->getType() == rhs->getType()) ? (leftName.compare(rightName) < 0) : (lhs->getType() == FOLDER);
 	}
 
 	bool createDirectories(const fs::path& target)
@@ -99,7 +71,7 @@ namespace
 	}
 } // namespace
 
-class RomsListView : public BasicGameListView
+class RomsListView final : public BasicGameListView
 {
 private:
 	GuiRomsManager::PlatformData m_data;
@@ -118,6 +90,7 @@ public:
 		}
 		catch (...)
 		{
+			// TODO!!!
 		}
 
 		setTheme(theme);
@@ -137,9 +110,7 @@ public:
 		prompts.push_back(HelpPrompt("up/down", "move"));
 
 		if (fs::is_directory(getCursor()->getPath()))
-		{
 			prompts.push_back(HelpPrompt("b", "cd in"));
-		}
 
 		prompts.push_back(HelpPrompt("a", "cd up / back"));
 		return prompts;
@@ -196,25 +167,19 @@ public:
 
 				// Don't handle existing non symlink files.
 				if (fs::exists(platformRomFilePath) && !isSymLink)
-				{
 					return true;
-				}
 
 				if (cursor->getType() == GAME)
 				{
 					if (isSymLink)
 					{
 						if (removeFileSymLink(platformRomFilePath))
-						{
 							updateCursor(cursorId, cursor);
-						}
 					}
 					else
 					{
 						if (createFileSymLink(cursor->getPath(), platformRomFilePath))
-						{
 							updateCursor(cursorId, cursor);
-						}
 					}
 				}
 				else if (cursor->getType() == FOLDER)
@@ -222,16 +187,12 @@ public:
 					if (isSymLink)
 					{
 						if (removeDirectorySymLink(platformRomFilePath))
-						{
 							updateCursor(cursorId, cursor);
-						}
 					}
 					else
 					{
 						if (createDirectorySymLink(cursor->getPath(), platformRomFilePath))
-						{
 							updateCursor(cursorId, cursor);
-						}
 					}
 				}
 			}
@@ -259,7 +220,7 @@ public:
 		}
 	}
 
-protected:
+private:
 	virtual void launch(FileData*) override
 	{
 	}
@@ -274,8 +235,7 @@ protected:
 		const fs::path fileName = fileData->getPath().filename();
 		const fs::path platformRomsPath = m_data.romsPath;
 		const fs::path platformRomFilePath = fs::absolute(fileName, platformRomsPath);
-		const bool isSymLink = fs::is_symlink(platformRomFilePath);
-		mList.changeCursorName(cursorId, formatName(fileData->getName(), isSymLink));
+		mList.changeCursorName(cursorId, formatName(fileData->getName(), fs::is_symlink(platformRomFilePath)));
 	}
 };
 
@@ -363,21 +323,13 @@ fs::path GuiRomsManager::platformIdRomsPath(PlatformIds::PlatformId platform)
 {
 	const std::string path = getExpandedPath(STRING_SETTING(DEFAULT_ROMS_PATH_KEY));
 	const std::string name = PlatformIds::getPlatformName(platform);
-
-	if (!path.empty())
-	{
-		return fs::absolute(name, path);
-	}
-
-	return fs::path();
+	return !path.empty() ? fs::absolute(name, path) : fs::path();
 }
 
 fs::path GuiRomsManager::platformIdExternalRomsPath(PlatformIds::PlatformId platform)
 {
 	if (platform == PlatformIds::PLATFORM_UNKNOWN)
-	{
 		return fs::path();
-	}
 
 	const std::string key = platformIdExternalRomsKey(platform);
 	return getExpandedPath(STRING_SETTING(key));
@@ -385,12 +337,8 @@ fs::path GuiRomsManager::platformIdExternalRomsPath(PlatformIds::PlatformId plat
 
 GuiRomsManager::PlatformData GuiRomsManager::currentPlatformData() const
 {
-	PlatformData data;
-	data.id = m_platforms->getSelected();
-	data.name = PlatformIds::getPlatformName(data.id);
-	data.romsPath = platformIdRomsPath(data.id);
-	data.externalRomsPath = platformIdExternalRomsPath(data.id);
-	return data;
+	return PlatformData{m_platforms->getSelected(), PlatformIds::getPlatformName(m_platforms->getSelected()),
+		platformIdRomsPath(m_platforms->getSelected()), platformIdExternalRomsPath(m_platforms->getSelected())};
 }
 
 void GuiRomsManager::editDefaultRomsPath()
@@ -446,17 +394,9 @@ void GuiRomsManager::showCurrentPlatformRomsManager()
 	const GuiRomsManager::PlatformData data = currentPlatformData();
 
 	if (data.romsPath.empty() || !fs::is_directory(data.externalRomsPath))
-	{
 		return;
-	}
-
-	if (!fs::exists(data.romsPath))
-	{
-		if (!createDirectories(data.romsPath))
-		{
-			return;
-		}
-	}
+	if (!fs::exists(data.romsPath) && !createDirectories(data.romsPath))
+		return;
 
 	mWindow->pushGui(new RomsListView(mWindow, m_fileData.get(), data));
 }

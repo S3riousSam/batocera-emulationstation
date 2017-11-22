@@ -1,5 +1,4 @@
 #include "components/ButtonComponent.h"
-#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
@@ -82,8 +81,7 @@ void ButtonComponent::updateImage()
 		return;
 	}
 
-	// If a new color has been set.
-	if (mNewColor)
+	if (mNewColor) // If a new color has been set.
 	{
 		mBox.setImagePath(":/button_filled.png");
 		mBox.setCenterColor(mModdedColor);

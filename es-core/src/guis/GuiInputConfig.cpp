@@ -65,9 +65,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	if (target->getDeviceId() == DEVICE_KEYBOARD)
 		strncpy(strbuf, _("KEYBOARD").c_str(), 256);
 	else
-	{
 		snprintf(strbuf, 256, _("GAMEPAD %i").c_str(), target->getDeviceId() + 1);
-	}
 
 	mSubtitle1 = std::make_shared<TextComponent>(mWindow, strToUpper(strbuf), Font::get(FONT_SIZE_MEDIUM), 0x555555FF, ALIGN_CENTER);
 	mGrid.setEntry(mSubtitle1, Vector2i(0, 2), false, true);
@@ -79,7 +77,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 
 	mList = std::make_shared<ComponentList>(mWindow);
 	mGrid.setEntry(mList, Vector2i(0, 5), true, true);
-	bool hasAxis = InputManager::getInstance()->getAxisCountByDevice(target->getDeviceId()) > 0;
+	const bool hasAxis = InputManager::getInstance()->getAxisCountByDevice(target->getDeviceId()) > 0;
 	int inputRowIndex = 0;
 	for (int i = 0; i < inputCount; i++)
 	{
