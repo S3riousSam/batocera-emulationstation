@@ -1,9 +1,11 @@
 #include "components/DateTimeComponent.h"
-#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
 #include "Window.h"
+#include "LocaleES.h"
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
 
 DateTimeComponent::DateTimeComponent(Window* window, DisplayMode dispMode)
 	: GuiComponent(window)
@@ -30,7 +32,7 @@ bool DateTimeComponent::input(InputConfig* config, Input input)
 	if (input.value == 0)
 		return false;
 
-	if (config->isMappedTo("b", input))
+	if (config->isMappedTo(BUTTON_LAUNCH, input))
 	{
 		if (mDisplayMode != DISP_RELATIVE_TO_NOW) // don't allow editing for relative times
 			mEditing = !mEditing;
@@ -53,7 +55,7 @@ bool DateTimeComponent::input(InputConfig* config, Input input)
 
 	if (mEditing)
 	{
-		if (config->isMappedTo("a", input))
+		if (config->isMappedTo(BUTTON_BACK, input))
 		{
 			mEditing = false;
 			mTime = mTimeBeforeEdit;

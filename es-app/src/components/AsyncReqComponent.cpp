@@ -1,6 +1,9 @@
 #include "components/AsyncReqComponent.h"
 #include "Renderer.h"
 
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
+
 AsyncReqComponent::AsyncReqComponent(
 	Window* window, std::shared_ptr<HttpReq> req, std::function<void(std::shared_ptr<HttpReq>)> onSuccess, std::function<void()> onCancel)
 	: GuiComponent(window)
@@ -13,7 +16,7 @@ AsyncReqComponent::AsyncReqComponent(
 
 bool AsyncReqComponent::input(InputConfig* config, Input input)
 {
-	if (input.value != 0 && config->isMappedTo("a", input))
+	if (input.value != 0 && config->isMappedTo(BUTTON_BACK, input))
 	{
 		if (mCancelFunc)
 			mCancelFunc();
@@ -49,6 +52,6 @@ void AsyncReqComponent::render(const Eigen::Affine3f& parentTrans)
 std::vector<HelpPrompt> AsyncReqComponent::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts;
-	prompts.push_back(HelpPrompt("a", "cancel"));
+	prompts.push_back(HelpPrompt(BUTTON_BACK, "cancel"));
 	return prompts;
 }

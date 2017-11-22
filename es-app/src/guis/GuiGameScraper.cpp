@@ -10,6 +10,9 @@
 #include "guis/GuiTextEditPopupKeyboard.h"
 #include "scrapers/Scraper.h"
 
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
+
 GuiGameScraper::GuiGameScraper(Window* window, ScraperSearchParams params, std::function<void(const ScraperSearchResult&)> doneFunc)
 	: GuiComponent(window)
 	, mGrid(window, Eigen::Vector2i(1, 7))
@@ -100,7 +103,7 @@ void GuiGameScraper::onSizeChanged()
 
 bool GuiGameScraper::input(InputConfig* config, Input input)
 {
-	if (config->isMappedTo("a", input) && input.value)
+	if (config->isMappedTo(BUTTON_BACK, input) && input.value)
 	{
 		delete this;
 		return true;

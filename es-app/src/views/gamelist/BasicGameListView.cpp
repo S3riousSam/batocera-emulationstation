@@ -6,6 +6,8 @@
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
 
 BasicGameListView::BasicGameListView(Window* window, FileData* root)
 	: ISimpleGameListView(window, root)
@@ -49,7 +51,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	mHeaderText.setText(systemData ? systemData->getFullName() : root->getCleanName());
 
 	bool favoritesOnly = false;
-	bool showHidden = Settings::getInstance()->getBool("ShowHidden");
+	const bool showHidden = Settings::getInstance()->getBool("ShowHidden");
 
 	if (Settings::getInstance()->getBool("FavoritesOnly") && !systemData->isFavorite())
 	{
@@ -228,8 +230,8 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	if (Settings::getInstance()->getBool("QuickSystemSelect"))
 		prompts.push_back(HelpPrompt("left/right", _("SYSTEM")));
 	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
-	prompts.push_back(HelpPrompt("b", _("LAUNCH")));
-	prompts.push_back(HelpPrompt("a", _("BACK")));
+	prompts.push_back(HelpPrompt(BUTTON_LAUNCH, _("LAUNCH")));
+	prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK")));
 	if (getRoot()->getSystem() != SystemData::getFavoriteSystem())
 	{
 		prompts.push_back(HelpPrompt("y", _("Favorite")));

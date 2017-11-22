@@ -3,6 +3,8 @@
 #include "Settings.h"
 #include "Window.h"
 #include "views/ViewController.h"
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
 
 GuiSettings::GuiSettings(Window* window, const char* title)
 	: GuiComponent(window)
@@ -35,7 +37,7 @@ void GuiSettings::save()
 
 bool GuiSettings::input(InputConfig* config, Input input)
 {
-	if (config->isMappedTo("a", input) && input.value != 0)
+	if (config->isMappedTo(BUTTON_BACK, input) && input.value != 0)
 	{
 		delete this;
 		return true;
@@ -57,7 +59,7 @@ std::vector<HelpPrompt> GuiSettings::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts = mMenu.getHelpPrompts();
 
-	prompts.push_back(HelpPrompt("a", _("BACK")));
+	prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK")));
 	prompts.push_back(HelpPrompt("start", _("CLOSE")));
 
 	return prompts;

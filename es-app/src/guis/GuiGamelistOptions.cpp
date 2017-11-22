@@ -7,6 +7,8 @@
 #include "views/ViewController.h"
 #include "views/gamelist/IGameListView.h"
 #include <RecalboxConf.h>
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 	: GuiComponent(window)
@@ -28,7 +30,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 	row.addElement(std::make_shared<TextComponent>(mWindow, _("JUMP TO LETTER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.addElement(mJumpToLetterList, false);
 	row.input_handler = [&](InputConfig* config, Input input) {
-		if (config->isMappedTo("b", input) && input.value)
+		if (config->isMappedTo(BUTTON_LAUNCH, input) && input.value)
 		{
 			jumpToLetter();
 			return true;
@@ -43,7 +45,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 
 	// sort list by
 	mListSort = std::make_shared<SortList>(mWindow, _("SORT GAMES BY"), false);
-	for (unsigned int i = 0; i < FileSorts::SortTypes.size(); i++)
+	for (size_t i = 0; i < FileSorts::SortTypes.size(); i++)
 	{
 		const FileData::SortType& sort = FileSorts::SortTypes.at(i);
 		mListSort->add(sort.description, &sort, i == 0); // TODO - actually make the sort type persistent
@@ -151,7 +153,7 @@ void GuiGamelistOptions::jumpToLetter()
 
 bool GuiGamelistOptions::input(InputConfig* config, Input input)
 {
-	if ((config->isMappedTo("a", input) || config->isMappedTo("select", input)) && input.value)
+	if ((config->isMappedTo(BUTTON_BACK, input) || config->isMappedTo("select", input)) && input.value)
 	{
 		save();
 		delete this;
@@ -164,7 +166,7 @@ bool GuiGamelistOptions::input(InputConfig* config, Input input)
 std::vector<HelpPrompt> GuiGamelistOptions::getHelpPrompts()
 {
 	auto prompts = mMenu.getHelpPrompts();
-	prompts.push_back(HelpPrompt("a", _("CLOSE")));
+	prompts.push_back(HelpPrompt(BUTTON_BACK, _("CLOSE")));
 	return prompts;
 }
 
