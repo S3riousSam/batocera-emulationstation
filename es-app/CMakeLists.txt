@@ -61,6 +61,7 @@ set(ES_HEADERS
     # Recalbox
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RecalboxSystem.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LibretroRatio.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.h
 )
 
 set(ES_SOURCES
@@ -75,7 +76,6 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VolumeControl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Gamelist.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NetworkThread.cpp
-
 
     # GuiComponents
     ${CMAKE_CURRENT_SOURCE_DIR}/src/components/AsyncReqComponent.cpp
@@ -115,22 +115,63 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/views/SystemView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/views/ViewController.cpp
 
+    # Recalbox
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RecalboxSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LibretroRatio.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.cpp
+)
+
+SOURCE_GROUP(Animations REGULAR_EXPRESSION
+	${CMAKE_CURRENT_SOURCE_DIR}/src/animations/*.*
+)
+
+SOURCE_GROUP(Components REGULAR_EXPRESSION
+	${CMAKE_CURRENT_SOURCE_DIR}/src/components/*.*
+)
+
+SOURCE_GROUP(GUIs REGULAR_EXPRESSION
+	${CMAKE_CURRENT_SOURCE_DIR}/src/guis/*.*
+)
+
+SOURCE_GROUP(Scrapers REGULAR_EXPRESSION
+	${CMAKE_CURRENT_SOURCE_DIR}/src/scrapers/*.*
+)
+
+SOURCE_GROUP(Views REGULAR_EXPRESSION
+	${CMAKE_CURRENT_SOURCE_DIR}/src/views/*.*
+)
+
+SOURCE_GROUP(Recalbox FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiAutoScrape.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiAutoScrape.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackup.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackup.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackupStart.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackupStart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiMenuEx.cpp 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRomsManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRomsManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiUpdate.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiUpdate.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LibretroRatio.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LibretroRatio.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mainEx.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemInterface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemInterface.cpp
 )
 
 #-------------------------------------------------------------------------------
 # define OS specific sources and headers
 if(MSVC)
-    LIST(APPEND ES_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/EmulationStation.rc
-    )
+    LIST(APPEND ES_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/EmulationStation.rc)
 endif()
 
 #-------------------------------------------------------------------------------
 # define target
 include_directories(${COMMON_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
-add_executable(emulationstation ${ES_SOURCES} ${ES_HEADERS} src/guis/GuiLoading.cpp src/guis/GuiLoading.h)
+add_executable(emulationstation ${ES_SOURCES} ${ES_HEADERS})
 target_link_libraries(emulationstation ${COMMON_LIBRARIES} es-core)
 
 # special properties for Windows builds
@@ -144,7 +185,6 @@ if(MSVC)
     set_target_properties(emulationstation PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
     set_target_properties(emulationstation PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS")
 endif()
-
 
 #-------------------------------------------------------------------------------
 # set up CPack install stuff so `make install` does something useful
