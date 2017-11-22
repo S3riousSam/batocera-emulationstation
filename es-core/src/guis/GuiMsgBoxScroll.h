@@ -1,3 +1,4 @@
+#if defined(EXTENSION) && defined(USEFUL)
 #pragma once
 #include "GuiComponent.h"
 #include "components/ComponentGrid.h"
@@ -31,3 +32,4 @@ private:
 	std::function<void()> mAcceleratorFunc;
 	std::shared_ptr<ScrollableContainer> mMsgContainer;
 };
+#endif

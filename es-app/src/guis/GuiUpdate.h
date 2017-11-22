@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #pragma once
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
@@ -36,3 +37,4 @@ private:
 	void onNoUpdateAvailable();
 	void onPingError();
 };
+#endif

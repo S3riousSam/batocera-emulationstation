@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #pragma once
 #include "SDL_mixer.h"
 #include <map>
@@ -26,3 +27,4 @@ private:
 	void initMusic();
 	void deinitMusic();
 };
+#endif

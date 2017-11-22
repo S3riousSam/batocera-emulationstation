@@ -1,4 +1,4 @@
-// Created by matthieu on 03/04/16.
+#if defined(EXTENSION) // Created by matthieu on 03/04/16.
 #pragma once
 #include <map>
 #include <string>
@@ -14,3 +14,4 @@ private:
 	std::map<std::string, std::string>* ratioMap;
 	LibretroRatio();
 };
+#endif

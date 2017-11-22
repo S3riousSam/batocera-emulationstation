@@ -1,4 +1,4 @@
-// Created by matthieu on 03/08/15.
+#if defined(EXTENSION) // Created by matthieu on 03/08/15.
 #pragma once
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
@@ -29,3 +29,4 @@ private:
 	void threadLoading();
 	void* mResult;
 };
+#endif

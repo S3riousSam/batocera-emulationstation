@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "guis/GuiBackupStart.h"
 #include "LocaleES.h"
 #include "RecalboxSystem.h"
@@ -87,3 +88,4 @@ std::vector<HelpPrompt> GuiBackupStart::getHelpPrompts()
 	prompts.push_back(HelpPrompt("start", _("CLOSE")));
 	return prompts;
 }
+#endif

@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "MamedbScraper.h"
 #include "Log.h"
 #include <boost/regex.hpp>
@@ -90,3 +91,4 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 		LOG(LogInfo) << titleregex.str() << "\nNot found";
 	}
 }
+#endif

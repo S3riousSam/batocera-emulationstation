@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "guis/GuiAutoScrape.h"
 #include "guis/GuiMsgBox.h"
 
@@ -105,3 +106,4 @@ void GuiAutoScrape::onAutoScrapeOk()
 	mLoading = false;
 	mState = 4;
 }
+#endif

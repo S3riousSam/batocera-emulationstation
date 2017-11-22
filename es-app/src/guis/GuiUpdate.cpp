@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "guis/GuiUpdate.h"
 #include "guis/GuiMsgBox.h"
 
@@ -164,3 +165,4 @@ void GuiUpdate::onUpdateOk()
 	mLoading = false;
 	mState = 4;
 }
+#endif

@@ -1,6 +1,6 @@
+#if defined(EXTENSION)
 #include "guis/GuiBackup.h"
 #include "guis/GuiMsgBox.h"
-
 #include "LocaleES.h"
 #include "Log.h"
 #include "RecalboxSystem.h"
@@ -103,3 +103,4 @@ void GuiBackup::onBackupOk()
 	mLoading = false;
 	mState = 2;
 }
+#endif

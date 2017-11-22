@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "guis/GuiTextEditPopupKeyboard.h"
 #include "LocaleES.h"
 #include "Log.h"
@@ -377,3 +378,4 @@ std::vector<HelpPrompt> GuiTextEditPopupKeyboard::getHelpPrompts()
 	prompts.push_back(HelpPrompt("l", _("DELETE")));
 	return prompts;
 }
+#endif

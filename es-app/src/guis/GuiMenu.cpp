@@ -119,10 +119,12 @@ GuiMenu::GuiMenu(Window* window)
 			}
 		});
 	}
+#if defined(EXTENSION) && defined(OBSOLETE)
 	if (Settings::getInstance()->getBool("RomsManager"))
 	{
 		addEntry("ROMS MANAGER", 0x777777FF, true, [this] { mWindow->pushGui(new GuiRomsManager(mWindow)); });
 	}
+#endif
 	if (RecalboxConf::getInstance()->get("system.es.menu") != "bartop")
 	{
 		addEntry(_("SYSTEM SETTINGS").c_str(), 0x777777FF, true, [this] {

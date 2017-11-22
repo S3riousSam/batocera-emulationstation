@@ -1,4 +1,4 @@
-// Created by matthieu on 03/04/16.
+#if defined(EXTENSION) // Created by matthieu on 03/04/16.
 #include "LibretroRatio.h"
 
 LibretroRatio* LibretroRatio::sInstance = NULL;
@@ -23,3 +23,4 @@ std::map<std::string, std::string>* LibretroRatio::getRatio()
 {
 	return ratioMap;
 };
+#endif

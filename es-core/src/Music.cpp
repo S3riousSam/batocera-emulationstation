@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "Music.h"
 #include "AudioManager.h"
 #include "Log.h"
@@ -96,3 +97,4 @@ void Music::play(bool repeat, void (*callback)())
 		Mix_HookMusicFinished(callback);
 	}
 }
+#endif

@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #pragma once
 #include <boost/thread.hpp>
 
@@ -16,3 +17,4 @@ private:
 	boost::thread* mThreadHandle;
 	void run();
 };
+#endif

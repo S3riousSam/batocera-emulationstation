@@ -1,7 +1,6 @@
-// Created by matthieu on 03/08/15.
+#if defined(EXTENSION) // Created by matthieu on 03/08/15.
 #include "GuiLoading.h"
 #include "guis/GuiMsgBox.h"
-
 #include "Log.h"
 #include "RecalboxSystem.h"
 #include "Renderer.h"
@@ -81,3 +80,4 @@ void GuiLoading::threadLoading()
 	mResult = mFunc1();
 	mRunning = false;
 }
+#endif

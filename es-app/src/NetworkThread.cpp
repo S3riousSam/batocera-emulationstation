@@ -1,4 +1,4 @@
-// Author: matthieu  2015-02-06
+#if defined(EXTENSION) // Author: matthieu  2015-02-06
 #include "NetworkThread.h"
 #include "LocaleES.h"
 #include "RecalboxConf.h"
@@ -43,3 +43,4 @@ void NetworkThread::run()
 		}
 	}
 }
+#endif

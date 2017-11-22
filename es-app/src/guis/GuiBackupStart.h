@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #pragma once
 
 #include "GuiComponent.h"
@@ -20,3 +21,4 @@ private:
 	MenuComponent mMenu;
 	std::shared_ptr<OptionListComponent<std::string>> moptionsStorage;
 };
+#endif

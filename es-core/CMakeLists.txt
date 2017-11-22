@@ -201,4 +201,4 @@ include_directories(${COMMON_INCLUDE_DIRS})
 add_library(es-core STATIC ${CORE_SOURCES} ${CORE_HEADERS} src/RecalboxConf.cpp src/RecalboxConf.h)
 target_link_libraries(es-core ${COMMON_LIBRARIES})
 
-TARGET_COMPILE_OPTIONS(es-core PUBLIC -D_SCL_SECURE_NO_WARNINGS)
+target_compile_options(es-core PUBLIC -D_SCL_SECURE_NO_WARNINGS -DEXTENSION)

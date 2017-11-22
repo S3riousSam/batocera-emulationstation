@@ -1,3 +1,4 @@
+#if defined(EXTENSION) && defined(USEFUL)
 #include "guis/GuiMsgBoxScroll.h"
 #include "Log.h"
 #include "Renderer.h"
@@ -122,3 +123,5 @@ std::vector<HelpPrompt> GuiMsgBoxScroll::getHelpPrompts()
 {
 	return mGrid.getHelpPrompts();
 }
+
+#endif

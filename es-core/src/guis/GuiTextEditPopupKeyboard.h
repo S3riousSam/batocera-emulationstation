@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "GuiComponent.h"
 
 #include "components/ButtonComponent.h"
@@ -56,3 +57,4 @@ private:
 	bool mShift = false;
 	bool mShiftChange = false;
 };
+#endif

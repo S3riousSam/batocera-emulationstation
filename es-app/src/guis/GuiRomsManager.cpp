@@ -1,4 +1,4 @@
-//  Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
+#if defined(EXTENSION) && defined(OBSOLETE) //  Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
 #include "GuiRomsManager.h"
 #include "Settings.h"
 #include "SystemData.h"
@@ -400,3 +400,4 @@ void GuiRomsManager::showCurrentPlatformRomsManager()
 
 	mWindow->pushGui(new RomsListView(mWindow, m_fileData.get(), data));
 }
+#endif
