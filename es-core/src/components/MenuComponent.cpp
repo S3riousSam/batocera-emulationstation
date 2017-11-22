@@ -36,6 +36,11 @@ MenuComponent::MenuComponent(Window* window, const char* title, const std::share
 	mGrid.resetCursor();
 }
 
+MenuComponent::MenuComponent(Window* window, const std::string& title, const std::shared_ptr<Font>& titleFont)
+	: MenuComponent(window, title.c_str(), titleFont)
+{
+}
+
 void MenuComponent::setTitle(const char* title, const std::shared_ptr<Font>& font)
 {
 	mTitle->setText(strToUpper(title));

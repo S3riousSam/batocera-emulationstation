@@ -18,6 +18,7 @@ class MenuComponent : public GuiComponent
 {
 public:
 	MenuComponent(Window* window, const char* title, const std::shared_ptr<Font>& titleFont = Font::get(FONT_SIZE_LARGE));
+	MenuComponent(Window* window, const std::string& title, const std::shared_ptr<Font>& titleFont = Font::get(FONT_SIZE_LARGE));
 
 	void onSizeChanged() override;
 
