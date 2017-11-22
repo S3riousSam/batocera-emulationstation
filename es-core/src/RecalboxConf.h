@@ -1,4 +1,4 @@
-// Created by matthieu on 12/09/15.
+#if defined(EXTENSION) // Created by matthieu on 12/09/15.
 #pragma once
 #include <map>
 #include <string>
@@ -24,3 +24,4 @@ public:
 private:
 	std::map<std::string, std::string> confMap;
 };
+#endif

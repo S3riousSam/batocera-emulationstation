@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "RecalboxConf.h"
 #include "Log.h"
 #include <boost/algorithm/string/predicate.hpp>
@@ -127,3 +128,4 @@ void RecalboxConf::set(const std::string& name, const std::string& value)
 {
 	confMap[name] = value;
 }
+#endif
