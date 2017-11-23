@@ -13,9 +13,6 @@ public:
 
 	void render(const Eigen::Affine3f& parentTrans) override;
 	bool input(InputConfig* config, Input input) override;
-
-	std::vector<HelpPrompt> getHelpPrompts() override;
-
 	void update(int deltaTime) override;
 
 private:

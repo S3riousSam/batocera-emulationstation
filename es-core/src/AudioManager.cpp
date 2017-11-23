@@ -94,15 +94,7 @@ void AudioManager::themeChanged(const std::shared_ptr<ThemeData>& theme)
 	if (RecalboxConf::getInstance()->get("audio.bgmusic") == "1")
 	{
 		const ThemeData::ThemeElement* elem = theme->getElement("system", "directory", "sound");
-		if (!elem || !elem->has("path"))
-		{
-			currentThemeMusicDirectory = "";
-		}
-		else
-		{
-			currentThemeMusicDirectory = elem->get<std::string>("path");
-		}
-
+		currentThemeMusicDirectory = (!elem || !elem->has("path")) ? std::string() : elem->get<std::string>("path");
 		std::shared_ptr<Music> bgsound = Music::getFromTheme(theme, "system", "bgsound");
 
 		// Found a music for the system
@@ -133,8 +125,7 @@ void AudioManager::playRandomMusic()
 	}
 	else
 	{
-		// Not running from playlist, and no theme song found
-		stopMusic();
+		stopMusic(); // Not running from play list, and no theme song found
 	}
 }
 
@@ -142,9 +133,7 @@ void AudioManager::resumeMusic()
 {
 	this->init();
 	if (currentMusic != NULL && RecalboxConf::getInstance()->get("audio.bgmusic") == "1")
-	{
 		currentMusic->play(runningFromPlaylist ? false : true, runningFromPlaylist ? musicEndInternal : NULL);
-	}
 }
 
 void AudioManager::registerSound(std::shared_ptr<Sound>& sound)

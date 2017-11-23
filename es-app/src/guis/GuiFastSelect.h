@@ -11,9 +11,9 @@ public:
 
 	bool input(InputConfig* config, Input input) override;
 	void update(int deltaTime) override;
-	virtual void setScrollDir(int dir);
 
 private:
+	void setScrollDir(int dir);
 	void scroll();
 	void updateGameListCursor();
 	void updateGameListSort();

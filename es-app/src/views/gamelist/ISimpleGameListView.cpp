@@ -69,10 +69,9 @@ void ISimpleGameListView::onFileChanged(FileData* file, FileChangeType change)
 		const bool isFavorite = (file->metadata.get("favorite") == "true");
 		bool foundInFavorite = false;
 		// Removing favorite case:
-		for (auto gameInFavorite = favoriteSystem->getRootFolder()->getChildren().begin();
-			 gameInFavorite != favoriteSystem->getRootFolder()->getChildren().end(); gameInFavorite++)
+		for (const auto& gameInFavorite : favoriteSystem->getRootFolder()->getChildren())
 		{
-			if ((*gameInFavorite) == file)
+			if (gameInFavorite == file)
 			{
 				if (!isFavorite)
 				{

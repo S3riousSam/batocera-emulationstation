@@ -7,7 +7,6 @@
 #include "components/MenuComponent.h"
 #include "components/TextComponent.h"
 #include "guis/GuiTextEditPopup.h"
-#include "guis/GuiTextEditPopupKeyboard.h"
 #include "scrapers/Scraper.h"
 
 #define BUTTON_BACK "a"
