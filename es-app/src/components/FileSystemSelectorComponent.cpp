@@ -1,4 +1,4 @@
-//  Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
+#if defined(EXTENSION) //  Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
 #include "FileSystemSelectorComponent.h"
 #include "LocaleES.h"
 #include "Log.h"
@@ -380,3 +380,4 @@ std::vector<const fe*> FileSystemSelectorComponent::entriesForCurrentMode() cons
 
 	return matches;
 }
+#endif

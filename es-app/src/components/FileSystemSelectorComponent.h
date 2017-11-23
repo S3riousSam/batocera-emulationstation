@@ -1,4 +1,4 @@
-//  Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
+#if defined(EXTENSION) //  Copyright (c) 2015 Filipe Azevedo <pasnox@gmail.com>
 #pragma once
 #include "components/MenuComponent.h"
 #include <boost/filesystem/path.hpp>
@@ -79,3 +79,5 @@ private:
 	friend struct ModePredicter;
 	friend bool sortPredicter(const FileSystemSelectorComponent::FileEntry&, const FileSystemSelectorComponent::FileEntry&);
 };
+
+#endif
