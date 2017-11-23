@@ -44,7 +44,14 @@ namespace ThemeFlags
 class ThemeException : public std::exception
 {
 public:
-	std::string msg;
+	ThemeException() = default;
+	ThemeException(const std::deque<boost::filesystem::path>& deque)
+	{
+		*this << "from theme \"" << deque.front().string() << "\"\n";
+		for (auto it = deque.begin() + 1; it != deque.end(); it++)
+			*this << "  (from included file \"" << (*it).string() << "\")\n";
+		*this << "    ";
+	}
 
 	virtual const char* what() const throw() override
 	{
@@ -54,13 +61,8 @@ public:
 	template<typename T>
 	friend ThemeException& operator<<(ThemeException& e, T msg);
 
-	inline void setFiles(const std::deque<boost::filesystem::path>& deque)
-	{
-		*this << "from theme \"" << deque.front().string() << "\"\n";
-		for (auto it = deque.begin() + 1; it != deque.end(); it++)
-			*this << "  (from included file \"" << (*it).string() << "\")\n";
-		*this << "    ";
-	}
+private:
+	std::string msg;
 };
 
 template<typename T>

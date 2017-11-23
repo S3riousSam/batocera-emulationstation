@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
 		// something went terribly wrong
 		if (errorMsg == NULL)
 		{
-			LOG(LogError) << "Unknown error occured while parsing system config file.";
+			LOG(LogError) << "Unknown error occurred while parsing system config file.";
 			if (!scrape_cmdline)
 				Renderer::deinit();
 			return 1;
@@ -458,7 +458,7 @@ int main(int argc, char* argv[])
 
 	// Clean ready flag
 	if (fs::exists(ready_path))
-		fs::remove(ready_path);
+		fs::remove(ready_path); // Clean ready flag
 
 	while (window.peekGui() != ViewController::get())
 		delete window.peekGui();

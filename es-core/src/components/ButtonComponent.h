@@ -9,7 +9,7 @@
 class ButtonComponent : public GuiComponent
 {
 public:
-	ButtonComponent(Window* window, const std::string& text = std::string(), const std::string& helpText = "", const std::function<void()>& func = nullptr);
+	ButtonComponent(Window* window, const std::string& text = std::string(), const std::string& helpText = std::string(), const std::function<void()>& func = nullptr);
 
 	void setPressedFunc(std::function<void()> f);
 

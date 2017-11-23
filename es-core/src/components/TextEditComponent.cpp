@@ -1,11 +1,10 @@
 #include "components/TextEditComponent.h"
+#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
+#include "Util.h"
 #include "Window.h"
 #include "resources/Font.h"
-
-#include "LocaleES.h"
-#include "Util.h"
 
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"

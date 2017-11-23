@@ -1,9 +1,9 @@
 #include "components/DateTimeComponent.h"
+#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
 #include "Window.h"
-#include "LocaleES.h"
 
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"

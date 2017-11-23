@@ -1,10 +1,9 @@
 #include "guis/GuiScraperMulti.h"
 #include "Gamelist.h"
+#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "views/ViewController.h"
-
-#include "LocaleES.h"
 #include "components/ButtonComponent.h"
 #include "components/MenuComponent.h" // for makeButtonGrid
 #include "components/ScraperSearchComponent.h"

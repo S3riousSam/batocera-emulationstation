@@ -44,28 +44,6 @@ namespace fs = boost::filesystem;
 #define CURRENT_THEME_FORMAT_VERSION 4
 
 // helper
-unsigned int getHexColor(const char* str)
-{
-	ThemeException error;
-	if (!str)
-		throw error << "Empty color";
-
-	size_t len = strlen(str);
-	if (len != 6 && len != 8)
-		throw error << "Invalid color (bad length, \"" << str << "\" - must be 6 or 8)";
-
-	unsigned int val;
-	std::stringstream ss;
-	ss << str;
-	ss >> std::hex >> val;
-
-	if (len == 6)
-		val = (val << 8) | 0xFF;
-
-	return val;
-}
-
-// helper
 std::string resolvePath(const char* in, const fs::path& relative)
 {
 	if (!in || in[0] == '\0')
@@ -90,16 +68,15 @@ std::string resolvePath(const char* in, const fs::path& relative)
 }
 
 ThemeData::ThemeData()
+	: mVersion(0)
 {
-	mVersion = 0;
 }
 
 void ThemeData::loadFile(const std::string& path)
 {
 	mPaths.push_back(path);
 
-	ThemeException error;
-	error.setFiles(mPaths);
+	ThemeException error(mPaths);
 
 	if (!fs::exists(path))
 		throw error << "File does not exist!";
@@ -131,10 +108,9 @@ void ThemeData::loadFile(const std::string& path)
 
 void ThemeData::parseIncludes(const pugi::xml_node& root)
 {
-	ThemeException error;
-	error.setFiles(mPaths);
+	ThemeException error(mPaths);
 
-	for (pugi::xml_node node = root.child("include"); node; node = node.next_sibling("include"))
+	for (const pugi::xml_node& node : root.children("include"))
 	{
 		const char* relPath = node.text().get();
 		std::string path = resolvePath(relPath, mPaths.back());
@@ -150,7 +126,8 @@ void ThemeData::parseIncludes(const pugi::xml_node& root)
 		if (!result)
 			throw error << "Error parsing file: \n    " << result.description();
 
-		pugi::xml_node root = includeDoc.child("theme"); // Warning! Hiding function parameter!
+		// WARNING: root hides function parameter!
+		pugi::xml_node root = includeDoc.child("theme");
 		if (!root)
 			throw error << "Missing <theme> tag!";
 
@@ -163,11 +140,10 @@ void ThemeData::parseIncludes(const pugi::xml_node& root)
 
 void ThemeData::parseViews(const pugi::xml_node& root)
 {
-	ThemeException error;
-	error.setFiles(mPaths);
+	ThemeException error(mPaths);
 
 	// parse views
-	for (pugi::xml_node node = root.child("view"); node; node = node.next_sibling("view"))
+	for (const pugi::xml_node& node : root.children("view"))
 	{
 		if (!node.attribute("name"))
 			throw error << "View missing \"name\" attribute!";
@@ -191,8 +167,7 @@ void ThemeData::parseViews(const pugi::xml_node& root)
 
 void ThemeData::parseView(const pugi::xml_node& root, ThemeView& view)
 {
-	ThemeException error;
-	error.setFiles(mPaths);
+	ThemeException error(mPaths);
 
 	for (pugi::xml_node node = root.first_child(); node; node = node.next_sibling())
 	{
@@ -223,8 +198,30 @@ void ThemeData::parseView(const pugi::xml_node& root, ThemeView& view)
 
 void ThemeData::parseElement(const pugi::xml_node& root, const std::map<std::string, ElementPropertyType>& typeMap, ThemeElement& element)
 {
-	ThemeException error;
-	error.setFiles(mPaths);
+	struct Local
+	{
+		static unsigned int getHexColor(const char* str)
+		{
+			if (!str)
+				throw ThemeException() << "Empty color";
+
+			const size_t len = strlen(str);
+			if (len != 6 && len != 8)
+				throw ThemeException() << "Invalid color (bad length, \"" << str << "\" - must be 6 or 8)";
+
+			unsigned int val;
+			std::stringstream ss;
+			ss << str;
+			ss >> std::hex >> val;
+
+			if (len == 6)
+				val = (val << 8) | 0xFF;
+
+			return val;
+		}
+	};
+
+	ThemeException error(mPaths);
 
 	element.type = root.name();
 	element.extra = root.attribute("extra").as_bool(false);
@@ -239,9 +236,8 @@ void ThemeData::parseElement(const pugi::xml_node& root, const std::map<std::str
 		{
 		case NORMALIZED_PAIR:
 		{
-			std::string str = std::string(node.text().as_string());
-
-			size_t divider = str.find(' ');
+			const std::string str = std::string(node.text().as_string());
+			const size_t divider = str.find(' ');
 			if (divider == std::string::npos)
 				throw error << "invalid normalized pair (property \"" << node.name() << "\", value \"" << str.c_str() << "\")";
 
@@ -262,7 +258,7 @@ void ThemeData::parseElement(const pugi::xml_node& root, const std::map<std::str
 			if (!ResourceManager::getInstance()->fileExists(path))
 			{
 				std::stringstream ss;
-				ss << "  Warning " << error.msg; // "from theme yadda yadda, included file yadda yadda
+				ss << "  Warning " << error.what(); // "from theme yadda yadda, included file yadda yadda
 				ss << "could not find file \"" << node.text().get() << "\" ";
 				if (node.text().get() != path)
 					ss << "(which resolved to \"" << path << "\") ";
@@ -272,7 +268,7 @@ void ThemeData::parseElement(const pugi::xml_node& root, const std::map<std::str
 			break;
 		}
 		case COLOR:
-			element.properties[node.name()] = getHexColor(node.text().as_string());
+			element.properties[node.name()] = Local::getHexColor(node.text().as_string());
 			break;
 		case FLOAT:
 			element.properties[node.name()] = node.text().as_float();
@@ -362,12 +358,12 @@ std::vector<GuiComponent*> ThemeData::makeExtras(const std::shared_ptr<ThemeData
 void ThemeExtras::setExtras(const std::vector<GuiComponent*>& extras)
 {
 	// delete old extras (if any)
-	for (auto it = mExtras.begin(); it != mExtras.end(); it++)
-		delete *it;
+	for (auto it : mExtras)
+		delete it;
 
 	mExtras = extras;
-	for (auto it = mExtras.begin(); it != mExtras.end(); it++)
-		addChild(*it);
+	for (auto it : mExtras)
+		addChild(it);
 }
 
 ThemeExtras::~ThemeExtras()

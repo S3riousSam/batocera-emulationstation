@@ -1,6 +1,6 @@
 #pragma once
-
 #include "GuiComponent.h"
+#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Window.h"
@@ -9,7 +9,6 @@
 #include "components/TextComponent.h"
 #include "resources/Font.h"
 #include <sstream>
-#include "LocaleES.h"
 
 using namespace boost::locale;
 

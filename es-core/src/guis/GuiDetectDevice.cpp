@@ -1,4 +1,5 @@
 #include "guis/GuiDetectDevice.h"
+#include "LocaleES.h"
 #include "Renderer.h"
 #include "Util.h"
 #include "Window.h"
@@ -8,7 +9,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "LocaleES.h"
 
 #define HOLD_TIME 1000
 

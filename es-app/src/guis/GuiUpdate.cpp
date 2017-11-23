@@ -1,7 +1,6 @@
 #if defined(EXTENSION)
 #include "guis/GuiUpdate.h"
 #include "guis/GuiMsgBox.h"
-
 #include "LocaleES.h"
 #include "Log.h"
 #include "RecalboxSystem.h"
@@ -61,11 +60,8 @@ void GuiUpdate::update(int deltaTime)
 				mState = 2;
 				mLoading = true;
 				mHandle = new boost::thread(boost::bind(&GuiUpdate::threadUpdate, this));
-
 			},
-			_("NO"), [this] { mState = -1; })
-
-		);
+			_("NO"), [this] { mState = -1; }));
 		mState = 0;
 	}
 
@@ -104,13 +100,9 @@ void GuiUpdate::threadUpdate()
 {
 	std::pair<std::string, int> updateStatus = RecalboxSystem::getInstance()->updateSystem(&mBusyAnim);
 	if (updateStatus.second == 0)
-	{
-		this->onUpdateOk();
-	}
+		onUpdateOk();
 	else
-	{
-		this->onUpdateError(updateStatus);
-	}
+		onUpdateError(updateStatus);
 }
 
 void GuiUpdate::threadPing()
@@ -118,17 +110,13 @@ void GuiUpdate::threadPing()
 	if (RecalboxSystem::getInstance()->ping())
 	{
 		if (RecalboxSystem::getInstance()->canUpdate())
-		{
-			this->onUpdateAvailable();
-		}
+			onUpdateAvailable();
 		else
-		{
-			this->onNoUpdateAvailable();
-		}
+			onNoUpdateAvailable();
 	}
 	else
 	{
-		this->onPingError();
+		onPingError();
 	}
 }
 void GuiUpdate::onUpdateAvailable()

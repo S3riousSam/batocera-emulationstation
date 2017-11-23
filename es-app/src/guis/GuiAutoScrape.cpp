@@ -1,13 +1,11 @@
 #if defined(EXTENSION)
 #include "guis/GuiAutoScrape.h"
 #include "guis/GuiMsgBox.h"
-
+#include "LocaleES.h"
+#include "Log.h"
 #include "Gamelist.h"
 #include "SystemData.h"
 #include "views/ViewController.h"
-
-#include "LocaleES.h"
-#include "Log.h"
 #include "RecalboxSystem.h"
 #include "Settings.h"
 #include "Window.h"

@@ -195,13 +195,9 @@ void ComponentList::render(const Eigen::Affine3f& parentTrans)
 		for (auto it = entry.data.elements.begin(); it != entry.data.elements.end(); it++)
 		{
 			if (drawAll || it->invert_when_selected)
-			{
 				it->component->render(trans);
-			}
 			else
-			{
 				drawAfterCursor.push_back(it->component.get());
-			}
 		}
 	}
 
@@ -224,8 +220,8 @@ void ComponentList::render(const Eigen::Affine3f& parentTrans)
 		Renderer::drawRect(0.0f, mSelectorBarOffset, 2.0f, selectedRowHeight, 0x878787FF);
 		Renderer::drawRect(mSize.x() - 2.0f, mSelectorBarOffset, 2.0f, selectedRowHeight, 0x878787FF);
 
-		for (auto it = drawAfterCursor.begin(); it != drawAfterCursor.end(); it++)
-			(*it)->render(trans);
+		for (auto& it : drawAfterCursor)
+			it->render(trans);
 
 		// reset matrix if one of these components changed it
 		if (drawAfterCursor.size())
@@ -313,10 +309,8 @@ void ComponentList::updateElementSize(const ComponentListRow& row)
 
 void ComponentList::textInput(const char* text)
 {
-	if (!size())
-		return;
-
-	mEntries.at(mCursor).data.elements.back().component->textInput(text);
+	if (size())
+		mEntries.at(mCursor).data.elements.back().component->textInput(text);
 }
 
 std::vector<HelpPrompt> ComponentList::getHelpPrompts()
@@ -347,7 +341,7 @@ std::vector<HelpPrompt> ComponentList::getHelpPrompts()
 
 bool ComponentList::moveCursor(int amt)
 {
-	bool ret = listInput(amt);
+	const bool result = listInput(amt);
 	listInput(0);
-	return ret;
+	return result;
 }

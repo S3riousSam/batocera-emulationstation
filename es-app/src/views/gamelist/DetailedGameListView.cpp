@@ -1,12 +1,10 @@
 #include "views/gamelist/DetailedGameListView.h"
-
-#include "Window.h"
 #include "animations/LambdaAnimation.h"
 #include "views/ViewController.h"
-
 #include "LocaleES.h"
 #include "Settings.h"
 #include "SystemData.h"
+#include "Window.h"
 
 DetailedGameListView::DetailedGameListView(Window* window, FileData* root, SystemData* system)
 	: BasicGameListView(window, root)

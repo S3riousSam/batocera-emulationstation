@@ -1,5 +1,4 @@
 #include "BusyComponent.h"
-
 #include "LocaleES.h"
 #include "Renderer.h"
 #include "components/AnimatedImageComponent.h"

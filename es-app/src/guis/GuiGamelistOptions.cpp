@@ -7,6 +7,7 @@
 #include "views/ViewController.h"
 #include "views/gamelist/IGameListView.h"
 #include <RecalboxConf.h>
+
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"
 

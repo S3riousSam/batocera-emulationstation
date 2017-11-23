@@ -9,7 +9,7 @@ namespace PlatformIds
 
 		"3do", "amiga", "amstradcpc", "apple2", "arcade", "atari800", "atari2600", "atari5200", "atari7800", "atarilynx", "atarist", "atarijaguar",
 		"atarijaguarcd", "atarixe", "colecovision",
-		"c64", // commodore 64,
+		"c64", // commodore 64
 		"fds", // Nintendo Family Computer Disk System
 		"intellivision", "macintosh", "xbox", "xbox360", "msx", "neogeo",
 		"ngp", // neo geo pocket
