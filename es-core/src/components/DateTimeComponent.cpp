@@ -4,6 +4,7 @@
 #include "Util.h"
 #include "Window.h"
 #include "LocaleES.h"
+
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"
 
@@ -202,7 +203,6 @@ std::string DateTimeComponent::getDisplayString(DisplayMode mode) const
 {
 	std::string fmt;
 	char strbuf[256];
-	int n;
 
 	switch (mode)
 	{
@@ -227,25 +227,21 @@ std::string DateTimeComponent::getDisplayString(DisplayMode mode) const
 			return _("just now");
 		if (dur < seconds(60))
 		{
-			n = static_cast<int>(dur.seconds());
-			snprintf(strbuf, 256, ngettext("%i sec ago", "%i secs ago", n).c_str(), n);
+			snprintf(strbuf, 256, boost::locale::ngettext("%i sec ago", "%i secs ago", static_cast<int>(dur.seconds())).c_str(), dur.seconds());
 			return strbuf;
 		}
 		if (dur < minutes(60))
 		{
-			n = static_cast<int>(dur.minutes());
-			snprintf(strbuf, 256, ngettext("%i min ago", "%i mins ago", n).c_str(), n);
+			snprintf(strbuf, 256, boost::locale::ngettext("%i min ago", "%i mins ago", static_cast<int>(dur.minutes())).c_str(), dur.minutes());
 			return strbuf;
 		}
 		if (dur < hours(24))
 		{
-			n = static_cast<int>(dur.hours());
-			snprintf(strbuf, 256, ngettext("%i hour ago", "%i hours ago", n).c_str(), n);
+			snprintf(strbuf, 256, boost::locale::ngettext("%i hour ago", "%i hours ago", static_cast<int>(dur.hours())).c_str(), dur.hours());
 			return strbuf;
 		}
 
-		n = static_cast<int>(dur.hours() / 24);
-		snprintf(strbuf, 256, ngettext("%i day ago", "%i days ago", n).c_str(), n);
+		snprintf(strbuf, 256, boost::locale::ngettext("%i day ago", "%i days ago", static_cast<int>(dur.hours() / 24)).c_str(), dur.hours() / 24);
 		return strbuf;
 	}
 	break;

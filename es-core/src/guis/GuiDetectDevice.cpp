@@ -39,7 +39,7 @@ GuiDetectDevice::GuiDetectDevice(Window* window, bool firstRun, const std::funct
 	if (numDevices > 0)
 	{
 		char strbuf[256];
-		snprintf(strbuf, 256, ngettext("%i GAMEPAD DETECTED", "%i GAMEPADS DETECTED", numDevices).c_str(), numDevices);
+		snprintf(strbuf, 256, boost::locale::ngettext("%i GAMEPAD DETECTED", "%i GAMEPADS DETECTED", numDevices).c_str(), numDevices);
 		deviceInfo << strbuf;
 	}
 	else
