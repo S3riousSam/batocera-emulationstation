@@ -19,35 +19,28 @@ class AudioManager
 	AudioManager();
 
 public:
+	virtual ~AudioManager();
+
 	static std::shared_ptr<AudioManager>& getInstance();
 
-	void stopMusic();
-
-	void themeChanged(const std::shared_ptr<ThemeData>& theme);
-
-	void resumeMusic();
-
-	void playCheckSound();
-
 	void init();
-
 	void deinit();
 
-	void registerMusic(std::shared_ptr<Music>& music);
-
 	void registerSound(std::shared_ptr<Sound>& sound);
-
-	void unregisterMusic(std::shared_ptr<Music>& music);
-
 	void unregisterSound(std::shared_ptr<Sound>& sound);
 
 	void play();
-
 	void stop();
 
+	void stopMusic();
+	void themeChanged(const std::shared_ptr<ThemeData>& theme);
+	void resumeMusic();
+	void playCheckSound();
+	void registerMusic(std::shared_ptr<Music>& music);
+	void unregisterMusic(std::shared_ptr<Music>& music);
 	void musicEnd();
 
-	virtual ~AudioManager();
+
 
 private:
 	bool running;

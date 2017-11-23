@@ -1,5 +1,4 @@
 #pragma once
-
 #include "platform.h"
 #include "platform_gl.h"
 #include <ft2build.h>

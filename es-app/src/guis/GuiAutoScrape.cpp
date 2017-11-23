@@ -37,11 +37,6 @@ bool GuiAutoScrape::input(InputConfig* config, Input input)
 	return false;
 }
 
-std::vector<HelpPrompt> GuiAutoScrape::getHelpPrompts()
-{
-	return std::vector<HelpPrompt>();
-}
-
 void GuiAutoScrape::render(const Eigen::Affine3f& parentTrans)
 {
 	Eigen::Affine3f trans = parentTrans * getTransform();
