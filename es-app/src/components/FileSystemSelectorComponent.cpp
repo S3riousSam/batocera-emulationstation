@@ -372,11 +372,10 @@ std::vector<const fe*> FileSystemSelectorComponent::entriesForCurrentMode() cons
 
 	matches.reserve(entries.size());
 
-	for (auto pit = entries.cbegin(), end = entries.cend(); pit != end; ++pit)
+	for (const auto& pit : entries)
 	{
-		const fe* entry = &(*pit);
-		if (modePredicter(entry))
-			matches.push_back(entry);
+		if (modePredicter(&pit))
+			matches.push_back(&pit);
 	}
 
 	return matches;

@@ -117,10 +117,10 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 				row.addElement(emu_choice, true);
 				bool selected = false;
 
-				for (auto it = system->getEmulators()->begin(); it != system->getEmulators()->end(); it++)
+				for (const auto& it : *system->getEmulators())
 				{
-					selected = selected || mMetaData->get("emulator") == it->first;
-					emu_choice->add(it->first, it->first, mMetaData->get(iter->key) == it->first);
+					selected = selected || mMetaData->get("emulator") == it.first;
+					emu_choice->add(it.first, it.first, mMetaData->get(iter->key) == it.first);
 				}
 				emu_choice->add("default", "default", !selected);
 				ed = emu_choice;
@@ -136,14 +136,14 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 				auto core_choice = std::make_shared<OptionListComponent<std::string>>(mWindow, "core", false, FONT_SIZE_SMALL);
 				row.addElement(core_choice, true);
 				bool selected = false;
-				for (auto emulator = system->getEmulators()->begin(); emulator != system->getEmulators()->end(); emulator++)
+				for (const auto& it : *system->getEmulators())
 				{
-					if (mMetaData->get("emulator") == emulator->first)
+					if (mMetaData->get("emulator") == it.first)
 					{
-						for (auto core = emulator->second->begin(); core != emulator->second->end(); core++)
+						for (const auto& core : *it.second)
 						{
-							selected = selected || mMetaData->get("core") == *core;
-							core_choice->add(*core, *core, mMetaData->get("core") == *core);
+							selected = selected || mMetaData->get("core") == core;
+							core_choice->add(core, core, mMetaData->get("core") == core);
 						}
 					}
 				}
@@ -155,11 +155,10 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 			{
 				auto ratio_choice = std::make_shared<OptionListComponent<std::string>>(mWindow, "ratio", false, FONT_SIZE_SMALL);
 				row.addElement(ratio_choice, true);
-				std::map<std::string, std::string>* ratioMap = LibretroRatio::getInstance()->getRatio();
-				if (mMetaData->get("ratio") == "")
+				if (mMetaData->get("ratio").empty())
 					mMetaData->set("ratio", "auto");
-				for (auto ratio = ratioMap->begin(); ratio != ratioMap->end(); ratio++)
-					ratio_choice->add(ratio->first, ratio->second, mMetaData->get("ratio") == ratio->second);
+				for (const auto& ratio : *LibretroRatio::getInstance()->getRatio())
+					ratio_choice->add(ratio.first, ratio.second, mMetaData->get("ratio") == ratio.second);
 				ed = ratio_choice;
 			}
 			break;
