@@ -23,6 +23,7 @@ class Log
 public:
 	// Log();
 	~Log();
+
 	std::ostringstream& get(LogLevel level = LogInfo);
 
 	static LogLevel getReportingLevel();

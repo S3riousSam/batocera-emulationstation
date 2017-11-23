@@ -1,12 +1,9 @@
 #pragma once
-
+#include "SDL_audio.h"
+#include "Sound.h"
 #include <memory>
 #include <vector>
-
-#include "SDL_audio.h"
-
 #include "Music.h"
-#include "Sound.h"
 
 class AudioManager
 {

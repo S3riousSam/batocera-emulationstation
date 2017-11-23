@@ -1,9 +1,6 @@
-#ifndef _IMAGECOMPONENT_H_
-#define _IMAGECOMPONENT_H_
-
+#pragma once
 #include "platform.h"
 #include "platform_gl.h"
-
 #include "GuiComponent.h"
 #include "resources/TextureResource.h"
 #include <memory>
@@ -97,5 +94,3 @@ private:
 
 	std::shared_ptr<TextureResource> mTexture;
 };
-
-#endif
