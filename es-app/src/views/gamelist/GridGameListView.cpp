@@ -5,6 +5,9 @@
 #include "Window.h"
 #include "views/ViewController.h"
 
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
+
 GridGameListView::GridGameListView(Window* window, FileData* root)
 	: ISimpleGameListView(window, root)
 	, mGrid(window)
@@ -66,7 +69,7 @@ std::vector<HelpPrompt> GridGameListView::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts;
 	prompts.push_back(HelpPrompt("up/down/left/right", _("SCROLL")));
-	prompts.push_back(HelpPrompt("b", _("LAUNCH")));
-	prompts.push_back(HelpPrompt("a", _("BACK")));
+	prompts.push_back(HelpPrompt(BUTTON_LAUNCH, _("LAUNCH")));
+	prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK")));
 	return prompts;
 }
