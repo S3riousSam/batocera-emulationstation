@@ -76,7 +76,7 @@ MetaDataList MetaDataList::createFromXML(MetaDataListType type, pugi::xml_node n
 
 	for (auto iter = mdd.begin(); iter != mdd.end(); iter++)
 	{
-		pugi::xml_node md = node.child(iter->key.c_str());
+		const pugi::xml_node md = node.child(iter->key.c_str());
 		if (md)
 		{
 			// if it's a path, resolve relative paths
@@ -132,6 +132,7 @@ void MetaDataList::setTime(const std::string& key, const boost::posix_time::ptim
 
 const std::string& MetaDataList::get(const std::string& key) const
 {
+	assert(mMap.find(key) != mMap.end());
 	return mMap.at(key);
 }
 
@@ -163,25 +164,20 @@ void MetaDataList::merge(const MetaDataList& other)
 			if (mddIter->key == otherIter->first)
 			{
 				if (otherIter->second == mddIter->defaultValue || mddIter->isStatistic)
-				{
 					mustMerge = false;
-				}
 			}
 		}
 		if (mustMerge)
-		{
 			this->set(otherIter->first, otherIter->second);
-		}
 	}
 }
 
 bool MetaDataList::isDefault()
 {
 	const std::vector<MetaDataDecl>& mdd = getMDD();
-
 	for (auto mddIter = mdd.begin(); mddIter != mdd.end(); mddIter++)
 	{
-		auto mapIter = mMap.find(mddIter->key);
+		const auto mapIter = mMap.find(mddIter->key);
 		if (mapIter != mMap.end())
 		{
 			if (mapIter->second != mddIter->defaultValue)

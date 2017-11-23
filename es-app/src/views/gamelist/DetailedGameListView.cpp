@@ -1,9 +1,12 @@
 #include "views/gamelist/DetailedGameListView.h"
-#include "LocaleES.h"
-#include "Settings.h"
+
 #include "Window.h"
 #include "animations/LambdaAnimation.h"
 #include "views/ViewController.h"
+
+#include "LocaleES.h"
+#include "Settings.h"
+#include "SystemData.h"
 
 DetailedGameListView::DetailedGameListView(Window* window, FileData* root, SystemData* system)
 	: BasicGameListView(window, root)
@@ -104,7 +107,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	mImage.applyTheme(theme, getName(), "md_image", POSITION | ThemeFlags::SIZE);
 
 	initMDLabels();
-	std::vector<TextComponent*> labels = getMDLabels();
+	const std::vector<TextComponent*> labels = getMDLabels();
 
 	if (mSystem->getHasFavorites())
 	{
@@ -184,8 +187,7 @@ void DetailedGameListView::initMDLabels()
 		}
 		else
 		{
-			// work from the last component
-			GuiComponent* lc = components[i - 1];
+			const GuiComponent* lc = components[i - 1]; // work from the last component
 			pos = lc->getPosition() + Vector3f(0, lc->getSize().y() + rowPadding, 0);
 		}
 
@@ -325,9 +327,7 @@ std::vector<GuiComponent*> DetailedGameListView::getMDValues()
 	ret.push_back(&mLastPlayed);
 	ret.push_back(&mPlayCount);
 	if (mSystem->getHasFavorites())
-	{
 		ret.push_back(&mFavorite);
-	}
 	return ret;
 }
 

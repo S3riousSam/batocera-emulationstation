@@ -1,9 +1,10 @@
 #pragma once
-#include "SystemData.h"
 #include "components/DateTimeComponent.h"
 #include "components/RatingComponent.h"
 #include "components/ScrollableContainer.h"
 #include "views/gamelist/BasicGameListView.h"
+
+class SystemData;
 
 class DetailedGameListView : public BasicGameListView
 {
