@@ -11,10 +11,7 @@
 
 Eigen::Vector2i ImageComponent::getTextureSize() const
 {
-	if (mTexture)
-		return mTexture->getSize();
-	else
-		return Eigen::Vector2i(0, 0);
+	return (mTexture != NULL) ? mTexture->getSize() : Eigen::Vector2i(0, 0);
 }
 
 Eigen::Vector2f ImageComponent::getCenter() const
@@ -132,10 +129,8 @@ void ImageComponent::setImage(const std::string& path, bool tile)
 void ImageComponent::setImage(const char* path, size_t length, bool tile)
 {
 	mTexture.reset();
-
 	mTexture = TextureResource::get("", tile);
 	mTexture->initFromMemory(path, length);
-
 	resize();
 }
 
@@ -255,7 +250,7 @@ void ImageComponent::updateColors()
 
 void ImageComponent::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
+	const Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
 	Renderer::setMatrix(trans);
 
 	if (mTexture && mOpacity > 0)

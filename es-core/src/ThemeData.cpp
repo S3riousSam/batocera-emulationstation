@@ -420,7 +420,7 @@ fs::path ThemeData::getThemeFromCurrentSet(const std::string& system)
 	return set->second.getThemePath(system);
 }
 
-bool ThemeData::getHasFavoritesInTheme()
+bool ThemeData::getHasFavoritesInTheme() const
 {
 	return (mVersion >= CURRENT_THEME_FORMAT_VERSION);
 }

@@ -119,9 +119,7 @@ std::shared_ptr<TextureResource> TextureResource::get(const std::string& path, b
 	if (foundTexture != sTextureMap.end())
 	{
 		if (!foundTexture->second.expired())
-		{
 			return foundTexture->second.lock();
-		}
 	}
 
 	// need to create it

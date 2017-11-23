@@ -87,8 +87,7 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 	}
 	else
 	{
-		LOG(LogInfo) << req->getContent().c_str();
-		LOG(LogInfo) << titleregex.str() << "\nNot found";
+		LOG(LogInfo) << req->getContent().c_str() << titleregex.str() << "\nNot found";
 	}
 }
 #endif
