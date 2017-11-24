@@ -18,6 +18,11 @@ GuiSettings::GuiSettings(Window* window, const char* title)
 	mMenu.setPosition((mSize.x() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.1f);
 }
 
+GuiSettings::GuiSettings(Window* window, const std::string& title)
+	: GuiSettings(window, title.c_str())
+{
+}
+
 GuiSettings::~GuiSettings()
 {
 	if (doSave)
