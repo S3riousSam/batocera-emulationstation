@@ -5,7 +5,7 @@ extern const char* mameNameToRealName[];
 
 namespace PlatformIds
 {
-	const char* PlatformNames[PLATFORM_COUNT + 1] = {"unknown", // nothing set
+	const char* const PlatformNames[PLATFORM_COUNT + 1] = {"unknown", // nothing set
 
 		"3do", "amiga", "amstradcpc", "apple2", "arcade", "atari800", "atari2600", "atari5200", "atari7800", "atarilynx", "atarist", "atarijaguar",
 		"atarijaguarcd", "atarixe", "colecovision",
@@ -40,13 +40,13 @@ namespace PlatformIds
 
 	PlatformId getPlatformId(const char* str)
 	{
-		if (str == NULL)
-			return PLATFORM_UNKNOWN;
-
-		for (unsigned int i = 1; i < PLATFORM_COUNT; i++)
+		if (str != NULL)
 		{
-			if (strcmp(PlatformNames[i], str) == 0)
-				return (PlatformId)i;
+			for (unsigned int i = 1; i < PLATFORM_COUNT; i++)
+			{
+				if (strcmp(PlatformNames[i], str) == 0)
+					return static_cast<PlatformId>(i);
+			}
 		}
 
 		return PLATFORM_UNKNOWN;

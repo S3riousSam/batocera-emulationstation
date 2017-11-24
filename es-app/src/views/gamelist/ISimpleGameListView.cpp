@@ -4,9 +4,9 @@
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
-#include <Log.h>
 #include "Gamelist.h"
 #include "LocaleES.h"
+#include "Log.h"
 #include "SystemData.h"
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root)
@@ -149,19 +149,18 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				if (cursor->getType() == GAME)
 				{
 					mFavoriteChange = true;
-					MetaDataList* md = &cursor->metadata;
-					std::string value = md->get("favorite");
+					MetaDataList& md = cursor->metadata;
 					bool removeFavorite = false;
 					SystemData* favoriteSystem = SystemData::getFavoriteSystem();
-					if (value.compare("false") == 0)
+					if (md.get("favorite") == "false")
 					{
-						md->set("favorite", "true");
+						md.set("favorite", "true");
 						if (favoriteSystem != NULL)
 							favoriteSystem->getRootFolder()->addAlreadyExisitingChild(cursor);
 					}
 					else
 					{
-						md->set("favorite", "false");
+						md.set("favorite", "false");
 						if (favoriteSystem != NULL)
 							favoriteSystem->getRootFolder()->removeAlreadyExisitingChild(cursor);
 						removeFavorite = true;

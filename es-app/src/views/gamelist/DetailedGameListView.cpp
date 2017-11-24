@@ -170,7 +170,7 @@ void DetailedGameListView::initMDLabels()
 	const unsigned int colCount = 2;
 	const unsigned int rowCount = components.size() / 2;
 
-	Vector3f start(mSize.x() * 0.01f, mSize.y() * 0.625f, 0.0f);
+	const Vector3f start(mSize.x() * 0.01f, mSize.y() * 0.625f, 0.0f);
 
 	const float colSize = (mSize.x() * 0.48f) / colCount;
 	const float rowPadding = 0.01f * mSize.y();
