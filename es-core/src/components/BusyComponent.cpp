@@ -20,8 +20,9 @@ BusyComponent::BusyComponent(Window* window)
 	, mBackground(window, ":/frame.png")
 	, mGrid(window, Vector2i(5, 3))
 {
+#if defined(EXTENSION)
 	mutex = SDL_CreateMutex();
-
+#endif
 	mAnimation = std::make_shared<AnimatedImageComponent>(mWindow);
 	mAnimation->load(&BUSY_ANIMATION_DEF);
 	mText = std::make_shared<TextComponent>(mWindow, _("WORKING..."), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
@@ -34,6 +35,7 @@ BusyComponent::BusyComponent(Window* window)
 	addChild(&mGrid);
 }
 
+#if defined(EXTENSION)
 BusyComponent::~BusyComponent()
 {
 	SDL_DestroyMutex(mutex);
@@ -63,6 +65,7 @@ void BusyComponent::render(const Eigen::Affine3f& parentTrans)
 	}
 	GuiComponent::render(parentTrans);
 }
+#endif
 
 void BusyComponent::onSizeChanged()
 {

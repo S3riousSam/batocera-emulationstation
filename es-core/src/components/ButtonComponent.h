@@ -32,7 +32,7 @@ public:
 	void onSizeChanged() override;
 	void onFocusGained() override;
 	void onFocusLost() override;
-
+#if defined(EXTENSION)
 	void setColorShift(unsigned int color)
 	{
 		mModdedColor = color;
@@ -44,7 +44,7 @@ public:
 		mNewColor = false;
 		updateImage();
 	}
-
+#endif
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
@@ -53,10 +53,14 @@ private:
 
 	bool mFocused;
 	bool mEnabled;
+#if defined(EXTENSION)
 	bool mNewColor = false;
+#endif
 	unsigned int mTextColorFocused;
 	unsigned int mTextColorUnfocused;
+#if defined(EXTENSION)
 	unsigned int mModdedColor;
+#endif
 
 	unsigned int getCurTextColor() const;
 	void updateImage();

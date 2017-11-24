@@ -11,11 +11,13 @@
 #include "components/RatingComponent.h"
 #include "components/TextEditComponent.h"
 #include "guis/GuiTextEditPopup.h"
+#if defined(EXTENSION)
 #include "components/OptionListComponent.h"
 #include "guis/GuiTextEditPopupKeyboard.h"
 #include <LibretroRatio.h>
 #include <RecalboxConf.h>
 #include <components/SwitchComponent.h>
+#endif
 
 #define BUTTON_BACK "a"
 
@@ -101,6 +103,7 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 			row.addElement(ed, false);
 			break;
 		}
+#if defined(EXTENSION)
 		case MD_BOOL:
 		{
 			auto switchComp = std::make_shared<SwitchComponent>(mWindow);
@@ -162,6 +165,7 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 				ed = ratio_choice;
 			}
 			break;
+#endif
 		case MD_MULTILINE_STRING:
 		default:
 		{
@@ -182,11 +186,13 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 			const std::string title = iter->displayPrompt;
 			auto updateVal = [ed](const std::string& newVal) { ed->setValue(newVal); }; // ok callback (apply new value to ed)
 			row.makeAcceptInputHandler([this, title, ed, updateVal, multiLine] {
+#if defined(EXTENSION)
 				if (Settings::getInstance()->getBool("UseOSK") && (!multiLine))
 				{
 					mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, title, ed->getValue(), updateVal, multiLine));
 				}
 				else
+#endif
 				{
 					mWindow->pushGui(new GuiTextEditPopup(mWindow, title, ed->getValue(), updateVal, multiLine));
 				}
@@ -256,17 +262,20 @@ void GuiMetaDataEd::save()
 	{
 		if (mMetaDataDecl.at(i).isStatistic)
 			continue;
-
+#if defined(EXTENSION)
 		if (mMetaDataDecl.at(i).type != MD_LIST)
+#endif
 		{
 			mMetaData->set(mMetaDataDecl.at(i).key, mEditors.at(i)->getValue());
 		}
+#if defined(EXTENSION)
 		else
 		{
 			std::shared_ptr<GuiComponent> ed = mEditors.at(i);
 			std::shared_ptr<OptionListComponent<std::string>> list = std::static_pointer_cast<OptionListComponent<std::string>>(ed);
 			mMetaData->set(mMetaDataDecl.at(i).key, list->getSelected());
 		}
+#endif
 	}
 
 	if (mSavedCallback)
@@ -281,14 +290,20 @@ void GuiMetaDataEd::fetch()
 
 void GuiMetaDataEd::fetchDone(const ScraperSearchResult& result)
 {
+#if defined(EXTENSION)
 	mMetaData->merge(result.mdl);
+#endif
 	for (unsigned int i = 0; i < mEditors.size(); i++)
 	{
 		if (mMetaDataDecl.at(i).isStatistic)
 			continue;
 
 		const std::string& key = mMetaDataDecl.at(i).key;
+#if defined(EXTENSION)
 		mEditors.at(i)->setValue(mMetaData->get(key));
+#else
+		mEditors.at(i)->setValue(result.mdl.get(key));
+#endif
 	}
 }
 

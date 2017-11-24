@@ -41,7 +41,11 @@ std::map<std::string, ElementMapType> ThemeData::sElementMap = boost::assign::ma
 namespace fs = boost::filesystem;
 
 #define MINIMUM_THEME_FORMAT_VERSION 3
+#if defined(EXTENSION)
 #define CURRENT_THEME_FORMAT_VERSION 4
+#else
+#define CURRENT_THEME_FORMAT_VERSION 3
+#endif
 
 // helper
 std::string resolvePath(const char* in, const fs::path& relative)
@@ -416,7 +420,9 @@ fs::path ThemeData::getThemeFromCurrentSet(const std::string& system)
 	return set->second.getThemePath(system);
 }
 
+#if defined(EXTENSION)
 bool ThemeData::getHasFavoritesInTheme() const
 {
 	return (mVersion >= CURRENT_THEME_FORMAT_VERSION);
 }
+#endif

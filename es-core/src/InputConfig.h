@@ -9,7 +9,9 @@
 #include <vector>
 
 #define DEVICE_KEYBOARD -1
+#if defined(EXTENSION)
 #define MAX_PLAYERS 5
+#endif
 
 enum InputType
 {
@@ -107,6 +109,7 @@ public:
 	{
 		return mDeviceGUID;
 	}
+#if defined(EXTENSION)
 	inline int getDeviceIndex() const
 	{
 		return mDeviceIndex;
@@ -115,6 +118,7 @@ public:
 	{
 		return mDeviceNbAxes;
 	};
+#endif
 
 	// Returns true if Input is mapped to this name, false otherwise.
 	bool isMappedTo(const std::string& name, Input input);
@@ -136,8 +140,10 @@ private:
 	const int mDeviceId;
 	const std::string mDeviceName;
 	const std::string mDeviceGUID;
+#if defined(EXTENSION)
 	const int mDeviceIndex;
 	const int mDeviceNbAxes; // number of axes of the device
+#endif
 };
 
 #endif

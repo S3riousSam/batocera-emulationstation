@@ -13,7 +13,9 @@
 #include "components/TextComponent.h"
 #include "guis/GuiMsgBox.h"
 #include "guis/GuiTextEditPopup.h"
+#if defined(EXTENSION)
 #include "guis/GuiTextEditPopupKeyboard.h"
+#endif
 
 ScraperSearchComponent::ScraperSearchComponent(Window* window, SearchType type)
 	: GuiComponent(window)
@@ -468,10 +470,11 @@ void ScraperSearchComponent::openInputScreen(ScraperSearchParams& params)
 		params.nameOverride = name;
 		search(params);
 	};
-
+#if defined(EXTENSION)
 	bool openOSK = Settings::getInstance()->getBool("UseOSK");
-
+#endif
 	stop();
+#if defined(EXTENSION)
 	if (openOSK)
 	{
 		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, _("SEARCH FOR"),
@@ -479,6 +482,7 @@ void ScraperSearchComponent::openInputScreen(ScraperSearchParams& params)
 			params.nameOverride.empty() ? params.game->getCleanName() : params.nameOverride, searchForFunc, false, _("SEARCH")));
 	}
 	else
+#endif
 	{
 		mWindow->pushGui(new GuiTextEditPopup(mWindow, _("SEARCH FOR"),
 			// initial value is last search if there was one, otherwise the clean path name

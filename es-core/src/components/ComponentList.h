@@ -26,10 +26,12 @@ struct ComponentListRow
 	// the rightmost element in the currently selected row.
 	std::function<bool(InputConfig*, Input)> input_handler;
 
+#if defined(EXTENSION)
 	ComponentListRow(const std::string& n = std::string())
 		: name(n)
 	{
 	}
+#endif
 
 	inline void addElement(const std::shared_ptr<GuiComponent>& component, bool resize_width, bool invert_when_selected = true)
 	{

@@ -46,7 +46,8 @@ protected:
 	ThemeExtras mThemeExtras;
 
 	std::stack<FileData*> mCursorStack;
-
+#if defined(EXTENSION)
 private:
 	bool mFavoriteChange;
+#endif
 };

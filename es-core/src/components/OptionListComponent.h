@@ -252,6 +252,7 @@ public:
 		return (selected.size() == 1) ? selected.at(0) : T();
 	}
 
+#if defined(EXTENSION)
 	std::string getSelectedName()
 	{
 		assert(mMultiSelect == false);
@@ -262,6 +263,7 @@ public:
 		}
 		return std::string();
 	}
+#endif
 
 	void add(const std::string& name, const T& obj, bool selected)
 	{
@@ -269,13 +271,16 @@ public:
 		e.name = name;
 		e.object = obj;
 		e.selected = selected;
+#if defined(EXTENSION)
 		if (selected)
 			firstSelected = obj;
+#endif
 
 		mEntries.push_back(e);
 		onSelectedChanged();
 	}
 
+#if defined(EXTENSION)
 	inline void setSelectedChangedCallback(const std::function<void(const T&)>& callback)
 	{
 		mSelectedChangedCallback = callback;
@@ -285,6 +290,7 @@ public:
 	{
 		return firstSelected != getSelected();
 	}
+#endif
 
 private:
 	unsigned int getSelectedId()
@@ -335,9 +341,10 @@ private:
 				}
 			}
 		}
-
+#if defined(EXTENSION)
 		if (mSelectedChangedCallback)
 			mSelectedChangedCallback(mEntries.at(getSelectedId()).object);
+#endif
 	}
 
 	std::vector<HelpPrompt> getHelpPrompts() override
