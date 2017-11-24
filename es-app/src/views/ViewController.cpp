@@ -39,7 +39,9 @@ ViewController::ViewController(Window* window)
 	, mLockInput(false)
 {
 	mState.viewing = NOTHING;
+#if defined(EXTENSION)
 	mFavoritesOnly = Settings::getInstance()->getBool("FavoritesOnly");
+#endif
 }
 
 ViewController::~ViewController()
@@ -83,10 +85,11 @@ void ViewController::goToNextGameList()
 	assert(system);
 	SystemData* next = system->getNext();
 	while (next->getRootFolder()->getChildren().size() == 0)
-	{
 		next = next->getNext();
-	}
+
+#if defined(EXTENSION)
 	AudioManager::getInstance()->themeChanged(system->getNext()->getTheme());
+#endif
 
 	goToGameList(next);
 }
@@ -98,10 +101,11 @@ void ViewController::goToPrevGameList()
 	assert(system);
 	SystemData* prev = system->getPrev();
 	while (prev->getRootFolder()->getChildren().size() == 0)
-	{
 		prev = prev->getPrev();
-	}
+
+#if defined(EXTENSION)
 	AudioManager::getInstance()->themeChanged(prev->getTheme());
+#endif
 	goToGameList(prev);
 }
 
@@ -117,7 +121,7 @@ void ViewController::goToGameList(SystemData* system)
 		offX = sysList->getPosition().x() - offX;
 		mCamera.translation().x() -= offX;
 	}
-
+#if defined(EXTENSION)
 	if (mInvalidGameList[system] == true)
 	{
 		if (!system->isFavorite())
@@ -135,7 +139,7 @@ void ViewController::goToGameList(SystemData* system)
 		}
 		mInvalidGameList[system] = false;
 	}
-
+#endif
 	mState.viewing = GAME_LIST;
 	mState.system = system;
 
@@ -143,6 +147,7 @@ void ViewController::goToGameList(SystemData* system)
 	playViewTransition();
 }
 
+#if defined(EXTENSION)
 void ViewController::updateFavorite(SystemData* system, FileData* file)
 {
 	IGameListView* view = getGameListView(system).get();
@@ -181,13 +186,12 @@ void ViewController::updateFavorite(SystemData* system, FileData* file)
 		}
 
 		if (!found)
-		{
 			view->setCursor(*(files.begin() + pos));
-		}
 	}
 
 	view->updateInfoPanel();
 }
+#endif
 
 void ViewController::playViewTransition()
 {
@@ -331,7 +335,9 @@ std::shared_ptr<IGameListView> ViewController::getGameListView(SystemData* syste
 	addChild(view.get());
 
 	mGameListViews[system] = view;
+#if defined(EXTENSION)
 	mInvalidGameList[system] = false;
+#endif
 	return view;
 }
 
@@ -351,8 +357,8 @@ bool ViewController::input(InputConfig* config, Input input)
 {
 	if (mLockInput)
 		return true;
-
-	/* if we receive a button pressure for a non configured joystick, suggest the joystick configuration */
+#if defined(EXTENSION)
+	// if we receive a button pressure for a non configured joystick, suggest the joystick configuration
 	if (config->isConfigured() == false)
 	{
 		if (input.type == TYPE_BUTTON)
@@ -361,9 +367,13 @@ bool ViewController::input(InputConfig* config, Input input)
 			return true;
 		}
 	}
-
+#endif
 	// open menu
-	if (config->isMappedTo("start", input) && input.value != 0 && RecalboxConf::getInstance()->get("system.es.menu") != "none")
+	if (config->isMappedTo("start", input) && input.value != 0
+#if defined(EXTENSION)
+		&& RecalboxConf::getInstance()->get("system.es.menu") != "none"
+#endif
+	)
 	{
 		// open menu
 		mWindow->pushGui(new GuiMenu(mWindow));
@@ -388,11 +398,11 @@ void ViewController::update(int deltaTime)
 
 void ViewController::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = mCamera * parentTrans;
+	const Eigen::Affine3f trans = mCamera * parentTrans;
 
 	// camera position, position + size
-	Eigen::Vector3f viewStart = trans.inverse().translation();
-	Eigen::Vector3f viewEnd = trans.inverse() * Eigen::Vector3f((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight(), 0);
+	const Eigen::Vector3f viewStart = trans.inverse().translation();
+	const Eigen::Vector3f viewEnd = trans.inverse() * Eigen::Vector3f((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight(), 0);
 
 	// draw systemview
 	getSystemListView()->render(trans);
@@ -401,8 +411,8 @@ void ViewController::render(const Eigen::Affine3f& parentTrans)
 	for (auto it = mGameListViews.begin(); it != mGameListViews.end(); it++)
 	{
 		// clipping
-		Eigen::Vector3f guiStart = it->second->getPosition();
-		Eigen::Vector3f guiEnd = it->second->getPosition() + Eigen::Vector3f(it->second->getSize().x(), it->second->getSize().y(), 0);
+		const Eigen::Vector3f guiStart = it->second->getPosition();
+		const Eigen::Vector3f guiEnd = it->second->getPosition() + Eigen::Vector3f(it->second->getSize().x(), it->second->getSize().y(), 0);
 
 		if (guiEnd.x() >= viewStart.x() && guiEnd.y() >= viewStart.y() && guiStart.x() <= viewEnd.x() && guiStart.y() <= viewEnd.y())
 			it->second->render(trans);
@@ -421,9 +431,9 @@ void ViewController::render(const Eigen::Affine3f& parentTrans)
 
 void ViewController::preload()
 {
-	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (const auto& system : SystemData::sSystemVector)
 	{
-		getGameListView(*it);
+		getGameListView(system);
 	}
 }
 
@@ -435,25 +445,27 @@ void ViewController::reloadGameListView(IGameListView* view, bool reloadTheme)
 		{
 			bool isCurrent = (mCurrentView == it->second);
 			SystemData* system = it->first;
+#if defined(EXTENSION)
 			FileData* cursor = NULL;
 			if (system->getGameCount() != 0)
-			{
 				cursor = view->getCursor();
-			}
+#else
+			FileData* cursor = view->getCursor();
+#endif
 			mGameListViews.erase(it);
 
 			if (reloadTheme)
 				system->loadTheme();
 
 			std::shared_ptr<IGameListView> newView = getGameListView(system);
+#if defined(EXTENSION)
 			if (system->getGameCount() > 1)
-			{
 				newView->setCursor(cursor);
-			}
 			else if (system->getGameCount() == 1)
-			{
 				newView->setCursor(system->getRootFolder()->getChildren().at(0));
-			}
+#else
+			newView->setCursor(cursor);
+#endif
 			if (isCurrent)
 				mCurrentView = newView;
 
@@ -498,6 +510,7 @@ void ViewController::reloadAll()
 	updateHelpPrompts();
 }
 
+#if defined(EXTENSION)
 void ViewController::reloadGamesLists()
 {
 	mGameListViews.clear();
@@ -519,11 +532,11 @@ void ViewController::reloadGamesLists()
 
 void ViewController::setInvalidGamesList(SystemData* system)
 {
-	for (auto it = mGameListViews.begin(); it != mGameListViews.end(); it++)
+	for (const auto& it : mGameListViews)
 	{
-		if (system == (it->first))
+		if (system == it.first)
 		{
-			mInvalidGameList[it->first] = true;
+			mInvalidGameList[it.first] = true;
 			break;
 		}
 	}
@@ -531,14 +544,13 @@ void ViewController::setInvalidGamesList(SystemData* system)
 
 void ViewController::setAllInvalidGamesList(SystemData* systemExclude)
 {
-	for (auto it = mGameListViews.begin(); it != mGameListViews.end(); it++)
+	for (const auto& it : mGameListViews)
 	{
-		if (systemExclude != (it->first))
-		{
-			mInvalidGameList[it->first] = true;
-		}
+		if (systemExclude != (it.first))
+			mInvalidGameList[it.first] = true;
 	}
 }
+#endif
 
 std::vector<HelpPrompt> ViewController::getHelpPrompts()
 {
@@ -547,7 +559,9 @@ std::vector<HelpPrompt> ViewController::getHelpPrompts()
 		return prompts;
 
 	prompts = mCurrentView->getHelpPrompts();
+#if defined(EXTENSION)
 	if (RecalboxConf::getInstance()->get("system.es.menu") != "none")
+#endif
 	{
 		prompts.push_back(HelpPrompt("start", _("MENU")));
 	}
@@ -557,8 +571,5 @@ std::vector<HelpPrompt> ViewController::getHelpPrompts()
 
 HelpStyle ViewController::getHelpStyle()
 {
-	if (!mCurrentView)
-		return GuiComponent::getHelpStyle();
-
-	return mCurrentView->getHelpStyle();
+	return mCurrentView != NULL ? mCurrentView->getHelpStyle() : GuiComponent::getHelpStyle();
 }

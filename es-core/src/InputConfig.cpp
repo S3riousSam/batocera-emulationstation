@@ -52,8 +52,10 @@ InputConfig::InputConfig(int deviceId, int deviceIndex, const std::string& devic
 	: mDeviceId(deviceId)
 	, mDeviceName(deviceName)
 	, mDeviceGUID(deviceGUID)
+#if defined(EXTENSION)
 	, mDeviceIndex(deviceIndex)
 	, mDeviceNbAxes(deviceNbAxes)
+#endif
 {
 }
 

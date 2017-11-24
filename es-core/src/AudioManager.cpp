@@ -13,14 +13,18 @@
 #endif
 #include <time.h>
 
-std::vector<std::shared_ptr<Sound>> AudioManager::sSoundVector;
+#if defined(EXTENSION)
 std::vector<std::shared_ptr<Music>> AudioManager::sMusicVector;
+#endif
+std::vector<std::shared_ptr<Sound>> AudioManager::sSoundVector;
 
 std::shared_ptr<AudioManager> AudioManager::sInstance;
 
 AudioManager::AudioManager()
+#if defined(EXTENSION)
 	: currentMusic(NULL)
 	, running(0)
+#endif
 {
 	init();
 }
@@ -42,6 +46,7 @@ std::shared_ptr<AudioManager>& AudioManager::getInstance()
 
 void AudioManager::init()
 {
+#if defined(EXTENSION)
 	runningFromPlaylist = false;
 	if (running == 0)
 	{
@@ -62,6 +67,7 @@ void AudioManager::init()
 			running = 1;
 		}
 	}
+#endif
 }
 
 void AudioManager::deinit()
@@ -74,9 +80,12 @@ void AudioManager::deinit()
 	Mix_HaltMusic();
 	Mix_CloseAudio();
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+#if defined(EXTENSION)
 	running = 0;
+#endif
 }
 
+#if defined(EXTENSION)
 void AudioManager::stopMusic()
 {
 	Mix_FadeOutMusic(1000);
@@ -135,19 +144,20 @@ void AudioManager::resumeMusic()
 	if (currentMusic != NULL && RecalboxConf::getInstance()->get("audio.bgmusic") == "1")
 		currentMusic->play(runningFromPlaylist ? false : true, runningFromPlaylist ? musicEndInternal : NULL);
 }
+#endif
 
 void AudioManager::registerSound(std::shared_ptr<Sound>& sound)
 {
 	getInstance();
 	sSoundVector.push_back(sound);
 }
-
+#if defined(EXTENSION)
 void AudioManager::registerMusic(std::shared_ptr<Music>& music)
 {
 	getInstance();
 	sMusicVector.push_back(music);
 }
-
+#endif
 void AudioManager::unregisterSound(std::shared_ptr<Sound>& sound)
 {
 	getInstance();
@@ -162,7 +172,7 @@ void AudioManager::unregisterSound(std::shared_ptr<Sound>& sound)
 	}
 	LOG(LogError) << "AudioManager Error - tried to unregister a sound that wasn't registered!";
 }
-
+#if defined(EXTENSION)
 void AudioManager::unregisterMusic(std::shared_ptr<Music>& music)
 {
 	getInstance();
@@ -177,13 +187,16 @@ void AudioManager::unregisterMusic(std::shared_ptr<Music>& music)
 	}
 	LOG(LogError) << "AudioManager Error - tried to unregister a music that wasn't registered!";
 }
+#endif
 
 void AudioManager::play()
 {
 	getInstance();
 
+#if !defined(EXTENSION)
 	// unpause audio, the mixer will figure out if samples need to be played...
-	// SDL_PauseAudio(0);
+	SDL_PauseAudio(0);
+#endif
 }
 
 void AudioManager::stop()
@@ -197,9 +210,12 @@ void AudioManager::stop()
 	// stop playing all Musics
 
 	// pause audio
-	// SDL_PauseAudio(1);
+#if !defined(EXTENSION)
+	SDL_PauseAudio(1);
+#endif
 }
 
+#if defined(EXTENSION)
 std::vector<std::string> getMusicIn(const std::string& path)
 {
 	std::vector<std::string> all_matching_files;
@@ -275,3 +291,5 @@ void AudioManager::playCheckSound()
 	if (boost::filesystem::exists(loadingMusic))
 		Music::get(loadingMusic)->play(false, NULL);
 }
+
+#endif

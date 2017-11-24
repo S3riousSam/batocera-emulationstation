@@ -80,7 +80,7 @@ void ButtonComponent::updateImage()
 		mBox.setEdgeColor(0x770000FF);
 		return;
 	}
-
+#if defined(EXTENSION)
 	if (mNewColor) // If a new color has been set.
 	{
 		mBox.setImagePath(":/button_filled.png");
@@ -88,6 +88,7 @@ void ButtonComponent::updateImage()
 		mBox.setEdgeColor(mModdedColor);
 		return;
 	}
+#endif
 
 	mBox.setCenterColor(0xFFFFFFFF);
 	mBox.setEdgeColor(0xFFFFFFFF);

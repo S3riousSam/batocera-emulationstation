@@ -26,9 +26,11 @@ public:
 		reloadGameListView(getGameListView(system).get(), reloadTheme);
 	}
 	void reloadAll(); // Reload everything with a theme.  Used when the "ThemeSet" setting changes.
+#if defined(EXTENSION)
 	void reloadGamesLists();
 	void setInvalidGamesList(SystemData* system);
 	void setAllInvalidGamesList(SystemData* systemExclude);
+#endif
 
 	// Navigation.
 	void goToNextGameList();
@@ -38,9 +40,9 @@ public:
 	void goToStart();
 
 	void onFileChanged(FileData* file, FileChangeType change);
-
+#if defined(EXTENSION)
 	void updateFavorite(SystemData* system, FileData* file);
-
+#endif
 	// Plays a nice launch effect and launches the game at the end of it.
 	// Once the game terminates, plays a return effect.
 	void launch(
@@ -98,8 +100,10 @@ private:
 	Eigen::Affine3f mCamera;
 	float mFadeOpacity;
 	bool mLockInput;
+#if defined(EXTENSION)
 	std::map<SystemData*, bool> mInvalidGameList;
 	bool mFavoritesOnly;
+#endif
 
 	State mState;
 };

@@ -30,9 +30,11 @@ public:
 	std::vector<HelpPrompt> getHelpPrompts() override;
 	virtual HelpStyle getHelpStyle() override;
 	void populate();
+#if defined(EXTENSION)
 	void removeFavoriteSystem();
 	void manageFavorite();
 	void addSystem(SystemData* it);
+#endif
 
 protected:
 	void onCursorChanged(const CursorState& state) override;
@@ -49,5 +51,7 @@ private:
 	float mCamOffset;
 	float mExtrasCamOffset;
 	float mExtrasFadeOpacity;
+#if defined(EXTENSION)
 	SystemData* lastSystem;
+#endif
 };

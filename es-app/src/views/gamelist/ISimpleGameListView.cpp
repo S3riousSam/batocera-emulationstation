@@ -4,10 +4,12 @@
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
+#if defined(EXTENSION) || !defined(RECALBOX) // TODO: REVIEW
 #include "Gamelist.h"
 #include "LocaleES.h"
 #include "Log.h"
 #include "SystemData.h"
+#endif
 
 ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root)
 	: IGameListView(window, root)
@@ -15,7 +17,9 @@ ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root)
 	, mHeaderImage(window)
 	, mBackground(window)
 	, mThemeExtras(window)
+#if defined(EXTENSION)
 	, mFavoriteChange(false)
+#endif
 {
 	mHeaderText.setText("Logo Text");
 	mHeaderText.setSize(mSize.x(), 0);
@@ -61,8 +65,7 @@ void ISimpleGameListView::onFileChanged(FileData* file, FileChangeType change)
 	const int index = getCursorIndex();
 	populateList(getRoot()->getChildren());
 	setCursorIndex(index);
-
-	/* Favorite */
+#if defined(EXTENSION)
 	if (file->getType() == GAME)
 	{
 		const SystemData* favoriteSystem = SystemData::getFavoriteSystem();
@@ -91,6 +94,7 @@ void ISimpleGameListView::onFileChanged(FileData* file, FileChangeType change)
 			ViewController::get()->getSystemListView()->manageFavorite();
 		}
 	}
+#endif
 }
 
 bool ISimpleGameListView::input(InputConfig* config, Input input)
@@ -102,7 +106,9 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			FileData* cursor = getCursor();
 			if (cursor->getType() == GAME)
 			{
-				// Sound::getFromTheme(getTheme(), getName(), "launch")->play();
+#if !defined(EXTENSION)
+				Sound::getFromTheme(getTheme(), getName(), "launch")->play();
+#endif
 				launch(cursor);
 			}
 			else
@@ -124,12 +130,14 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				populateList(getRoot()->getChildren());
 				setCursor(mCursorStack.top());
 				mCursorStack.pop();
-				// Sound::getFromTheme(getTheme(), getName(), "back")->play();
+#if !defined(EXTENSION)
+				Sound::getFromTheme(getTheme(), getName(), "back")->play();
+#endif
 			}
 			else
 			{
 				onFocusLost();
-
+#if defined(EXTENSION)
 				if (mFavoriteChange)
 				{
 					ViewController::get()->setInvalidGamesList(getRoot()->getSystem());
@@ -137,10 +145,14 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				}
 
 				ViewController::get()->goToSystemView(getRoot()->getSystem());
+#else
+				ViewController::get()->goToSystemView(getCursor()->getSystem());
+#endif
 			}
 
 			return true;
 		}
+#if defined(EXTENSION)
 		else if (config->isMappedTo("y", input))
 		{
 			FileData* cursor = getCursor();
@@ -177,16 +189,19 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 				}
 			}
 		}
+#endif
 		else if (config->isMappedTo("right", input))
 		{
 			if (Settings::getInstance()->getBool("QuickSystemSelect"))
 			{
 				onFocusLost();
+#if defined(EXTENSION)
 				if (mFavoriteChange)
 				{
 					ViewController::get()->setInvalidGamesList(getCursor()->getSystem());
 					mFavoriteChange = false;
 				}
+#endif
 				ViewController::get()->goToNextGameList();
 				return true;
 			}
@@ -196,11 +211,13 @@ bool ISimpleGameListView::input(InputConfig* config, Input input)
 			if (Settings::getInstance()->getBool("QuickSystemSelect"))
 			{
 				onFocusLost();
+#if defined(EXTENSION)
 				if (mFavoriteChange)
 				{
 					ViewController::get()->setInvalidGamesList(getCursor()->getSystem());
 					mFavoriteChange = false;
 				}
+#endif
 				ViewController::get()->goToPrevGameList();
 				return true;
 			}

@@ -36,6 +36,7 @@ SystemView::SystemView(Window* window)
 	populate();
 }
 
+#if defined(EXTENSION)
 void SystemView::addSystem(SystemData* it)
 {
 	if ((it)->getRootFolder()->getChildren().size() == 0)
@@ -83,15 +84,18 @@ void SystemView::addSystem(SystemData* it)
 
 	this->add(e);
 }
+#endif
 
 void SystemView::populate()
 {
 	mEntries.clear();
 
+#if defined(EXTENSION)
 	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
 	{
 		addSystem((*it));
 	}
+#endif
 }
 
 void SystemView::goToSystem(SystemData* system, bool animate)
@@ -135,6 +139,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			ViewController::get()->goToGameList(getSelected());
 			return true;
 		}
+#if defined(EXTENSION)
 		if (config->isMappedTo("select", input) && RecalboxConf::getInstance()->get("system.es.menu") != "none")
 		{
 			// TODO: Duplicate Code!
@@ -185,6 +190,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			s->addRow(row);
 			mWindow->pushGui(s);
 		}
+#endif
 	}
 	else
 	{
@@ -203,11 +209,13 @@ void SystemView::update(int deltaTime)
 
 void SystemView::onCursorChanged(const CursorState& state)
 {
+#if defined(EXTENSION)
 	if (lastSystem != getSelected())
 	{
 		lastSystem = getSelected();
 		AudioManager::getInstance()->themeChanged(getSelected()->getTheme());
 	}
+#endif
 	// update help style
 	updateHelpPrompts();
 
@@ -237,7 +245,7 @@ void SystemView::onCursorChanged(const CursorState& state)
 	Animation* infoFadeOut = new LambdaAnimation(
 		[infoStartOpacity, this](float t) { mSystemInfo.setOpacity((unsigned char)(lerp<float>(infoStartOpacity, 0.f, t) * 255)); },
 		(int)(infoStartOpacity * 150));
-
+#if defined(EXTENSION)
 	unsigned int gameCount = getSelected()->getGameCount();
 	unsigned int favoritesCount = getSelected()->getFavoritesCount();
 	unsigned int hiddenCount = getSelected()->getHiddenCount();
@@ -279,7 +287,7 @@ void SystemView::onCursorChanged(const CursorState& state)
 			mSystemInfo.setText(strbuf);
 		},
 		false, 1);
-
+#endif
 	Animation* infoFadeIn = new LambdaAnimation([this](float t) { mSystemInfo.setOpacity((unsigned char)(lerp<float>(0.f, 1.f, t) * 255)); }, 300);
 
 	// wait ms to fade in
@@ -452,6 +460,7 @@ HelpStyle SystemView::getHelpStyle()
 	return style;
 }
 
+#if defined(EXTENSION)
 void SystemView::removeFavoriteSystem()
 {
 	for (auto it = mEntries.begin(); it != mEntries.end(); it++)
@@ -484,4 +493,4 @@ void SystemView::manageFavorite()
 			addSystem(favorite);
 	}
 }
-
+#endif
