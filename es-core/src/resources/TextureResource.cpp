@@ -4,7 +4,7 @@
 #include "Renderer.h"
 #include "Util.h"
 #include "platform.h"
-#include "platform_gl.h"
+#include GLHEADER
 #include "resources/SVGResource.h"
 
 std::map<TextureResource::TextureKeyType, std::weak_ptr<TextureResource>> TextureResource::sTextureMap;

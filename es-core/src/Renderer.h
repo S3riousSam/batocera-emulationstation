@@ -1,7 +1,7 @@
 #pragma once
 
 #include "platform.h"
-#include "platform_gl.h"
+#include GLHEADER
 #include <Eigen/Dense>
 #include <string>
 #include <vector>

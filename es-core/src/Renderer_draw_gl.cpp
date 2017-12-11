@@ -2,7 +2,7 @@
 #include "Renderer.h"
 #include "Util.h"
 #include "platform.h"
-#include "platform_gl.h"
+#include GLHEADER
 #include "resources/Font.h"
 #include <boost/filesystem.hpp>
 #include <iostream>

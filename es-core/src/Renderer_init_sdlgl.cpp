@@ -4,7 +4,7 @@
 #include "Renderer.h"
 #include "Settings.h"
 #include "platform.h"
-#include "platform_gl.h"
+#include GLHEADER
 #include "resources/Font.h"
 #include <SDL.h>
 #include <iostream>

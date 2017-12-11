@@ -1,3 +1,4 @@
+#if defined(OBSOLETE)
 #pragma once
 
 // the Makefile defines one of these:
@@ -9,10 +10,12 @@
 #endif
 
 #ifdef USE_OPENGL_DESKTOP
-// why the hell this naming inconsistency exists is well beyond me
-#ifdef WIN32
-//#define sleep Sleep
-#endif
+//     //why the hell this naming inconsistency exists is well beyond me
+//     #ifdef WIN32
+//         #define sleep Sleep
+//     #endif
 
 #include <SDL_opengl.h>
 #endif
+#endif
+#error Use platform.h
