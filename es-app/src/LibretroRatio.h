@@ -3,15 +3,9 @@
 #include <map>
 #include <string>
 
-class LibretroRatio
+struct LibretroRatio
 {
-public:
-	std::map<std::string, std::string>* getRatio();
-	static LibretroRatio* getInstance();
-
-private:
-	static LibretroRatio* sInstance;
-	std::map<std::string, std::string>* ratioMap;
-	LibretroRatio();
+	static std::map<std::string, std::string> ratioMap;
 };
+
 #endif

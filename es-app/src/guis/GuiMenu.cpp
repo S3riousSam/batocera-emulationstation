@@ -1498,10 +1498,9 @@ std::shared_ptr<OptionListComponent<std::string>> GuiMenu::createRatioOptionList
 		currentRatio = std::string("auto");
 	}
 
-	std::map<std::string, std::string>* ratioMap = LibretroRatio::getInstance()->getRatio();
-	for (auto ratio = ratioMap->begin(); ratio != ratioMap->end(); ratio++)
+	for (const auto& ratio : LibretroRatio::ratioMap)
 	{
-		ratio_choice->add(_(ratio->first.c_str()), ratio->second, currentRatio == ratio->second);
+		ratio_choice->add(_(ratio.first.c_str()), ratio.second, currentRatio == ratio.second);
 	}
 
 	return ratio_choice;

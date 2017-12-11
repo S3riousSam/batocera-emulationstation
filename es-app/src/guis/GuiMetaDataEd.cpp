@@ -160,7 +160,7 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 				row.addElement(ratio_choice, true);
 				if (mMetaData->get("ratio").empty())
 					mMetaData->set("ratio", "auto");
-				for (const auto& ratio : *LibretroRatio::getInstance()->getRatio())
+				for (const auto& ratio : LibretroRatio::ratioMap)
 					ratio_choice->add(ratio.first, ratio.second, mMetaData->get("ratio") == ratio.second);
 				ed = ratio_choice;
 			}
