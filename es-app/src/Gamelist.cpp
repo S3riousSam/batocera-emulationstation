@@ -133,8 +133,10 @@ void parseGamelist(SystemData* system)
 			// make sure name gets set if one didn't exist
 			if (file->metadata.get("name").empty())
 				file->metadata.set("name", defaultName);
+#if defined(EXTENSION)
 			file->metadata.set("system", system->getName());
 			file->metadata.resetChangedFlag();
+#endif
 		}
 	}
 }
@@ -205,8 +207,9 @@ void updateGamelist(const SystemData* system)
 	FileData* rootFolder = system->getRootFolder();
 	if (rootFolder != nullptr)
 	{
+#if defined(EXTENSION)
 		int numUpdated = 0;
-
+#endif
 		// get only files, no folders
 		const std::vector<FileData*> files = rootFolder->getFilesRecursive(GAME | FOLDER);
 		// iterate through all files, checking if they're already in the XML
@@ -214,6 +217,7 @@ void updateGamelist(const SystemData* system)
 		{
 			const char* tag = ((*fit)->getType() == GAME) ? "game" : "folder";
 
+#if defined(EXTENSION)
 			// check if current file has metadata, if no, skip it as it wont be in the gamelist anyway.
 			if ((*fit)->metadata.isDefault())
 				continue;
@@ -221,7 +225,7 @@ void updateGamelist(const SystemData* system)
 			// do not touch if it wasn't changed anyway
 			if (!(*fit)->metadata.wasChanged())
 				continue;
-
+#endif
 			// check if the file already exists in the XML
 			// if it does, remove it before adding
 			for (pugi::xml_node fileNode = root.child(tag); fileNode; fileNode = fileNode.next_sibling(tag))
@@ -245,18 +249,22 @@ void updateGamelist(const SystemData* system)
 
 			// it was either removed or never existed to begin with; either way, we can add it now
 			addFileDataNode(root, *fit, tag, system);
+#if defined(EXTENSION)
 			++numUpdated;
+#endif
 		}
 
 		// now write the file
-
+#if defined(EXTENSION)
 		if (numUpdated > 0)
+#endif
 		{
 			// make sure the folders leading up to this path exist (or the write will fail)
 			boost::filesystem::path xmlWritePath(system->getGamelistPath(true));
 			boost::filesystem::create_directories(xmlWritePath.parent_path());
-
+#if defined(EXTENSION)
 			LOG(LogInfo) << "Added/Updated " << numUpdated << " entities in '" << xmlReadPath << "'";
+#endif
 
 			if (!doc.save_file(xmlWritePath.c_str()))
 				LOG(LogError) << "Error saving gamelist.xml to \"" << xmlWritePath << "\" (for system " << system->getName() << ")!";

@@ -338,8 +338,7 @@ void Font::getTextureForNewGlyph(const Eigen::Vector2i& glyphSize, FontTexture*&
 	bool ok = tex_out->findEmpty(glyphSize, cursor_out);
 	if (!ok)
 	{
-		LOG(LogError) << "Glyph too big to fit on a new texture (glyph size > " << tex_out->textureSize.x() << ", " << tex_out->textureSize.y()
-					  << ")!";
+		LOG(LogError) << "Glyph too big to fit on a new texture (glyph size > " << tex_out->textureSize.x() << ", " << tex_out->textureSize.y() << ")!";
 		tex_out = NULL;
 	}
 }
@@ -380,7 +379,8 @@ std::vector<std::string> getFallbackFontPaths()
 	// Linux
 
 	// TODO
-	const char* paths[] = {
+	const char* paths[] =
+	{
 		"/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf", // japanese, chinese, present on Debian
 		":/fontawesome_webfont.ttf",
 		"/usr/share/fonts/truetype/fontawesome-webfont.ttf",

@@ -24,7 +24,9 @@ class GuiMenu : public GuiComponent
 {
 public:
 	GuiMenu(Window* window);
+#if defined(EXTENSION)
 	~GuiMenu();
+#endif
 
 	bool input(InputConfig* config, Input input) override;
 	void onSizeChanged() override;

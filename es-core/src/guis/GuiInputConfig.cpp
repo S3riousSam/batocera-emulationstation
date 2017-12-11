@@ -61,6 +61,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	mTitle = std::make_shared<TextComponent>(mWindow, _("CONFIGURING"), Font::get(FONT_SIZE_LARGE), 0x555555FF, ALIGN_CENTER);
 	mGrid.setEntry(mTitle, Vector2i(0, 1), false, true);
 
+#if defined(EXTENSION)
 	char strbuf[256];
 	if (target->getDeviceId() == DEVICE_KEYBOARD)
 		strncpy(strbuf, _("KEYBOARD").c_str(), 256);
@@ -68,6 +69,15 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 		snprintf(strbuf, 256, _("GAMEPAD %i").c_str(), target->getDeviceId() + 1);
 
 	mSubtitle1 = std::make_shared<TextComponent>(mWindow, strToUpper(strbuf), Font::get(FONT_SIZE_MEDIUM), 0x555555FF, ALIGN_CENTER);
+#else
+	std::stringstream ss;
+	if (target->getDeviceId() == DEVICE_KEYBOARD)
+		ss << "KEYBOARD";
+	else
+		ss << "GAMEPAD " << (target->getDeviceId() + 1);
+
+	mSubtitle1 = std::make_shared<TextComponent>(mWindow, strToUpper(ss.str()), Font::get(FONT_SIZE_MEDIUM), 0x555555FF, ALIGN_CENTER);
+#endif
 	mGrid.setEntry(mSubtitle1, Vector2i(0, 2), false, true);
 
 	mSubtitle2 = std::make_shared<TextComponent>(mWindow, _("HOLD ANY BUTTON TO SKIP"), Font::get(FONT_SIZE_SMALL), 0x99999900, ALIGN_CENTER);
@@ -77,14 +87,18 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 
 	mList = std::make_shared<ComponentList>(mWindow);
 	mGrid.setEntry(mList, Vector2i(0, 5), true, true);
+#if defined(EXTENSION)
 	const bool hasAxis = InputManager::getInstance()->getAxisCountByDevice(target->getDeviceId()) > 0;
+#endif
 	int inputRowIndex = 0;
 	for (int i = 0; i < inputCount; i++)
 	{
+#if defined(EXTENSION)
 		if (inputTypes[i] == AXIS && !hasAxis)
 		{
 			continue;
 		}
+#endif
 		ComponentListRow row;
 		// icon
 		auto icon = std::make_shared<ImageComponent>(mWindow);
@@ -224,11 +238,18 @@ void GuiInputConfig::update(int deltaTime)
 			if (prevSec != curSec)
 			{
 				// crossed the second boundary, update text
+#if defined(EXTENSION)
 				const auto& text = mMappings.at(mHeldInputRowIndex);
 				char strbuf[256];
 				snprintf(strbuf, 256, ngettext("HOLD FOR %iS TO SKIP", "HOLD FOR %iS TO SKIP", HOLD_TO_SKIP_MS / 1000 - curSec).c_str(),
 					HOLD_TO_SKIP_MS / 1000 - curSec);
 				text->setText(strbuf);
+#else
+				const auto& text = mMappings.at(mHeldInputId);
+				std::stringstream ss;
+				ss << "HOLD FOR " << HOLD_TO_SKIP_MS / 1000 - curSec << "S TO SKIP";
+				text->setText(ss.str());
+#endif
 				text->setColor(0x777777FF);
 			}
 		}

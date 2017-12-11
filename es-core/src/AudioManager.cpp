@@ -73,7 +73,9 @@ void AudioManager::init()
 void AudioManager::deinit()
 {
 	// stop all playback
-	// stop();
+#if defined(EXTENSION)
+	stop();
+#endif
 	// completely tear down SDL audio. else SDL hogs audio resources and emulators might fail to start...
 	LOG(LogInfo) << "Shutting down SDL AUDIO";
 

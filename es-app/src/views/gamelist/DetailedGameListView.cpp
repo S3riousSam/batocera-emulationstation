@@ -12,7 +12,7 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root, Syste
 	, mDescription(window)
 	, mImage(window)
 	, mSystem(system)
-	,
+	, // EXTENSION
 
 	mLblRating(window)
 	, mLblReleaseDate(window)
@@ -23,7 +23,7 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root, Syste
 	, mLblLastPlayed(window)
 	, mLblPlayCount(window)
 	, mLblFavorite(window)
-	,
+	, // EXTENSION
 
 	mRating(window)
 	, mReleaseDate(window)
@@ -33,7 +33,7 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root, Syste
 	, mPlayers(window)
 	, mLastPlayed(window)
 	, mPlayCount(window)
-	, mFavorite(window)
+	, mFavorite(window) // EXTENSION
 {
 	// mHeaderImage.setPosition(mSize.x() * 0.25f, 0);
 
@@ -51,37 +51,39 @@ DetailedGameListView::DetailedGameListView(Window* window, FileData* root, Syste
 	addChild(&mImage);
 
 	// metadata labels + values
-	mLblRating.setText(_("Rating") + ": ");
+	mLblRating.setText(_("Rating") + std::string(": "));
 	addChild(&mLblRating);
 	addChild(&mRating);
-	mLblReleaseDate.setText(_("Released") + ": ");
+	mLblReleaseDate.setText(_("Released") + std::string(": "));
 	addChild(&mLblReleaseDate);
 	addChild(&mReleaseDate);
-	mLblDeveloper.setText(_("Developer") + ": ");
+	mLblDeveloper.setText(_("Developer") + std::string(": "));
 	addChild(&mLblDeveloper);
 	addChild(&mDeveloper);
-	mLblPublisher.setText(_("Publisher") + ": ");
+	mLblPublisher.setText(_("Publisher") + std::string(": "));
 	addChild(&mLblPublisher);
 	addChild(&mPublisher);
-	mLblGenre.setText(_("Genre") + ": ");
+	mLblGenre.setText(_("Genre") + std::string(": "));
 	addChild(&mLblGenre);
 	addChild(&mGenre);
-	mLblPlayers.setText(_("Players") + ": ");
+	mLblPlayers.setText(_("Players") + std::string(": "));
 	addChild(&mLblPlayers);
 	addChild(&mPlayers);
-	mLblLastPlayed.setText(_("Last played") + ": ");
+	mLblLastPlayed.setText(_("Last played") + std::string(": "));
 	addChild(&mLblLastPlayed);
 	mLastPlayed.setDisplayMode(DateTimeComponent::DISP_RELATIVE_TO_NOW);
 	addChild(&mLastPlayed);
-	mLblPlayCount.setText(_("Times played") + ": ");
+	mLblPlayCount.setText(_("Times played") + std::string(": "));
 	addChild(&mLblPlayCount);
 	addChild(&mPlayCount);
+#if defined(EXTENSION)
 	if (system->getHasFavorites())
 	{
-		mLblFavorite.setText(_("Favorite") + ": ");
+		mLblFavorite.setText(_("Favorite") + std::string(": "));
 		addChild(&mLblFavorite);
 		addChild(&mFavorite);
 	}
+#endif
 
 	mDescContainer.setPosition(mSize.x() * padding, mSize.y() * 0.65f);
 	mDescContainer.setSize(mSize.x() * (0.50f - 2 * padding), mSize.y() - mDescContainer.getPosition().y());
@@ -106,7 +108,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 
 	initMDLabels();
 	const std::vector<TextComponent*> labels = getMDLabels();
-
+#if defined(EXTENSION)
 	if (mSystem->getHasFavorites())
 	{
 		assert(labels.size() == 9);
@@ -119,6 +121,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 		}
 	}
 	else
+#endif
 	{
 		assert(labels.size() == 8);
 		const char* lblElements[8] = {"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", "md_lbl_genre", "md_lbl_players",
@@ -132,7 +135,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 
 	initMDValues();
 	const std::vector<GuiComponent*> values = getMDValues();
-
+#if defined(EXTENSION)
 	if (mSystem->getHasFavorites())
 	{
 		assert(values.size() == 9);
@@ -145,6 +148,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 		}
 	}
 	else
+#endif
 	{
 		assert(values.size() == 8);
 		const char* valElements[8] = {
@@ -210,7 +214,7 @@ void DetailedGameListView::initMDValues()
 	mPlayers.setFont(defaultFont);
 	mLastPlayed.setFont(defaultFont);
 	mPlayCount.setFont(defaultFont);
-	mFavorite.setFont(defaultFont);
+	mFavorite.setFont(defaultFont); // EXTENSION
 
 	float bottom = 0.0f;
 
@@ -257,7 +261,7 @@ void DetailedGameListView::updateInfoPanel()
 			mPlayers.setValue(file->metadata.get("players"));
 			mLastPlayed.setValue(file->metadata.get("lastplayed"));
 			mPlayCount.setValue(file->metadata.get("playcount"));
-			mFavorite.setValue(file->metadata.get("favorite"));
+			mFavorite.setValue(file->metadata.get("favorite")); // EXTENSION
 		}
 
 		fadingOut = false;
@@ -269,18 +273,17 @@ void DetailedGameListView::updateInfoPanel()
 	std::vector<TextComponent*> labels = getMDLabels();
 	comps.insert(comps.end(), labels.begin(), labels.end());
 
-	for (auto it = comps.begin(); it != comps.end(); it++)
+	for (auto& it : comps)
 	{
-		GuiComponent* comp = *it;
 		// an animation is playing
 		//   then animate if reverse != fadingOut
 		// an animation is not playing
 		//   then animate if opacity != our target opacity
-		if ((comp->isAnimationPlaying(0) && comp->isAnimationReversed(0) != fadingOut) ||
-			(!comp->isAnimationPlaying(0) && comp->getOpacity() != (fadingOut ? 0 : 255)))
+		if ((it->isAnimationPlaying(0) && it->isAnimationReversed(0) != fadingOut) ||
+			(!it->isAnimationPlaying(0) && it->getOpacity() != (fadingOut ? 0 : 255)))
 		{
-			auto func = [comp](float t) { comp->setOpacity((unsigned char)(lerp<float>(0.0f, 1.0f, t) * 255)); };
-			comp->setAnimation(new LambdaAnimation(func, 150), 0, nullptr, fadingOut);
+			auto func = [it](float t) { it->setOpacity((unsigned char)(lerp<float>(0.0f, 1.0f, t) * 255)); };
+			it->setAnimation(new LambdaAnimation(func, 150), 0, nullptr, fadingOut);
 		}
 	}
 }
@@ -306,9 +309,10 @@ std::vector<TextComponent*> DetailedGameListView::getMDLabels()
 	ret.push_back(&mLblPlayers);
 	ret.push_back(&mLblLastPlayed);
 	ret.push_back(&mLblPlayCount);
+#if defined(EXTENSION)
 	if (mSystem->getHasFavorites())
 		ret.push_back(&mLblFavorite);
-
+#endif
 	return ret;
 }
 
@@ -324,8 +328,10 @@ std::vector<GuiComponent*> DetailedGameListView::getMDValues()
 	ret.push_back(&mPlayers);
 	ret.push_back(&mLastPlayed);
 	ret.push_back(&mPlayCount);
+#if defined(EXTENSION)
 	if (mSystem->getHasFavorites())
 		ret.push_back(&mFavorite);
+#endif
 	return ret;
 }
 
@@ -339,10 +345,12 @@ std::vector<HelpPrompt> DetailedGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
 	prompts.push_back(HelpPrompt("b", _("LAUNCH")));
 	prompts.push_back(HelpPrompt("a", _("BACK")));
+#if defined(EXTENSION)
 	if (getRoot()->getSystem() != SystemData::getFavoriteSystem())
 	{
 		prompts.push_back(HelpPrompt("y", _("Favorite")));
 		prompts.push_back(HelpPrompt("select", _("OPTIONS")));
 	}
+#endif
 	return prompts;
 }

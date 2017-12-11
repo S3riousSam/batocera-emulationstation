@@ -173,12 +173,14 @@ void Window::input(InputConfig* config, Input input)
 
 void Window::update(int deltaTime)
 {
+#if defined(EXTENSION)
 	if (!mMessages.empty())
 	{
 		std::string message = mMessages.back();
 		mMessages.pop_back();
 		pushGui(new GuiMsgBox(this, message));
 	}
+#endif
 	if (mNormalizeNextUpdate)
 	{
 		mNormalizeNextUpdate = false;
@@ -381,6 +383,11 @@ void Window::setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpSt
 
 void Window::onSleep()
 {
+#if !defined(EXTENSION)
+	Renderer::setMatrix(Eigen::Affine3f::Identity());
+	unsigned char opacity = Settings::getInstance()->getString("ScreenSaverBehavior") == "dim" ? 0xA0 : 0xFF;
+	Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x00000000 | opacity);
+#endif
 }
 
 void Window::onWake()

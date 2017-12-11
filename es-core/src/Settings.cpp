@@ -9,9 +9,13 @@ Settings* Settings::sInstance = NULL;
 
 // these values are NOT saved to es_settings.xml
 // since they're set through command-line arguments, and not the in-program settings menu
-std::vector<const char*> settings_dont_save = boost::assign::list_of("Debug")("DebugGrid")("DebugText")("ParseGamelistOnly")("ShowExit")("Windowed")(
-	"VSync")("HideConsole")("IgnoreGamelist")("UpdateCommand")("UpdateServer")("VersionFile")("SharePartition")("RecalboxSettingScript")(
-	"RecalboxConfigScript")("LastVersionFile")("VersionMessage")("MusicDirectory");
+std::vector<const char*> settings_dont_save = boost::assign::list_of("Debug")("DebugGrid")("DebugText")("ParseGamelistOnly")("ShowExit")("Windowed")("VSync")("HideConsole")("IgnoreGamelist")
+#if defined(EXTENSION)
+		("UpdateCommand")("UpdateServer")("VersionFile")("SharePartition")("RecalboxSettingScript")("RecalboxConfigScript")("LastVersionFile")(
+			"VersionMessage")("MusicDirectory");
+#else
+	;
+#endif
 
 Settings::Settings()
 {
@@ -37,7 +41,9 @@ void Settings::setDefaults()
 	mBoolMap["DrawFramerate"] = false;
 	mBoolMap["ShowExit"] = true;
 	mBoolMap["Windowed"] = false;
+#if defined(EXTENSION)
 	mBoolMap["UseOSK"] = true;
+#endif
 
 #ifdef _RPI_
 	// don't enable VSync by default on the Pi, since it already
@@ -46,29 +52,38 @@ void Settings::setDefaults()
 #else
 	mBoolMap["VSync"] = true;
 #endif
-
+#if !defined(EXTENSION)
+	mBoolMap["EnableSounds"] = true;
+#endif
 	mBoolMap["ShowHelpPrompts"] = true;
 	mBoolMap["ScrapeRatings"] = true;
 	mBoolMap["IgnoreGamelist"] = false;
 	mBoolMap["HideConsole"] = true;
 	mBoolMap["QuickSystemSelect"] = true;
+#if defined(EXTENSION)
 	mBoolMap["FavoritesOnly"] = false;
 	mBoolMap["ShowHidden"] = false;
+#endif
 
 	mBoolMap["Debug"] = false;
 	mBoolMap["DebugGrid"] = false;
 	mBoolMap["DebugText"] = false;
-
+#if defined(EXTENSION)
 	mBoolMap["Overscan"] = false;
-
+#endif
 	mIntMap["ScreenSaverTime"] = 5 * 60 * 1000; // 5 minutes
 	mIntMap["ScraperResizeWidth"] = 400;
 	mIntMap["ScraperResizeHeight"] = 0;
+#if defined(EXTENSION)
 	mIntMap["SystemVolume"] = 96;
+#endif
 
 	mStringMap["TransitionStyle"] = "fade";
 	mStringMap["ThemeSet"] = "";
 	mStringMap["ScreenSaverBehavior"] = "dim";
+#if !defined(EXTENSION)
+	mStringMap["Scraper"] = "TheGamesDB";
+#else
 	mStringMap["Scraper"] = "Screenscraper";
 	mStringMap["Lang"] = "en_US";
 	mStringMap["INPUT P1"] = "DEFAULT";
@@ -84,6 +99,7 @@ void Settings::setDefaults()
 	mStringMap["LastVersionFile"] = "/recalbox/share/system/update.done";
 	mStringMap["VersionMessage"] = "/recalbox/recalbox.msg";
 	mStringMap["MusicDirectory"] = "/recalbox/share/music/";
+#endif
 }
 
 template<typename K, typename V>

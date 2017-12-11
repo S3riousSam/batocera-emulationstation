@@ -785,12 +785,13 @@ GuiMenu::GuiMenu(Window* window)
 			s->addWithLabel(_("QUICK SYSTEM SELECT"), quick_sys_select);
 			s->addSaveFunc([quick_sys_select] { Settings::getInstance()->setBool("QuickSystemSelect", quick_sys_select->getState()); });
 
+#if defined(EXTENSION)
 			// Enable OSK (On-Screen-Keyboard)
 			auto osk_enable = std::make_shared<SwitchComponent>(mWindow);
 			osk_enable->setState(Settings::getInstance()->getBool("UseOSK"));
 			s->addWithLabel(_("ON SCREEN KEYBOARD"), osk_enable);
 			s->addSaveFunc([osk_enable] { Settings::getInstance()->setBool("UseOSK", osk_enable->getState()); });
-
+#endif
 			// transition style
 			auto transition_style = std::make_shared<OptionListComponent<std::string>>(mWindow, _("TRANSITION STYLE"), false);
 			std::vector<std::string> transitions;
@@ -1045,9 +1046,7 @@ GuiMenu::GuiMenu(Window* window)
 			window->pushGui(new GuiMsgBox(window, _("REALLY RESTART?"), _("YES"),
 				[] {
 					if (RecalboxSystem::getInstance()->reboot() != 0)
-					{
 						LOG(LogWarning) << "Restart terminated with non-zero result!";
-					}
 				},
 				_("NO"), nullptr));
 		});
@@ -1059,15 +1058,14 @@ GuiMenu::GuiMenu(Window* window)
 			window->pushGui(new GuiMsgBox(window, _("REALLY SHUTDOWN?"), _("YES"),
 				[] {
 					if (RecalboxSystem::getInstance()->shutdown() != 0)
-					{
 						LOG(LogWarning) << "Shutdown terminated with non-zero result!";
-					}
 				},
 				_("NO"), nullptr));
 		});
 		row.addElement(std::make_shared<TextComponent>(window, _("SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		s->addRow(row);
 
+#if defined(EXTENSION)
 		row.elements.clear();
 		row.makeAcceptInputHandler([window] {
 			window->pushGui(new GuiMsgBox(window, _("REALLY SHUTDOWN WITHOUT SAVING METADATAS?"), _("YES"),
@@ -1081,7 +1079,8 @@ GuiMenu::GuiMenu(Window* window)
 		});
 		row.addElement(std::make_shared<TextComponent>(window, _("FAST SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		s->addRow(row);
-		/*if(Settings::getInstance()->getBool("ShowExit"))
+#else
+		if(Settings::getInstance()->getBool("ShowExit"))
 		{
 			row.elements.clear();
 			row.makeAcceptInputHandler([window] {
@@ -1094,7 +1093,8 @@ GuiMenu::GuiMenu(Window* window)
 			});
 			row.addElement(std::make_shared<TextComponent>(window, _("QUIT EMULATIONSTATION"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 			s->addRow(row);
-		}*/
+		}
+#endif
 		// ViewController::get()->reloadAll();
 
 		mWindow->pushGui(s);
@@ -1112,10 +1112,12 @@ GuiMenu::GuiMenu(Window* window)
 	setPosition((Renderer::getScreenWidth() - mSize.x()) / 2, Renderer::getScreenHeight() * 0.1f);
 }
 
+#if defined(EXTENSION)
 GuiMenu::~GuiMenu()
 {
 	clearLoadedInput();
 }
+#endif
 
 void GuiMenu::popSystemConfigurationGui(SystemData* systemData, std::string previouslySelectedEmulator) const
 {

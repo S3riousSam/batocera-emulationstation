@@ -6,11 +6,20 @@
 #include <boost/filesystem.hpp>
 
 #include "GamesDBScraper.h"
+#if defined(EXTENSION)
 #include "MamedbScraper.h"
+#else
+//#include "TheArchiveScraper.h"
+#endif
 #include "ScreenscraperScraper.h"
 
-const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs = boost::assign::map_list_of("TheGamesDB",
-	&thegamesdb_generate_scraper_requests)("Mamedb", &mamedb_generate_scraper_requests)("Screenscraper", &screenscraper_generate_scraper_requests);
+const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs = boost::assign::map_list_of("TheGamesDB", &thegamesdb_generate_scraper_requests)
+#if defined(EXTENSION)
+		("Mamedb", &mamedb_generate_scraper_requests)("Screenscraper", &screenscraper_generate_scraper_requests);
+#else
+	//	("TheArchive", &thearchive_generate_scraper_requests);
+	;
+#endif
 
 std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params)
 {
@@ -24,9 +33,9 @@ std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParam
 std::vector<std::string> getScraperList()
 {
 	std::vector<std::string> list;
-	for (auto it = scraper_request_funcs.begin(); it != scraper_request_funcs.end(); it++)
+	for (auto item : scraper_request_funcs)
 	{
-		list.push_back(it->first);
+		list.push_back(item.first);
 	}
 	return list;
 }
@@ -275,6 +284,9 @@ std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& 
 	const std::string subdirectory = params.system->getName();
 	const std::string name = params.game->getPath().stem().generic_string() + "-" + suffix;
 
+#if !defined(EXTENSION)
+	std::string path = getHomePath() + "/.emulationstation/downloaded_images/";
+#else
 	// default dir in rom directory
 	std::string path = params.system->getRootFolder()->getPath().generic_string() + "/downloaded_images/";
 	if (!boost::filesystem::exists(path) && !boost::filesystem::create_directory(path))
@@ -282,11 +294,22 @@ std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& 
 		// Unable to create the directory in system rom dir, fallback on ~
 		path = getHomePath() + "/.emulationstation/downloaded_images/" + subdirectory + "/";
 	}
+#endif
 
 	if (!boost::filesystem::exists(path))
+#if !defined(EXTENSION)
+		boost::filesystem::create_directory(path);
+#else
 		boost::filesystem::create_directories(path);
+#endif
 
-	size_t dot = url.find_last_of('.');
+#if !defined(EXTENSION)
+	path += subdirectory + "/";
+
+	if (!boost::filesystem::exists(path))
+		boost::filesystem::create_directory(path);
+#endif
+	const size_t dot = url.find_last_of('.');
 	std::string ext;
 	if (dot != std::string::npos)
 		ext = url.substr(dot, std::string::npos);

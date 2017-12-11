@@ -23,7 +23,7 @@ public:
 protected:
 	virtual void launch(FileData* game) override;
 
-	virtual std::vector<HelpPrompt> getHelpPrompts() override;
+	virtual std::vector<HelpPrompt> getHelpPrompts() override; // EXTENSION
 
 private:
 	void initMDLabels();
@@ -32,7 +32,7 @@ private:
 	ImageComponent mImage;
 
 	TextComponent mLblRating, mLblReleaseDate, mLblDeveloper, mLblPublisher, mLblGenre, mLblPlayers, mLblLastPlayed, mLblPlayCount;
-	TextComponent mLblFavorite;
+	TextComponent mLblFavorite; // EXTENSION
 
 	RatingComponent mRating;
 	DateTimeComponent mReleaseDate;
@@ -42,7 +42,7 @@ private:
 	TextComponent mPlayers;
 	DateTimeComponent mLastPlayed;
 	TextComponent mPlayCount;
-	TextComponent mFavorite;
+	TextComponent mFavorite; // EXTENSION
 
 	std::vector<TextComponent*> getMDLabels();
 	std::vector<GuiComponent*> getMDValues();
@@ -50,5 +50,5 @@ private:
 	ScrollableContainer mDescContainer;
 	TextComponent mDescription;
 
-	SystemData* mSystem;
+	SystemData* mSystem; // EXTENSION
 };
