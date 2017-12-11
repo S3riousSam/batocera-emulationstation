@@ -4,6 +4,24 @@
 
 namespace fs = boost::filesystem;
 
+extern const char* mameNameToRealName[];
+
+namespace
+{
+	const char* getCleanMameName(const char* from)
+	{
+		char const** mameNames = mameNameToRealName;
+
+		while (*mameNames != NULL && strcmp(from, *mameNames) != 0)
+			mameNames += 2;
+
+		if (*mameNames)
+			return *(mameNames + 1);
+
+		return from;
+	}
+} // namespace
+
 std::string removeParenthesis(const std::string& str)
 {
 	// remove anything in parenthesis or brackets
@@ -68,7 +86,7 @@ std::string FileData::getCleanName() const
 {
 	std::string stem = mPath.stem().generic_string();
 	if (mSystem && (mSystem->hasPlatformId(PlatformIds::ARCADE) || mSystem->hasPlatformId(PlatformIds::NEOGEO)))
-		stem = PlatformIds::getCleanMameName(stem.c_str());
+		stem = getCleanMameName(stem.c_str());
 	return stem;
 	// return removeParenthesis(stem);
 }

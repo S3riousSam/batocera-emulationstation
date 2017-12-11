@@ -1,7 +1,5 @@
 #pragma once
 
-#include <map>
-
 namespace PlatformIds
 {
 	enum PlatformId : unsigned int
@@ -82,6 +80,4 @@ namespace PlatformIds
 
 	PlatformId getPlatformId(const char* str);
 	const char* getPlatformName(PlatformId id);
-
-	const char* getCleanMameName(const char* from);
 } // namespace PlatformIds
