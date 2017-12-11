@@ -71,7 +71,9 @@ FileData::FileData(FileType type, const fs::path& path, SystemData* system)
 	// metadata needs at least a name field (since that's what getName() will return)
 	if (metadata.get("name").empty())
 		metadata.set("name", getCleanName());
+#if defined(EXTENSION)
 	metadata.set("system", system->getName());
+#endif
 }
 
 FileData::~FileData()
@@ -79,7 +81,12 @@ FileData::~FileData()
 	if (mParent != nullptr)
 		mParent->removeChild(this);
 
+#if !defined(EXTENSION)
+	while (mChildren.size())
+		delete mChildren.back();
+#else
 	clear();
+#endif
 }
 
 std::string FileData::getCleanName() const
@@ -87,30 +94,32 @@ std::string FileData::getCleanName() const
 	std::string stem = mPath.stem().generic_string();
 	if (mSystem && (mSystem->hasPlatformId(PlatformIds::ARCADE) || mSystem->hasPlatformId(PlatformIds::NEOGEO)))
 		stem = getCleanMameName(stem.c_str());
+#if defined(EXTENSION)
 	return stem;
-	// return removeParenthesis(stem);
+#endif
+
+#if !defined(EXTENSION)
+	return removeParenthesis(stem);
+#endif
 }
 
 const std::string& FileData::getThumbnailPath() const
 {
-	if (!metadata.get("thumbnail").empty())
-		return metadata.get("thumbnail");
-	else
-		return metadata.get("image");
+	return metadata.get(!metadata.get("thumbnail").empty() ? "thumbnail" : "image");
 }
 
 std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask) const
 {
 	std::vector<FileData*> out;
 
-	for (auto it = mChildren.begin(); it != mChildren.end(); it++)
+	for (const auto& it : mChildren)
 	{
-		if ((*it)->getType() & typeMask)
-			out.push_back(*it);
+		if (it->getType() & typeMask)
+			out.push_back(it);
 
-		if ((*it)->getChildren().size() > 0)
+		if (it->getChildren().size() > 0)
 		{
-			std::vector<FileData*> subchildren = (*it)->getFilesRecursive(typeMask);
+			const std::vector<FileData*> subchildren = it->getFilesRecursive(typeMask);
 			out.insert(out.end(), subchildren.cbegin(), subchildren.cend());
 		}
 	}
@@ -187,8 +196,7 @@ void FileData::removeAlreadyExisitingChild(FileData* file)
 			return;
 		}
 	}
-	// File somehow wasn't in our children.
-	assert(false);
+	assert(false); // File somehow wasn't in our children.
 }
 
 void FileData::removeChild(FileData* file)
@@ -251,10 +259,9 @@ void FileData::populateFolder(FileData* folder, const std::vector<std::string>& 
 
 	const std::string folderStr = folderPath.generic_string();
 
-	// make sure that this isn't a symlink to a thing we already have
+	// Prevents symlink recursion
 	if (fs::is_symlink(folderPath))
 	{
-		// if this symlink resolves to somewhere that's at the beginning of our path, it's gonna recurse
 		if (folderStr.find(fs::canonical(folderPath).generic_string()) == 0)
 		{
 			LOG(LogWarning) << "Skipping infinitely recursive symlink \"" << folderPath << "\"";
@@ -292,8 +299,7 @@ void FileData::populateFolder(FileData* folder, const std::vector<std::string>& 
 		// add directories that also do not match an extension as folders
 		if (!isGame && fs::is_directory(filePath))
 		{
-			FileData* newFolder = new FileData(FOLDER, filePath.generic_string(), systemData);
-			folder->addChild(newFolder);
+			folder->addChild(new FileData(FOLDER, filePath.generic_string(), systemData));
 		}
 	}
 }
@@ -309,10 +315,9 @@ void FileData::populateRecursiveFolder(FileData* folder, const std::vector<std::
 
 	const std::string folderStr = folderPath.generic_string();
 
-	// make sure that this isn't a symlink to a thing we already have
+	// Prevents symlink recursion
 	if (fs::is_symlink(folderPath))
 	{
-		// if this symlink resolves to somewhere that's at the beginning of our path, it's gonna recurse
 		if (folderStr.find(fs::canonical(folderPath).generic_string()) == 0)
 		{
 			LOG(LogWarning) << "Skipping infinitely recursive symlink \"" << folderPath << "\"";
@@ -351,7 +356,7 @@ void FileData::populateRecursiveFolder(FileData* folder, const std::vector<std::
 		if (!isGame && fs::is_directory(filePath))
 		{
 			FileData* newFolder = new FileData(FOLDER, filePath.generic_string(), systemData);
-			populateRecursiveFolder(newFolder, searchExtensions, systemData);
+			populateRecursiveFolder(newFolder, searchExtensions, systemData); // Recursive call
 
 			// ignore folders that do not contain games
 			if (newFolder->getChildren().size() == 0)

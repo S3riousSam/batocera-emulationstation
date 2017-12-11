@@ -1,5 +1,7 @@
 #include "guis/GuiInputConfig.h"
+#if defined(EXTENSION)
 #include "InputManager.h"
+#endif
 #include "LocaleES.h"
 #include "Log.h"
 #include "Util.h"

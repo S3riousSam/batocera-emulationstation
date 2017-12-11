@@ -25,8 +25,12 @@ GuiSettings::GuiSettings(Window* window, const std::string& title)
 
 GuiSettings::~GuiSettings()
 {
+#if defined(EXTENSION)
 	if (doSave)
+#endif
+	{
 		save();
+	}
 }
 
 void GuiSettings::save()
