@@ -10,7 +10,6 @@
 #include "components/TextComponent.h"
 #include "guis/GuiMsgBox.h"
 
-using namespace boost::locale;
 using namespace Eigen;
 
 GuiScraperMulti::GuiScraperMulti(Window* window, const std::queue<ScraperSearchParams>& searches, bool approveResults)
@@ -23,9 +22,9 @@ GuiScraperMulti::GuiScraperMulti(Window* window, const std::queue<ScraperSearchP
 
 	addChild(&mBackground);
 	addChild(&mGrid);
-
+#if defined(EXTENSION)
 	mIsProcessing = true;
-
+#endif
 	mTotalGames = mSearchQueue.size();
 	mCurrentGame = 0;
 	mTotalSuccessful = 0;
@@ -106,10 +105,14 @@ void GuiScraperMulti::doNextSearch()
 
 	// update subtitle
 	ss.str(""); // clear
+#if defined(EXTENSION)
 	char strbuf[256];
 	snprintf(strbuf, 256, _("GAME %i OF %i").c_str(), mCurrentGame + 1, mTotalGames);
 
 	ss << strbuf << " - " << strToUpper(mSearchQueue.front().game->getPath().filename().string());
+#else
+	ss << "GAME " << (mCurrentGame + 1) << " OF " << mTotalGames << " - " << strToUpper(mSearchQueue.front().game->getPath().filename().string());
+#endif
 	mSubtitle->setText(ss.str());
 
 	mSearchComp->search(mSearchQueue.front());
@@ -118,8 +121,11 @@ void GuiScraperMulti::doNextSearch()
 void GuiScraperMulti::acceptResult(const ScraperSearchResult& result)
 {
 	ScraperSearchParams& search = mSearchQueue.front();
-
+#if defined(EXTENSION)
 	search.game->metadata.merge(result.mdl);
+#else
+	search.game->metadata = result.mdl;
+#endif
 	updateGamelist(search.system);
 
 	mSearchQueue.pop();
@@ -141,27 +147,26 @@ void GuiScraperMulti::finish()
 	std::stringstream ss;
 	if (mTotalSuccessful == 0)
 	{
-		ss << _("WE CAN'T FIND ANY SYSTEMS!\n"
-				"CHECK THAT YOUR PATHS ARE CORRECT IN THE SYSTEMS CONFIGURATION FILE, AND "
-				"YOUR GAME DIRECTORY HAS AT LEAST ONE GAME WITH THE CORRECT EXTENSION.");
+		ss << _("NO GAMES WERE SCRAPED.");
 	}
 	else
 	{
 		char strbuf[256];
 		snprintf(
-			strbuf, 256, ngettext("%i GAME SUCCESSFULLY SCRAPED!", "%i GAMES SUCCESSFULLY SCRAPED!", mTotalSuccessful).c_str(), mTotalSuccessful);
+			strbuf, 256, boost::locale::ngettext("%i GAME SUCCESSFULLY SCRAPED!", "%i GAMES SUCCESSFULLY SCRAPED!", mTotalSuccessful).c_str(), mTotalSuccessful);
 		ss << strbuf;
 
 		if (mTotalSkipped > 0)
 		{
-			snprintf(strbuf, 256, ngettext("%i GAME SKIPPED.", "%i GAMES SKIPPED.", mTotalSkipped).c_str(), mTotalSkipped);
+			snprintf(strbuf, 256, boost::locale::ngettext("%i GAME SKIPPED.", "%i GAMES SKIPPED.", mTotalSkipped).c_str(), mTotalSkipped);
 			ss << "\n" << strbuf;
 		}
 	}
 
 	mWindow->pushGui(new GuiMsgBox(mWindow, ss.str(), _("OK"), [&] { delete this; }));
-
+#if defined(EXTENSION)
 	mIsProcessing = false;
+#endif
 }
 
 std::vector<HelpPrompt> GuiScraperMulti::getHelpPrompts()

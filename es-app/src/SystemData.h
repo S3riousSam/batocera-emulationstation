@@ -39,6 +39,7 @@ public:
 	{
 		return mThemeFolder;
 	}
+#if defined(EXTENSION)
 	inline bool getHasFavorites() const
 	{
 		return mHasFavorites;
@@ -51,6 +52,7 @@ public:
 	{
 		return mRootFolder->getFavoritesRecursive(GAME);
 	}
+#endif
 
 	inline const std::vector<PlatformIds::PlatformId>& getPlatformIds() const
 	{
@@ -72,8 +74,10 @@ public:
 	std::string getThemePath() const;
 
 	unsigned int getGameCount() const;
+#if defined(EXTENSION)
 	unsigned int getFavoritesCount() const;
 	unsigned int getHiddenCount() const;
+#endif
 
 	void launchGame(Window* window, FileData* game);
 
@@ -87,7 +91,9 @@ public:
 		bool forWrite); // if forWrite, will only return ~/.emulationstation/es_systems.cfg, never /etc/emulationstation/es_systems.cfg
 
 	static std::vector<SystemData*> sSystemVector;
+#if defined(EXTENSION)
 	static SystemData* getFavoriteSystem();
+#endif
 
 	inline std::vector<SystemData*>::const_iterator getIterator() const
 	{
@@ -117,9 +123,10 @@ public:
 	}
 
 	void loadTheme(); // Load or re-load theme.
-
+#if defined(EXTENSION)
 	void refreshRootFolder(); // refresh the ROMs files
 	std::map<std::string, std::vector<std::string>*>* getEmulators();
+#endif
 
 private:
 	std::string mName;
@@ -130,12 +137,14 @@ private:
 	std::vector<PlatformIds::PlatformId> mPlatformIds;
 	std::string mThemeFolder;
 	std::shared_ptr<ThemeData> mTheme;
-
+#if defined(EXTENSION)
 	bool mHasFavorites;
 	bool mIsFavorite;
-
+#endif
 	void populateFolder(FileData* folder);
 
 	FileData* mRootFolder;
+#if defined(EXTENSION)
 	std::map<std::string, std::vector<std::string>*>* mEmulators;
+#endif
 };

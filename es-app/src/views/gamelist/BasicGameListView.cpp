@@ -53,22 +53,19 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 #if defined(EXTENSION)
 	const FileData* root = getRoot();
 	const SystemData* systemData = root->getSystem();
-	mHeaderText.setText(systemData ? systemData->getFullName() : root->getCleanName());
+	mHeaderText.setText(systemData != nullptr ? systemData->getFullName() : root->getCleanName());
 
 	bool favoritesOnly = false;
 	const bool showHidden = Settings::getInstance()->getBool("ShowHidden");
 
 	if (Settings::getInstance()->getBool("FavoritesOnly") && !systemData->isFavorite())
 	{
-		for (auto it = files.begin(); it != files.end(); it++)
+		for (const auto& it : files)
 		{
-			if ((*it)->getType() == GAME)
+			if ((it->getType() == GAME) && (it->metadata.get("favorite").compare("true") == 0))
 			{
-				if ((*it)->metadata.get("favorite").compare("true") == 0)
-				{
-					favoritesOnly = true;
-					break;
-				}
+				favoritesOnly = true;
+				break;
 			}
 		}
 	}
@@ -78,17 +75,17 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	// This naive implementation of doing a first pass in the list is used instead.
 	if (!Settings::getInstance()->getBool("FavoritesOnly") || systemData->isFavorite())
 	{
-		for (auto it = files.begin(); it != files.end(); it++)
+		for (const auto& it : files)
 		{
-			if ((*it)->getType() != FOLDER && (*it)->metadata.get("favorite").compare("true") == 0)
+			if (it->getType() != FOLDER && it->metadata.get("favorite").compare("true") == 0)
 			{
-				if ((*it)->metadata.get("hidden").compare("true") != 0)
+				if (it->metadata.get("hidden").compare("true") != 0)
 				{
-					mList.add("\uF006 " + (*it)->getName(), *it, ((*it)->getType() == FOLDER)); // FIXME Folder as favorite ?
+					mList.add("\uF006 " + it->getName(), it, (it->getType() == FOLDER)); // FIXME Folder as favorite ?
 				}
 				else
 				{
-					mList.add("\uF006 \uF070 " + (*it)->getName(), *it, ((*it)->getType() == FOLDER));
+					mList.add("\uF006 \uF070 " + it->getName(), it, (it->getType() == FOLDER));
 				}
 			}
 		}

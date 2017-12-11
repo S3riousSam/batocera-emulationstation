@@ -87,12 +87,14 @@ void screenscraper_generate_scraper_requests(
 	const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results)
 {
 	std::string path = "screenscraper.recalbox.com/api/thegamedb/GetGame.php?";
+#if defined(EXTENSION)
 	const std::string languageSystem = RecalboxConf::getInstance()->get("system.language");
 	if ((system_language_map.find(languageSystem)) != system_language_map.end())
 	{
 		path += (system_language_map.find(languageSystem)->second);
 	}
 	else
+#endif
 	{
 		path += "forcelangue=en&";
 	}

@@ -1,6 +1,8 @@
 #include "views/gamelist/GridGameListView.h"
 #include "LocaleES.h"
+#if defined(EXTENSION)
 #include "Settings.h"
+#endif
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
@@ -46,6 +48,7 @@ void GridGameListView::populateList(const std::vector<FileData*>& files)
 	mGrid.clear();
 	for (auto it = files.begin(); it != files.end(); it++)
 	{
+#if defined(EXTENSION)
 		if (Settings::getInstance()->getBool("FavoritesOnly"))
 		{
 			if ((*it)->metadata.get("favorite").compare("true") == 0)
@@ -54,6 +57,7 @@ void GridGameListView::populateList(const std::vector<FileData*>& files)
 			}
 		}
 		else
+#endif
 		{
 			mGrid.add((*it)->getName(), (*it)->getThumbnailPath(), *it);
 		}

@@ -63,32 +63,25 @@ MetaDataList::MetaDataList(MetaDataListType type)
 	: mType(type)
 	, mWasChanged(false)
 {
-	const std::vector<MetaDataDecl>& mdd = getMDD();
-	for (auto iter = mdd.begin(); iter != mdd.end(); iter++)
-		set(iter->key, iter->defaultValue);
+	for (const auto& iter : getMDD())
+		set(iter.key, iter.defaultValue);
 }
 
 MetaDataList MetaDataList::createFromXML(MetaDataListType type, pugi::xml_node node, const fs::path& relativeTo)
 {
 	MetaDataList mdl(type);
 
-	const std::vector<MetaDataDecl>& mdd = mdl.getMDD();
-
-	for (auto iter = mdd.begin(); iter != mdd.end(); iter++)
+	for (const auto& iter : mdl.getMDD())
 	{
-		const pugi::xml_node md = node.child(iter->key.c_str());
+		const pugi::xml_node md = node.child(iter.key.c_str());
 		if (md)
 		{
-			// if it's a path, resolve relative paths
-			std::string value = md.text().get();
-			if (iter->type == MD_IMAGE_PATH)
-				value = resolvePath(value, relativeTo, true).generic_string();
-
-			mdl.set(iter->key, value);
+			const std::string value = (iter.type == MD_IMAGE_PATH) ? resolvePath(value, relativeTo, true).generic_string() : md.text().get();
+			mdl.set(iter.key, value);
 		}
 		else
 		{
-			mdl.set(iter->key, iter->defaultValue);
+			mdl.set(iter.key, iter.defaultValue);
 		}
 	}
 
@@ -97,23 +90,17 @@ MetaDataList MetaDataList::createFromXML(MetaDataListType type, pugi::xml_node n
 
 void MetaDataList::appendToXML(pugi::xml_node parent, bool ignoreDefaults, const fs::path& relativeTo) const
 {
-	const std::vector<MetaDataDecl>& mdd = getMDD();
-
-	for (auto mddIter = mdd.begin(); mddIter != mdd.end(); mddIter++)
+	for (const auto& mddIter : getMDD())
 	{
-		auto mapIter = mMap.find(mddIter->key);
-		if (mapIter != mMap.end())
+		const auto mapIter = mMap.find(mddIter.key);
+		if (mapIter != mMap.end()) // we have this value?
 		{
-			// we have this value!
 			// if it's just the default (and we ignore defaults), don't write it
-			if (ignoreDefaults && mapIter->second == mddIter->defaultValue)
+			if (ignoreDefaults && mapIter->second == mddIter.defaultValue)
 				continue;
 
 			// try and make paths relative if we can
-			std::string value = mapIter->second;
-			if (mddIter->type == MD_IMAGE_PATH)
-				value = makeRelativePath(value, relativeTo, true).generic_string();
-
+			const std::string value = (mddIter.type == MD_IMAGE_PATH) ? makeRelativePath(value, relativeTo, true).generic_string() : mapIter->second;
 			parent.append_child(mapIter->first.c_str()).text().set(value.c_str());
 		}
 	}
@@ -143,7 +130,7 @@ int MetaDataList::getInt(const std::string& key) const
 
 float MetaDataList::getFloat(const std::string& key) const
 {
-	return (float)atof(get(key).c_str());
+	return static_cast<float>(atof(get(key).c_str()));
 }
 
 boost::posix_time::ptime MetaDataList::getTime(const std::string& key) const
@@ -151,36 +138,35 @@ boost::posix_time::ptime MetaDataList::getTime(const std::string& key) const
 	return string_to_ptime(get(key), "%Y%m%dT%H%M%S%F%q");
 }
 
+#if defined(EXTENSION)
 void MetaDataList::merge(const MetaDataList& other)
 {
 	const std::vector<MetaDataDecl>& mdd = getMDD();
-
-	for (auto otherIter = other.mMap.begin(); otherIter != other.mMap.end(); otherIter++)
+	for (const auto& otherIter : other.mMap)
 	{
 		bool mustMerge = true;
 		// Check if default value, if so continue
 		for (auto mddIter = mdd.begin(); mddIter != mdd.end(); mddIter++)
 		{
-			if (mddIter->key == otherIter->first)
+			if (mddIter->key == otherIter.first)
 			{
-				if (otherIter->second == mddIter->defaultValue || mddIter->isStatistic)
+				if (otherIter.second == mddIter->defaultValue || mddIter->isStatistic)
 					mustMerge = false;
 			}
 		}
 		if (mustMerge)
-			this->set(otherIter->first, otherIter->second);
+			this->set(otherIter.first, otherIter.second);
 	}
 }
 
 bool MetaDataList::isDefault()
 {
-	const std::vector<MetaDataDecl>& mdd = getMDD();
-	for (auto mddIter = mdd.begin(); mddIter != mdd.end(); mddIter++)
+	for (const auto& mddIter : getMDD())
 	{
-		const auto mapIter = mMap.find(mddIter->key);
+		const auto mapIter = mMap.find(mddIter.key);
 		if (mapIter != mMap.end())
 		{
-			if (mapIter->second != mddIter->defaultValue)
+			if (mapIter->second != mddIter.defaultValue)
 				return false;
 		}
 	}
@@ -197,3 +183,4 @@ void MetaDataList::resetChangedFlag()
 {
 	mWasChanged = false;
 }
+#endif

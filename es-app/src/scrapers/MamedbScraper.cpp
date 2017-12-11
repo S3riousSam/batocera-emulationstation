@@ -14,20 +14,20 @@ void mamedb_generate_scraper_requests(
 	requests.push(std::unique_ptr<ScraperRequest>(new MamedbRequest(results, path)));
 }
 
-boost::regex infolineregex("^.*?<h1>Game Details</h1>(.*?)</table>.*$");
-boost::regex titleregex("^.*?<b>Name:&nbsp</b>(?<title>.*?)<br/>.*?<b>Year:&nbsp</b> \
+void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results)
+{
+	const boost::regex infolineregex("^.*?<h1>Game Details</h1>(.*?)</table>.*$");
+	const boost::regex titleregex("^.*?<b>Name:&nbsp</b>(?<title>.*?)<br/>.*?<b>Year:&nbsp</b> \
 <a href='/year/.*?'>(?<date>.*?)</a><br/>\
 <b>Manufacturer:&nbsp</b> <a href='/manufacturer/.*?'>(?<developer>.*?)</a><br/>\
 <b>Filename:&nbsp;</b>(?<filename>.*?)<br/><b>.*$");
-boost::regex cloneregex("^.*?&nbsp;\\(clone of: <a href='.*?'>(?<clone>.*?)</a>\\)&nbsp;<br/>.*$");
-boost::regex cleantitleregex("^(?<title>.*?)&nbsp.*$");
-boost::regex scoreregex("^.*?<b>Score:&nbsp;</b>(?<rating>.*?) \\(.*? votes\\)<br/>.*$");
-boost::regex genreregex("^.*?<b>Category:&nbsp;</b><a href='.*?'>(?<genre>.*?)</a><br/>.*$");
-boost::regex playersregex("^.*?<b>Players:&nbsp;</b>(?<players>.*?)<br/>.*$");
-boost::regex snapregex("^.*?<img src='/snap/(?<img>.*?)\\.png'.*$");
+	const boost::regex cloneregex("^.*?&nbsp;\\(clone of: <a href='.*?'>(?<clone>.*?)</a>\\)&nbsp;<br/>.*$");
+	const boost::regex cleantitleregex("^(?<title>.*?)&nbsp.*$");
+	const boost::regex scoreregex("^.*?<b>Score:&nbsp;</b>(?<rating>.*?) \\(.*? votes\\)<br/>.*$");
+	const boost::regex genreregex("^.*?<b>Category:&nbsp;</b><a href='.*?'>(?<genre>.*?)</a><br/>.*$");
+	const boost::regex playersregex("^.*?<b>Players:&nbsp;</b>(?<players>.*?)<br/>.*$");
+	const boost::regex snapregex("^.*?<img src='/snap/(?<img>.*?)\\.png'.*$");
 
-void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results)
-{
 	assert(req->status() == HttpReq::REQ_SUCCESS);
 
 	boost::smatch infolinematches;

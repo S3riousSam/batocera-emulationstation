@@ -11,9 +11,15 @@
 bool IGameListView::input(InputConfig* config, Input input)
 {
 	// select to open GuiGamelistOptions
-	if (config->isMappedTo("select", input) && input.value && getRoot()->getSystem() != SystemData::getFavoriteSystem())
+	if (config->isMappedTo("select", input) && input.value
+#if defined(EXTENSION)
+		&& getRoot()->getSystem() != SystemData::getFavoriteSystem()
+#endif
+	)
 	{
-		// Sound::getFromTheme(mTheme, getName(), "menuOpen")->play();
+#if !defined(EXTENSION)
+		Sound::getFromTheme(mTheme, getName(), "menuOpen")->play();
+#endif
 		mWindow->pushGui(new GuiGamelistOptions(mWindow, this->mRoot->getSystem()));
 		return true;
 

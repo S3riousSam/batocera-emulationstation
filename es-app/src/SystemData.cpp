@@ -12,11 +12,13 @@
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
+#if defined(EXTENSION) || !defined(EXTENSION)
 #include "Util.h"
 #include <boost/asio/io_service.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread.hpp>
 #include <utility>
+#endif
 
 std::vector<SystemData*> SystemData::sSystemVector;
 
@@ -144,9 +146,10 @@ void SystemData::launchGame(Window* window, FileData* game)
 
 	AudioManager::getInstance()->deinit();
 	VolumeControl::getInstance()->deinit();
-
+#if defined(EXTENSION)
 	const std::string controlersConfig = InputManager::getInstance()->configureEmulators();
 	LOG(LogInfo) << "Controllers config : " << controlersConfig;
+#endif
 	window->deinit();
 
 	const std::string rom = escapePath(game->getPath());
@@ -175,7 +178,9 @@ void SystemData::launchGame(Window* window, FileData* game)
 
 	window->init();
 	VolumeControl::getInstance()->init();
+#if defined(EXTENSION)
 	AudioManager::getInstance()->resumeMusic();
+#endif
 	window->normalizeNextUpdate();
 
 	// update number of times the game has been launched
@@ -189,7 +194,11 @@ void SystemData::launchGame(Window* window, FileData* game)
 
 void SystemData::populateFolder(FileData* folder)
 {
+#if defined(EXTENSION)
 	FileData::populateRecursiveFolder(folder, mSearchExtensions, this);
+#else
+	// [...]
+#endif
 }
 
 std::vector<std::string> readList(const std::string& str, const char* delims = " \t\r\n,")
@@ -272,6 +281,7 @@ SystemData* createSystem(pugi::xml_node* systemsNode, int index)
 	boost::filesystem::path genericPath(path);
 	path = genericPath.generic_string();
 
+#if defined(EXTENSION)
 	// emulators and cores
 	std::map<std::string, std::vector<std::string>*>* systemEmulators = new std::map<std::string, std::vector<std::string>*>();
 	pugi::xml_node emulatorsNode = system->child("emulators");
@@ -287,7 +297,12 @@ SystemData* createSystem(pugi::xml_node* systemsNode, int index)
 		}
 	}
 
+#endif
+#if defined(EXTENSION)
 	SystemData* newSys = new SystemData(name, fullname, path, extensions, cmd, platformIds, themeFolder, systemEmulators);
+#else
+	SystemData* newSys = new SystemData(name, fullname, path, extensions, cmd, platformIds, themeFolder);
+#endif
 	if (newSys->getRootFolder()->getChildren().size() == 0)
 	{
 		LOG(LogWarning) << "System \"" << name << "\" has no games! Ignoring it.";
@@ -363,6 +378,7 @@ bool SystemData::loadConfig()
 	ioService.stop();
 	threadpool.join_all();
 
+#if defined(EXTENSION)
 	// Favorite system
 	for (pugi::xml_node system = systemList.child("system"); system; system = system.next_sibling("system"))
 	{
@@ -378,6 +394,7 @@ bool SystemData::loadConfig()
 			sSystemVector.push_back(newSys);
 		}
 	}
+#endif
 
 	return true;
 }
@@ -438,6 +455,7 @@ bool deleteSystem(SystemData* system)
 
 void SystemData::deleteSystems()
 {
+#if defined(EXTENSION)
 	if (sSystemVector.size())
 	{
 		// THE DELETION OF EACH SYSTEM
@@ -469,6 +487,13 @@ void SystemData::deleteSystems()
 		threadpool.join_all();
 		sSystemVector.clear();
 	}
+#else
+	for (auto system : sSystemVector)
+	{
+		delete system;
+	}
+	sSystemVector.clear();
+#endif
 }
 
 std::string SystemData::getConfigPath(bool forWrite)
@@ -479,13 +504,11 @@ std::string SystemData::getConfigPath(bool forWrite)
 
 std::string SystemData::getGamelistPath(bool forWrite) const
 {
-	fs::path filePath;
-
-	// If we have a gamelist in the rom directory, we use it
-	filePath = mRootFolder->getPath() / "gamelist.xml";
+	fs::path filePath = mRootFolder->getPath() / "gamelist.xml";
 	if (fs::exists(filePath))
 		return filePath.generic_string();
 
+	// If we have a gamelist in the rom directory, we use it
 	// else we try to create it
 	if (forWrite) // make sure the directory exists if we're going to write to it, or crashes will happen
 	{
@@ -523,6 +546,7 @@ unsigned int SystemData::getGameCount() const
 	return mRootFolder->getFilesRecursive(GAME).size();
 }
 
+#if defined(EXTENSION)
 unsigned int SystemData::getFavoritesCount() const
 {
 	return mRootFolder->getFavoritesRecursive(GAME).size();
@@ -532,6 +556,7 @@ unsigned int SystemData::getHiddenCount() const
 {
 	return mRootFolder->getHiddenRecursive(GAME).size();
 }
+#endif
 
 void SystemData::loadTheme()
 {
@@ -545,7 +570,9 @@ void SystemData::loadTheme()
 	try
 	{
 		mTheme->loadFile(path);
+#if defined(EXTENSION)
 		mHasFavorites = mTheme->getHasFavoritesInTheme();
+#endif
 	}
 	catch (ThemeException& e)
 	{
@@ -554,6 +581,7 @@ void SystemData::loadTheme()
 	}
 }
 
+#if defined(EXTENSION)
 void SystemData::refreshRootFolder()
 {
 	mRootFolder->clear();
@@ -568,10 +596,11 @@ std::map<std::string, std::vector<std::string>*>* SystemData::getEmulators()
 
 SystemData* SystemData::getFavoriteSystem()
 {
-	for (auto system = sSystemVector.begin(); system != sSystemVector.end(); system++)
+	for (auto system : sSystemVector)
 	{
-		if ((*system)->isFavorite())
-			return (*system);
+		if (system->isFavorite())
+			return system;
 	}
 	return NULL;
 }
+#endif
