@@ -11,7 +11,7 @@ enum MetaDataType
 	// generic types
 	MD_STRING,
 	MD_INT,
-	MD_BOOL,
+	MD_BOOL, // EXTENSION
 	MD_FLOAT,
 
 	// specialized types
@@ -20,7 +20,7 @@ enum MetaDataType
 	MD_RATING,
 	MD_DATE,
 	MD_TIME, // used for lastplayed
-	MD_LIST
+	MD_LIST // EXTENSION
 };
 
 struct MetaDataDecl
@@ -32,6 +32,7 @@ struct MetaDataDecl
 	std::string displayName; // displayed as this in editors
 	std::string displayPrompt; // phrase displayed in editors when prompted to enter value (currently only for strings)
 
+#if defined(EXTENSION) || !defined(EXTENSION)
 	MetaDataDecl(std::string key, MetaDataType type, std::string defaultValue, bool isStatistic, std::string displayName, std::string displayPrompt)
 	{
 		this->key = key;
@@ -49,6 +50,7 @@ struct MetaDataDecl
 		this->defaultValue = defaultValue;
 		this->isStatistic = isStatistic;
 	}
+#endif
 };
 
 enum MetaDataListType
@@ -57,8 +59,8 @@ enum MetaDataListType
 	FOLDER_METADATA
 };
 
-const std::vector<MetaDataDecl>& getMDDByType(MetaDataListType type);
-void initMetadata();
+const std::vector<MetaDataDecl>& getMDDByType(MetaDataListType type); // TODO: Move in CPP
+void initMetadata(); // public API!
 
 class MetaDataList
 {
@@ -76,12 +78,12 @@ public:
 	int getInt(const std::string& key) const;
 	float getFloat(const std::string& key) const;
 	boost::posix_time::ptime getTime(const std::string& key) const;
-
+#if defined(EXTENSION)
 	void merge(const MetaDataList& other);
 	bool isDefault();
 	bool wasChanged() const;
 	void resetChangedFlag();
-
+#endif
 	inline MetaDataListType getType() const
 	{
 		return mType;

@@ -10,8 +10,6 @@
 #include "resources/Font.h"
 #include <sstream>
 
-using namespace boost::locale;
-
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"
 
@@ -318,7 +316,7 @@ private:
 			// display # selected
 			char strbuf[256];
 			int x = getSelectedObjects().size();
-			snprintf(strbuf, 256, ngettext("%i SELECTED", "%i SELECTED", x).c_str(), x);
+			snprintf(strbuf, 256, boost::locale::ngettext("%i SELECTED", "%i SELECTED", x).c_str(), x);
 			mText.setText(strbuf);
 			mText.setSize(0, mText.getSize().y());
 			setSize(mText.getSize().x() + mRightArrow.getSize().x() + 24, mText.getSize().y());

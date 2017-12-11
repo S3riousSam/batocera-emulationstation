@@ -13,8 +13,8 @@ public:
 	virtual void onThemeChanged(const std::shared_ptr<ThemeData>& theme);
 
 	virtual FileData* getCursor() override;
-	virtual int getCursorIndex() override;
 	virtual void setCursor(FileData* file) override;
+	virtual int getCursorIndex() override;
 	virtual void setCursorIndex(int index) override;
 
 	virtual const char* getName() const override

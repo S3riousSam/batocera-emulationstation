@@ -13,7 +13,7 @@
 
 GuiScraperStart::GuiScraperStart(Window* window)
 	: GuiComponent(window)
-	, mMenu(window, _("SCRAPE NOW").c_str())
+	, mMenu(window, _("SCRAPE NOW"))
 {
 	addChild(&mMenu);
 

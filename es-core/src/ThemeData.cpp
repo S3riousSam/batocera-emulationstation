@@ -380,22 +380,20 @@ std::map<std::string, ThemeSet> ThemeData::getThemeSets()
 {
 	std::map<std::string, ThemeSet> sets;
 
-	static const size_t pathCount = 2;
-	fs::path paths[pathCount] = {"/etc/emulationstation/themes", getHomePath() + "/.emulationstation/themes"};
+	const std::vector<fs::path> paths = {"/etc/emulationstation/themes", getHomePath() + "/.emulationstation/themes"};
 
-	fs::directory_iterator end;
-
-	for (size_t i = 0; i < pathCount; i++)
+	const fs::directory_iterator end;
+	for (size_t i = 0; i < paths.size(); i++)
 	{
-		if (!fs::is_directory(paths[i]))
-			continue;
-
-		for (fs::directory_iterator it(paths[i]); it != end; ++it)
+		if (fs::is_directory(paths[i]))
 		{
-			if (fs::is_directory(*it))
+			for (fs::directory_iterator it(paths[i]); it != end; ++it)
 			{
-				ThemeSet set = {*it};
-				sets[set.getName()] = set;
+				if (fs::is_directory(*it))
+				{
+					const ThemeSet set = {*it};
+					sets[set.getName()] = set;
+				}
 			}
 		}
 	}

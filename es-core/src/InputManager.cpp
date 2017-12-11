@@ -53,8 +53,15 @@ void InputManager::init()
 	SDL_JoystickEventState(SDL_ENABLE);
 
 	// first, open all currently present joysticks
+#if defined(EXTENSION)
 	this->addAllJoysticks();
-
+#else
+	int numJoysticks = SDL_NumJoysticks();
+	for (int i = 0; i < numJoysticks; i++)
+	{
+		addJoystickByDeviceIndex(i);
+	}
+#endif
 	mKeyboardInputConfig = new InputConfig(DEVICE_KEYBOARD, -1, "Keyboard", KEYBOARD_GUID_STRING, 0);
 	loadInputConfig(mKeyboardInputConfig);
 }
@@ -117,7 +124,9 @@ void InputManager::removeJoystickByJoystickID(SDL_JoystickID joyId)
 	{
 		LOG(LogError) << "Could not find joystick to close (instance ID: " << joyId << ")";
 	}
+#if defined(EXTENSION)
 	LOG(LogError) << "I removed a joystick";
+#endif
 }
 
 void InputManager::addAllJoysticks()
@@ -179,6 +188,8 @@ int InputManager::getButtonCountByDevice(SDL_JoystickID id)
 	else
 		return SDL_JoystickNumButtons(mJoysticks[id]);
 }
+
+#if defined(EXTENSION)
 int InputManager::getAxisCountByDevice(SDL_JoystickID id)
 {
 	if (id == DEVICE_KEYBOARD)
@@ -186,6 +197,8 @@ int InputManager::getAxisCountByDevice(SDL_JoystickID id)
 	else
 		return SDL_JoystickNumAxes(mJoysticks[id]);
 }
+#endif
+
 InputConfig* InputManager::getInputConfigByDevice(int device)
 {
 	if (device == DEVICE_KEYBOARD)
@@ -461,6 +474,7 @@ std::string InputManager::getDeviceGUIDString(int deviceId)
 	return std::string(guid);
 }
 
+#if defined(EXTENSION)
 std::string InputManager::configureEmulators()
 {
 	std::stringstream command;
@@ -583,3 +597,4 @@ std::string InputManager::configureEmulators()
 	LOG(LogInfo) << "Configure emulators command : " << command.str().c_str();
 	return command.str();
 }
+#endif

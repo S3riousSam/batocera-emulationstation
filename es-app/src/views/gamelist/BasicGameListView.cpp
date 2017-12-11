@@ -29,14 +29,18 @@ void BasicGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& theme)
 
 void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
 {
+#if defined(EXTENSION)
 	ISimpleGameListView::onFileChanged(file, change);
-
+#endif
 	if (change == FILE_METADATA_CHANGED)
 	{
 		// might switch to a detailed view
 		ViewController::get()->reloadGameListView(this);
 		return;
 	}
+#if !defined(EXTENSION)
+	ISimpleGameListView::onFileChanged(file, change);
+#endif
 }
 
 #if defined(WIN32) || defined(_WIN32)
@@ -46,6 +50,7 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 {
 	mList.clear();
 
+#if defined(EXTENSION)
 	const FileData* root = getRoot();
 	const SystemData* systemData = root->getSystem();
 	mHeaderText.setText(systemData ? systemData->getFullName() : root->getCleanName());
@@ -169,6 +174,14 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 			mCursorStack.pop();
 		}
 	}
+#else
+	mHeaderText.setText(files.at(0)->getSystem()->getFullName());
+
+	for (auto it = files.begin(); it != files.end(); it++)
+	{
+		mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+	}
+#endif
 }
 #if defined(WIN32) || defined(_WIN32)
 #pragma warning(default : 4566)
@@ -232,9 +245,13 @@ std::vector<HelpPrompt> BasicGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
 	prompts.push_back(HelpPrompt(BUTTON_LAUNCH, _("LAUNCH")));
 	prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK")));
+#if defined(EXTENSION)
 	if (getRoot()->getSystem() != SystemData::getFavoriteSystem())
+#endif
 	{
+#if defined(EXTENSION)
 		prompts.push_back(HelpPrompt("y", _("Favorite")));
+#endif
 		prompts.push_back(HelpPrompt("select", _("OPTIONS")));
 	}
 	return prompts;
