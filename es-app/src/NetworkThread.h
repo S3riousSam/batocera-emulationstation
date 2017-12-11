@@ -7,14 +7,14 @@ class Window;
 class NetworkThread
 {
 public:
-	NetworkThread(Window* window);
+	NetworkThread(Window& window);
 	virtual ~NetworkThread();
 
 private:
-	Window* mWindow;
+	Window& mWindow;
 	bool mFirstRun;
 	bool mRunning;
-	boost::thread* mThreadHandle;
+	boost::thread mThreadHandle;
 	void run();
 };
 #endif
