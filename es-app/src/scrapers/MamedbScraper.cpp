@@ -6,11 +6,8 @@
 void mamedb_generate_scraper_requests(
 	const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results)
 {
-	std::string path = "www.mamedb.com/game/";
-
-	std::string cleanName = params.game->getPath().filename().replace_extension("").generic_string().c_str();
-	path += HttpReq::urlEncode(cleanName);
-
+	const std::string cleanName = params.game->getPath().filename().replace_extension("").generic_string();
+	const std::string path = "www.mamedb.com/game/" + HttpReq::urlEncode(cleanName);
 	requests.push(std::unique_ptr<ScraperRequest>(new MamedbRequest(results, path)));
 }
 

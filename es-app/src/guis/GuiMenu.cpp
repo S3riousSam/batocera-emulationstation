@@ -91,9 +91,12 @@ void GuiMenu::createInputTextRow(GuiSettings* gui, std::string title, const char
 	gui->addRow(row);
 }
 
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
+
 GuiMenu::GuiMenu(Window* window)
 	: GuiComponent(window)
-	, mMenu(window, _("MAIN MENU").c_str())
+	, mMenu(window, _("MAIN MENU"))
 	, mVersion(window)
 {
 	// MAIN MENU
@@ -108,6 +111,7 @@ GuiMenu::GuiMenu(Window* window)
 	// NETWORK >
 	// SCRAPER >
 	// QUIT >
+
 	if (RecalboxConf::getInstance()->get("kodi.enabled") == "1")
 	{
 		addEntry(_("KODI MEDIA CENTER").c_str(), 0x777777FF, true, [this] {
@@ -1036,8 +1040,8 @@ GuiMenu::GuiMenu(Window* window)
 		});
 	}
 
-	addEntry(_("QUIT").c_str(), 0x777777FF, true, [this] {
-		auto s = new GuiSettings(mWindow, _("QUIT").c_str());
+	addEntry(_("QUIT"), 0x777777FF, true, [this] {
+		auto s = new GuiSettings(mWindow, _("QUIT"));
 
 		Window* window = mWindow;
 
@@ -1468,12 +1472,34 @@ void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, con
 	mMenu.addRow(row);
 }
 
+void GuiMenu::addEntry(const std::string& name, unsigned int color, bool add_arrow, const std::function<void()>& func)
+{
+	// return addEntry(name, color, add_arrow, func); // 'GuiMenu::addEntry': recursive on all control paths, function will cause runtime stack
+	// overflow
+
+	std::shared_ptr<Font> font = Font::get(FONT_SIZE_MEDIUM);
+
+	// populate the list
+	ComponentListRow row;
+	row.addElement(std::make_shared<TextComponent>(mWindow, name.c_str(), font, color), true);
+
+	if (add_arrow)
+	{
+		std::shared_ptr<ImageComponent> bracket = makeArrow(mWindow);
+		row.addElement(bracket, false);
+	}
+
+	row.makeAcceptInputHandler(func);
+
+	mMenu.addRow(row);
+}
+
 bool GuiMenu::input(InputConfig* config, Input input)
 {
 	if (GuiComponent::input(config, input))
 		return true;
 
-	if ((config->isMappedTo("a", input) || config->isMappedTo("start", input)) && input.value != 0)
+	if ((config->isMappedTo(BUTTON_BACK, input) || config->isMappedTo("start", input)) && input.value != 0)
 	{
 		delete this;
 		return true;
@@ -1486,7 +1512,7 @@ std::vector<HelpPrompt> GuiMenu::getHelpPrompts()
 {
 	std::vector<HelpPrompt> prompts;
 	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
-	prompts.push_back(HelpPrompt("b", _("SELECT")));
+	prompts.push_back(HelpPrompt(BUTTON_LAUNCH, _("SELECT")));
 	prompts.push_back(HelpPrompt("start", _("CLOSE")));
 	return prompts;
 }

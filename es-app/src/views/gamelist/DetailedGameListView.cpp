@@ -1,9 +1,13 @@
 #include "views/gamelist/DetailedGameListView.h"
 #include "animations/LambdaAnimation.h"
 #include "views/ViewController.h"
+#if defined(EXTENSION)
 #include "LocaleES.h"
 #include "Settings.h"
 #include "SystemData.h"
+#else
+#include "Settings.h"
+#endif
 #include "Window.h"
 
 DetailedGameListView::DetailedGameListView(Window* window, FileData* root, SystemData* system)

@@ -18,12 +18,13 @@ public:
 		return "detailed";
 	}
 
-	virtual void updateInfoPanel() override;
-
 protected:
 	virtual void launch(FileData* game) override;
 
 	virtual std::vector<HelpPrompt> getHelpPrompts() override; // EXTENSION
+
+public: // private: // EXTENSION
+	virtual void updateInfoPanel() override;
 
 private:
 	void initMDLabels();

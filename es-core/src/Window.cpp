@@ -144,26 +144,29 @@ void Window::input(InputConfig* config, Input input)
 		// toggle TextComponent debug view with Ctrl-T
 		Settings::getInstance()->setBool("DebugText", !Settings::getInstance()->getBool("DebugText"));
 	}
+#if defined(EXTENSION)
 	else if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_F1)
 	{
 		RecalboxSystem::getInstance()->launchFileManager(this);
 	}
+#endif
 	else
 	{
+#if defined(EXTENSION)
 		if (config->isMappedTo("x", input) && input.value && !launchKodi && RecalboxConf::getInstance()->get("kodi.enabled") == "1" &&
 			RecalboxConf::getInstance()->get("kodi.xbutton") == "1")
 		{
 			launchKodi = true;
-			Window* window = this;
-			this->pushGui(new GuiMsgBox(this, _("DO YOU WANT TO START KODI MEDIA CENTER ?"), _("YES"),
-				[window, this] {
-					if (!RecalboxSystem::getInstance()->launchKodi(window))
+			this->pushGui(new GuiMsgBox(this, _("DO YOU WANT TO START KODI MEDIA CENTER?"), _("YES"),
+				[this] {
+					if (!RecalboxSystem::getInstance()->launchKodi(this))
 						LOG(LogWarning) << "Shutdown terminated with non-zero result!";
 					launchKodi = false;
 				},
 				_("NO"), [this] { launchKodi = false; }));
 		}
 		else
+#endif
 		{
 			if (peekGui())
 				this->peekGui()->input(config, input);
@@ -314,6 +317,10 @@ void Window::renderLoadingScreen()
 {
 	renderWaitingScreen(_("LOADING..."));
 }
+void Window::renderShutdownScreen()
+{
+	renderWaitingScreen(_("PLEASE WAIT..."));
+}
 
 void Window::renderHelpPromptsEarly()
 {
@@ -398,11 +405,6 @@ void Window::onSleep()
 
 void Window::onWake()
 {
-}
-
-void Window::renderShutdownScreen()
-{
-	renderWaitingScreen(_("PLEASE WAIT..."));
 }
 
 bool Window::isProcessing()

@@ -297,6 +297,17 @@ SystemData* createSystem(pugi::xml_node* systemsNode, int index)
 		}
 	}
 
+//  pugi::xml_node emulatorsNode = system.child("emulators");
+// 	for(pugi::xml_node emuNode = emulatorsNode.child("emulator"); emuNode; emuNode = emuNode.next_sibling("emulator"))
+//     {
+// 		const std::string emulatorName = emuNode.attribute("name").as_string();
+// 		(*systemEmulators)[emulatorName] = new std::vector<std::string>();
+// 		pugi::xml_node coresNode = emuNode.child("cores");
+// 		for (pugi::xml_node coreNode = coresNode.child("core"); coreNode; coreNode = coreNode.next_sibling("core"))
+//         {
+// 			(*systemEmulators)[emulatorName]->push_back(coreNode.text().as_string());
+// 		}
+// 	}
 #endif
 #if defined(EXTENSION)
 	SystemData* newSys = new SystemData(name, fullname, path, extensions, cmd, platformIds, themeFolder, systemEmulators);

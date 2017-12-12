@@ -141,13 +141,13 @@ void parseGamelist(SystemData* system)
 	}
 }
 
-void addFileDataNode(pugi::xml_node& parent, const FileData* file, const char* tag, const SystemData* system)
+void addFileDataNode(pugi::xml_node& parent, const FileData* file, const char* tag, const SystemData& system)
 {
 	// create game and add to parent node
 	pugi::xml_node newNode = parent.append_child(tag);
 
 	// write metadata
-	file->metadata.appendToXML(newNode, true, system->getStartPath());
+	file->metadata.appendToXML(newNode, true, system.getStartPath());
 
 	if (newNode.children().begin() == newNode.child("name") // first element is name
 		&& ++newNode.children().begin() == newNode.children().end() // theres only one element
@@ -162,7 +162,7 @@ void addFileDataNode(pugi::xml_node& parent, const FileData* file, const char* t
 		// there's something useful in there so we'll keep the node, add the path
 
 		// try and make the path relative if we can so things still work if we change the rom folder location in the future
-		newNode.prepend_child("path").text().set(makeRelativePath(file->getPath(), system->getStartPath(), false).generic_string().c_str());
+		newNode.prepend_child("path").text().set(makeRelativePath(file->getPath(), system.getStartPath(), false).generic_string().c_str());
 	}
 }
 
@@ -248,7 +248,7 @@ void updateGamelist(const SystemData* system)
 			}
 
 			// it was either removed or never existed to begin with; either way, we can add it now
-			addFileDataNode(root, *fit, tag, system);
+			addFileDataNode(root, *fit, tag, *system);
 #if defined(EXTENSION)
 			++numUpdated;
 #endif
