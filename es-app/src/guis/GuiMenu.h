@@ -1,24 +1,7 @@
 #pragma once
 #include "GuiComponent.h"
 #include "components/MenuComponent.h"
-#include "components/OptionListComponent.h"
-#include "guis/GuiSettings.h"
-#include <SystemData.h>
-#include <Window.h>
 #include <functional>
-
-class StrInputConfig
-{
-public:
-	StrInputConfig(std::string ideviceName, std::string ideviceGUIDString)
-	{
-		deviceName = ideviceName;
-		deviceGUIDString = ideviceGUIDString;
-	}
-
-	std::string deviceName;
-	std::string deviceGUIDString;
-};
 
 class GuiMenu : public GuiComponent
 {
@@ -32,20 +15,17 @@ public:
 	void onSizeChanged() override;
 	std::vector<HelpPrompt> getHelpPrompts() override;
 
-private:
+	// private:
 	void addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func);
 	void addEntry(const std::string& name, unsigned int color, bool add_arrow, const std::function<void()>& func);
 
-	void createConfigInput();
-	void createInputTextRow(GuiSettings* gui, std::string title, const char* settingsID, bool password);
+private:
 	MenuComponent mMenu;
 	TextComponent mVersion;
-
-	std::shared_ptr<OptionListComponent<std::string>> createRatioOptionList(Window* window, std::string configname) const;
-
-	void popSystemConfigurationGui(SystemData* systemData, std::string previouslySelectedEmulator) const;
-
+#if defined(EXTENSION)
+public:
+	struct StrInputConfig;
 	std::vector<StrInputConfig*>
-		mLoadedInput; // used to keep information about loaded devices in case there are unpluged between device window load and save
-	void clearLoadedInput();
+		mLoadedInput; // used to keep information about loaded devices in case there are unplugged between device window load and save
+#endif
 };

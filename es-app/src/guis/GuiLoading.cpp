@@ -2,7 +2,7 @@
 #include "GuiLoading.h"
 #include "guis/GuiMsgBox.h"
 #include "Log.h"
-#include "RecalboxSystem.h"
+#include "SystemInterface.h"
 #include "Renderer.h"
 #include "Settings.h"
 #include "Window.h"

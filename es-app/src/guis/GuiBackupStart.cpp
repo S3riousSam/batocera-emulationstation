@@ -1,7 +1,7 @@
 #if defined(EXTENSION)
 #include "guis/GuiBackupStart.h"
 #include "LocaleES.h"
-#include "RecalboxSystem.h"
+#include "SystemInterface.h"
 #include "components/OptionListComponent.h"
 #include "guis/GuiBackup.h"
 #include "views/ViewController.h"
@@ -16,7 +16,7 @@ GuiBackupStart::GuiBackupStart(Window* window)
 	addChild(&mMenu);
 
 	// available backup storage
-	std::vector<std::string> availableStorage = RecalboxSystem::getInstance()->getAvailableBackupDevices();
+	std::vector<std::string> availableStorage = SystemInterface::getAvailableBackupDevices();
 	moptionsStorage = std::make_shared<OptionListComponent<std::string>>(window, _("TARGET DEVICE"), false);
 	for (auto it = availableStorage.begin(); it != availableStorage.end(); it++)
 	{
@@ -66,7 +66,7 @@ bool GuiBackupStart::input(InputConfig* config, Input input)
 
 	if (input.value != 0 && config->isMappedTo("a", input))
 	{
-		delete this;
+		delete this; // TODO!?
 		return true;
 	}
 

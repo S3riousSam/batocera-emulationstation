@@ -3,7 +3,7 @@
 #include "guis/GuiMsgBox.h"
 #include "LocaleES.h"
 #include "Log.h"
-#include "RecalboxSystem.h"
+#include "SystemInterface.h"
 #include "Settings.h"
 #include "Window.h"
 #include <boost/thread.hpp>
@@ -79,7 +79,7 @@ void GuiBackup::update(int deltaTime)
 
 void GuiBackup::threadBackup()
 {
-	std::pair<std::string, int> updateStatus = RecalboxSystem::getInstance()->backupSystem(&mBusyAnim, mstorageDevice);
+	std::pair<std::string, int> updateStatus = SystemInterface::backupSystem(&mBusyAnim, mstorageDevice);
 	if (updateStatus.second == 0)
 	{
 		this->onBackupOk();

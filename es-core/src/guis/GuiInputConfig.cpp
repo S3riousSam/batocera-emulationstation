@@ -11,23 +11,31 @@
 #include "components/MenuComponent.h"
 #include "components/TextComponent.h"
 
-using namespace boost::locale;
+namespace
+{
+	struct InputInfo
+	{
+		const char* const name;
+		const bool skippable;
+		const std::string label;
+		const char* const icon;
+		const bool axis;
+	} const g_INPUTS[] = {{"Up", false, "UP", ":/help/dpad_up.svg", false}, {"Down", false, "DOWN", ":/help/dpad_down.svg", false},
+		{"Left", false, "LEFT", ":/help/dpad_left.svg", false}, {"Right", false, "RIGHT", ":/help/dpad_right.svg", false},
+		{"Joystick1Up", true, _("JOYSTICK 1 UP"), ":/help/joystick_up.svg", true},
+		{"Joystick1Left", true, _("JOYSTICK 1 LEFT"), ":/help/joystick_left.svg", true},
+		{"Joystick2Up", true, _("JOYSTICK 2 UP"), ":/help/joystick_up.svg", true},
+		{"Joystick2Left", true, _("JOYSTICK 2 LEFT"), ":/help/joystick_left.svg", true}, {"A", false, "A", ":/help/button_a.svg", false},
+		{"B", false, "B", ":/help/button_b.svg", false}, {"X", true, "X", ":/help/button_x.svg", false},
+		{"Y", true, "Y", ":/help/button_y.svg", false}, {"Start", false, "START", ":/help/button_start.svg", false},
+		{"Select", false, "SELECT", ":/help/button_select.svg", false}, {"PageUp", true, _("PAGE UP"), ":/help/button_l.svg", false},
+		{"PageDown", true, _("PAGE DOWN"), ":/help/button_r.svg", false}, {"L2", true, "L2", ":/help/button_l2.svg", false},
+		{"R2", true, "R2", ":/help/button_r2.svg", false}, {"L3", true, "L3", ":/help/button_l3.svg", false},
+		{"R3", true, "R3", ":/help/button_r3.svg", false}, {"HotKey", false, _("HOTKEY"), ":/help/button_hotkey.svg", false}};
 
-static const int AXIS = 0;
-static const int BTN = 1;
-static const int HAT = 2;
-static const int inputCount = 21;
-static const char* inputName[inputCount] = {"Up", "Down", "Left", "Right", "Joystick1Up", "Joystick1Left", "Joystick2Up", "Joystick2Left", "A", "B",
-	"X", "Y", "Start", "Select", "PageUp", "PageDown", "L2", "R2", "L3", "R3", "HotKey"};
-static const bool inputSkippable[inputCount] = {
-	false, false, false, false, true, true, true, true, false, false, true, true, false, false, true, true, true, true, true, true, false};
-static const int inputTypes[inputCount] = {
-	HAT, HAT, HAT, HAT, AXIS, AXIS, AXIS, AXIS, BTN, BTN, BTN, BTN, BTN, BTN, BTN, BTN, BTN, BTN, BTN, BTN, BTN};
-static const char* inputIcon[inputCount] = {":/help/dpad_up.svg", ":/help/dpad_down.svg", ":/help/dpad_left.svg", ":/help/dpad_right.svg",
-	":/help/joystick_up.svg", ":/help/joystick_left.svg", ":/help/joystick_up.svg", ":/help/joystick_left.svg", ":/help/button_a.svg",
-	":/help/button_b.svg", ":/help/button_x.svg", ":/help/button_y.svg", ":/help/button_start.svg", ":/help/button_select.svg", ":/help/button_l.svg",
-	":/help/button_r.svg", ":/help/button_l2.svg", ":/help/button_r2.svg", ":/help/button_l3.svg", ":/help/button_r3.svg",
-	":/help/button_hotkey.svg"};
+	static_assert(sizeof(g_INPUTS) / sizeof(g_INPUTS[0]) == 21ull, "Data structure expects 10 elements");
+	static const size_t INPUT_COUNT = sizeof(g_INPUTS) / sizeof(g_INPUTS[0]);
+} // namespace
 
 // MasterVolUp and MasterVolDown are also hooked up, but do not appear on this screen.
 // If you want, you can manually add them to es_input.cfg.
@@ -44,9 +52,6 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	, mHoldingInput(false)
 {
 	LOG(LogInfo) << "Configuring device " << target->getDeviceId() << " (" << target->getDeviceName() << ").";
-
-	std::string inputDispName[inputCount] = {_("UP"), _("DOWN"), _("LEFT"), _("RIGHT"), _("JOYSTICK 1 UP"), _("JOYSTICK 1 LEFT"), _("JOYSTICK 2 UP"),
-		_("JOYSTICK 2 LEFT"), "A", "B", "X", "Y", "START", "SELECT ", _("PAGE UP"), _("PAGE DOWN"), "L2", "R2", "L3", "R3", _("HOTKEY")};
 
 	if (reconfigureAll)
 		target->clear();
@@ -93,18 +98,19 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	const bool hasAxis = InputManager::getInstance()->getAxisCountByDevice(target->getDeviceId()) > 0;
 #endif
 	int inputRowIndex = 0;
-	for (int i = 0; i < inputCount; i++)
+	for (int i = 0; i < INPUT_COUNT; i++)
 	{
 #if defined(EXTENSION)
-		if (inputTypes[i] == AXIS && !hasAxis)
+		if (g_INPUTS[i].axis && !hasAxis)
 		{
 			continue;
 		}
 #endif
 		ComponentListRow row;
+
 		// icon
 		auto icon = std::make_shared<ImageComponent>(mWindow);
-		icon->setImage(inputIcon[i]);
+		icon->setImage(g_INPUTS[i].icon);
 		icon->setColorShift(0x777777FF);
 		icon->setResize(0, Font::get(FONT_SIZE_MEDIUM)->getLetterHeight() * 1.25f);
 		row.addElement(icon, false);
@@ -114,7 +120,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 		spacer->setSize(16, 0);
 		row.addElement(spacer, false);
 
-		auto text = std::make_shared<TextComponent>(mWindow, inputDispName[i], Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		auto text = std::make_shared<TextComponent>(mWindow, g_INPUTS[i].label, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 		row.addElement(text, true);
 
 		auto mapping =
@@ -181,8 +187,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 
 	// only show "HOLD TO SKIP" if this input is skippable
 	mList->setCursorChangedCallback([this](CursorState state) {
-		bool skippable = inputSkippable[mList->getCursorId()];
-		mSubtitle2->setOpacity(skippable * 255);
+        mSubtitle2->setOpacity(g_INPUTS[mList->getCursorId()].skippable * 255);
 	});
 
 	// make the first one say "PRESS ANYTHING" if we're re-configuring everything
@@ -222,7 +227,7 @@ void GuiInputConfig::onSizeChanged()
 
 void GuiInputConfig::update(int deltaTime)
 {
-	if (mConfiguringRow && mHoldingInput && inputSkippable[mHeldInputId])
+	if (mConfiguringRow && mHoldingInput && g_INPUTS[mHeldInputId].skippable)
 	{
 		int prevSec = mHeldTime / 1000;
 		mHeldTime += deltaTime;
@@ -243,7 +248,7 @@ void GuiInputConfig::update(int deltaTime)
 #if defined(EXTENSION)
 				const auto& text = mMappings.at(mHeldInputRowIndex);
 				char strbuf[256];
-				snprintf(strbuf, 256, ngettext("HOLD FOR %iS TO SKIP", "HOLD FOR %iS TO SKIP", HOLD_TO_SKIP_MS / 1000 - curSec).c_str(),
+				snprintf(strbuf, 256, boost::locale::ngettext("HOLD FOR %iS TO SKIP", "HOLD FOR %iS TO SKIP", HOLD_TO_SKIP_MS / 1000 - curSec).c_str(),
 					HOLD_TO_SKIP_MS / 1000 - curSec);
 				text->setText(strbuf);
 #else
@@ -284,6 +289,31 @@ void GuiInputConfig::rowDone()
 	}
 }
 
+#if defined(RECALBOX_EX)
+struct ColorSef
+{
+	ColorSef(BYTE gray, BYTE opacity = 0xFF)
+		: r(gray)
+		, g(gray)
+		, b(gray)
+		, opacity(opacity)
+	{
+	}
+
+	BYTE r, g, b, opacity;
+
+	operator unsigned int() const
+	{
+		return (r << 24) & (g << 16) & (b << 8) & (opacity);
+	}
+} static const ColorGRAY1(0xC6), ColorGRAY2(0x99), ColorGRAY3(0x77), ColorGRAY4(0x65);
+
+#define COLOR_GRAY1 0xC6C6C6FF // Light
+#define COLOR_GRAY2 0x999999FF
+#define COLOR_GRAY3 0x777777FF
+#define COLOR_GRAY4 0x656565FF // Darker
+#endif
+
 void GuiInputConfig::setPress(const std::shared_ptr<TextComponent>& text)
 {
 	text->setText(_("PRESS ANYTHING"));
@@ -314,8 +344,8 @@ bool GuiInputConfig::assign(Input input, int inputId, int inputIndex)
 
 	// if this input is mapped to something other than "nothing" or the current row, error
 	// (if it's the same as what it was before, allow it)
-	if (std::string("HotKey").compare(inputName[inputId]) != 0)
-		if (mTargetConfig->getMappedTo(input).size() > 0 && !mTargetConfig->isMappedTo(inputName[inputId], input))
+	if (std::string("HotKey").compare(g_INPUTS[inputId].name) != 0)
+		if (mTargetConfig->getMappedTo(input).size() > 0 && !mTargetConfig->isMappedTo(g_INPUTS[inputId].name, input))
 		{
 			error(mMappings.at(inputIndex), "Already mapped!");
 			return false;
@@ -324,14 +354,14 @@ bool GuiInputConfig::assign(Input input, int inputId, int inputIndex)
 	setAssignedTo(mMappings.at(inputIndex), input);
 
 	input.configured = true;
-	mTargetConfig->mapInput(inputName[inputId], input);
+	mTargetConfig->mapInput(g_INPUTS[inputId].name, input);
 
-	LOG(LogInfo) << "  Mapping [" << input.string() << "] -> " << inputName[inputId];
+	LOG(LogInfo) << "  Mapping [" << input.string() << "] -> " << g_INPUTS[inputId].name;
 
 	return true;
 }
 
 void GuiInputConfig::clearAssignment(int inputId)
 {
-	mTargetConfig->unmapInput(inputName[inputId]);
+	mTargetConfig->unmapInput(g_INPUTS[inputId].name);
 }

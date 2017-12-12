@@ -6,8 +6,8 @@
 #include "Gamelist.h"
 #include "SystemData.h"
 #include "views/ViewController.h"
-#include "RecalboxSystem.h"
 #include "Settings.h"
+#include "SystemInterface.h"
 #include "Window.h"
 #include <boost/thread.hpp>
 #include <string>
@@ -79,7 +79,7 @@ void GuiAutoScrape::update(int deltaTime)
 
 void GuiAutoScrape::threadAutoScrape()
 {
-	std::pair<std::string, int> scrapeStatus = RecalboxSystem::getInstance()->scrape(&mBusyAnim);
+	std::pair<std::string, int> scrapeStatus = SystemInterface::scrape(&mBusyAnim);
 	if (scrapeStatus.second == 0)
 		this->onAutoScrapeOk();
 	else

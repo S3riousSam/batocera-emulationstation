@@ -150,11 +150,17 @@ Font::FontFace::~FontFace()
 void Font::initLibrary()
 {
 	assert(sLibrary == NULL);
-	if (FT_Init_FreeType(&sLibrary))
+	if (FT_Init_FreeType(&sLibrary)) // TODO: Memory leak (never calling FT_Done_Face(&sLibrary))!??
 	{
 		sLibrary = NULL;
 		LOG(LogError) << "Error initializing FreeType!";
 	}
+}
+
+void Font::uinitLibrary()
+{
+    assert(sLibrary != NULL);
+    FT_Done_FreeType(sLibrary);
 }
 
 size_t Font::getMemUsage() const

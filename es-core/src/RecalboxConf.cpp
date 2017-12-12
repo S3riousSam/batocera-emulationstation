@@ -6,29 +6,20 @@
 #include <fstream>
 #include <iostream>
 
-RecalboxConf* RecalboxConf::sInstance = NULL;
-
 namespace
 {
 	const char* const CONFIG_FILE_PATH = "/recalbox/share/system/recalbox.conf";
 	const char* const CONFIG_FILE_PATH_TMP = "/recalbox/share/system/recalbox.conf.tmp";
+
+	std::map<std::string, std::string> confMap;
+	bool loadedOnce = false;
 } // namespace
 
-RecalboxConf::RecalboxConf()
+void LoadOnce()
 {
-	loadRecalboxConf();
-}
+	if (loadedOnce)
+		return;
 
-RecalboxConf* RecalboxConf::getInstance()
-{
-	if (sInstance == NULL)
-		sInstance = new RecalboxConf();
-
-	return sInstance;
-}
-
-bool RecalboxConf::loadRecalboxConf()
-{
 	std::string line;
 	std::ifstream recalboxConf(CONFIG_FILE_PATH);
 	if (recalboxConf && recalboxConf.is_open())
@@ -46,13 +37,14 @@ bool RecalboxConf::loadRecalboxConf()
 	else
 	{
 		LOG(LogError) << "Unable to open " << CONFIG_FILE_PATH;
-		return false;
 	}
-	return true;
+	loadedOnce = true;
 }
 
 bool RecalboxConf::saveRecalboxConf()
 {
+	LoadOnce();
+
 	std::ifstream filein(CONFIG_FILE_PATH); // File to read from
 	if (!filein)
 	{
@@ -110,20 +102,14 @@ bool RecalboxConf::saveRecalboxConf()
 	return true;
 }
 
-std::string RecalboxConf::get(const std::string& name)
-{
-	if (confMap.count(name))
-	{
-		return confMap[name];
-	}
-	return "";
-}
 std::string RecalboxConf::get(const std::string& name, const std::string& defaut)
 {
+	LoadOnce();
 	return confMap.count(name) != 0 ? confMap.at(name) : defaut;
 }
 void RecalboxConf::set(const std::string& name, const std::string& value)
 {
+	LoadOnce();
 	confMap[name] = value;
 }
 #endif

@@ -4,16 +4,17 @@
 #include <stdint.h>
 
 #if defined(__APPLE__)
-#warning TODO: Not implemented for MacOS yet!!!
+#error TODO: Not implemented for MacOS yet!!!
 #elif defined(__linux__)
-#include <unistd.h>
-#include <fcntl.h>
 #include <alsa/asoundlib.h>
+#include <fcntl.h>
+#include <unistd.h>
 #elif defined(WIN32) || defined(_WIN32)
 #include <Windows.h>
+
 #include <MMSystem.h>
-#include <mmdeviceapi.h>
 #include <endpointvolume.h>
+#include <mmdeviceapi.h>
 #endif
 
 /*!
@@ -22,7 +23,7 @@ Singleton pattern. Call getInstance() to get an object.
 class VolumeControl
 {
 #if defined(__APPLE__)
-#warning TODO: Not implemented for MacOS yet!!!
+#error TODO: Not implemented for MacOS yet!!!
 #elif defined(__linux__)
 	static const char* mixerName;
 	static const char* mixerCard;

@@ -1,12 +1,14 @@
 #include "GuiGamelistOptions.h"
 #include "GuiMetaDataEd.h"
 #include "LocaleES.h"
+#include "views/ViewController.h"
+#include "views/gamelist/IGameListView.h"
+#if defined(EXTENSION)
 #include "Settings.h"
 #include "components/SwitchComponent.h"
 #include "guis/GuiSettings.h"
-#include "views/ViewController.h"
-#include "views/gamelist/IGameListView.h"
 #include <RecalboxConf.h>
+#endif
 
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"
@@ -74,7 +76,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 	// edit game metadata
 	row.elements.clear();
 #if defined(EXTENSION)
-	if (RecalboxConf::getInstance()->get("system.es.menu") != "none" && RecalboxConf::getInstance()->get("system.es.menu") != "bartop")
+	if (RecalboxConf::get("system.es.menu") != "none" && RecalboxConf::get("system.es.menu") != "bartop")
 	{
 		row.addElement(std::make_shared<TextComponent>(mWindow, _("EDIT THIS GAME'S METADATA"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 		row.addElement(makeArrow(mWindow), false);

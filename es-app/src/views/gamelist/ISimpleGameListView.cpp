@@ -4,7 +4,7 @@
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
-#if defined(EXTENSION) || !defined(RECALBOX) // TODO: REVIEW
+#if defined(EXTENSION) || !defined(EXTENSION) // TODO: REVIEW
 #include "Gamelist.h"
 #include "LocaleES.h"
 #include "Log.h"

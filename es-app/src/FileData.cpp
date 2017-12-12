@@ -1,5 +1,7 @@
 #include "FileData.h"
+#if defined(EXTENSION)
 #include "Log.h"
+#endif
 #include "SystemData.h"
 
 namespace fs = boost::filesystem;
@@ -246,46 +248,34 @@ void FileData::populateFolder(FileData* folder, const std::vector<std::string>& 
 	const fs::path& folderPath = folder->getPath();
 	if (!fs::is_directory(folderPath))
 	{
-		LOG(LogWarning) << "Error - folder with path \"" << folderPath << "\" is not a directory!";
+		LOG(LogWarning) << "This path expression is not a folder: " << folderPath;
 		return;
 	}
 
-	const std::string folderStr = folderPath.generic_string();
-
 	// Prevents symlink recursion
-	if (fs::is_symlink(folderPath))
+	if (fs::is_symlink(folderPath) && folderPath.generic_string().find(fs::canonical(folderPath).generic_string()) == 0)
 	{
-		if (folderStr.find(fs::canonical(folderPath).generic_string()) == 0)
-		{
-			LOG(LogWarning) << "Skipping infinitely recursive symlink \"" << folderPath << "\"";
-			return;
-		}
+		LOG(LogWarning) << "Skipping infinitely recursive symlink: " << folderPath;
+		return;
 	}
 
-	fs::path filePath;
-	std::string extension;
-	bool isGame;
-	for (fs::directory_iterator end, dir(folderPath); dir != end; ++dir)
+	for (const auto& childDir : fs::directory_iterator(folderPath))
 	{
-		filePath = (*dir).path();
-
+		const fs::path& filePath = childDir.path();
 		if (filePath.stem().empty())
 			continue;
 
-		// this is a little complicated because we allow a list of extensions to be defined (delimited with a space)
-		// we first get the extension of the file itself:
-		extension = filePath.extension().string();
+		// Folders may  also match a ROM extension and be added as games (i.e. for higan and DOSBox)
+		// https://github.com/Aloshi/EmulationStation/issues/75
 
-		// fyi, folders *can* also match the extension and be added as games - this is mostly just to support higan
-		// see issue #75: https://github.com/Aloshi/EmulationStation/issues/75
-
-		isGame = false;
+		bool isGame = false;
 		if ((searchExtensions.empty() && !fs::is_directory(filePath)) ||
-			(std::find(searchExtensions.begin(), searchExtensions.end(), extension) != searchExtensions.end() &&
+			// The configuration allows a list of extensions to be defined (delimited with a space)
+			// So, we first get the extension of the file itself:
+			(std::find(searchExtensions.begin(), searchExtensions.end(), filePath.extension().string()) != searchExtensions.end() &&
 				filePath.filename().string().compare(0, 1, ".") != 0))
 		{
-			FileData* newGame = new FileData(GAME, filePath.generic_string(), systemData);
-			folder->addChild(newGame);
+			folder->addChild(new FileData(GAME, filePath.generic_string(), systemData));
 			isGame = true;
 		}
 
@@ -302,46 +292,34 @@ void FileData::populateRecursiveFolder(FileData* folder, const std::vector<std::
 	const fs::path& folderPath = folder->getPath();
 	if (!fs::is_directory(folderPath))
 	{
-		LOG(LogWarning) << "Error - folder with path \"" << folderPath << "\" is not a directory!";
+		LOG(LogWarning) << "This path expression is not a folder: " << folderPath;
 		return;
 	}
 
-	const std::string folderStr = folderPath.generic_string();
-
 	// Prevents symlink recursion
-	if (fs::is_symlink(folderPath))
+	if (fs::is_symlink(folderPath) && (folderPath.generic_string().find(fs::canonical(folderPath).generic_string()) == 0))
 	{
-		if (folderStr.find(fs::canonical(folderPath).generic_string()) == 0)
-		{
-			LOG(LogWarning) << "Skipping infinitely recursive symlink \"" << folderPath << "\"";
-			return;
-		}
+		LOG(LogWarning) << "Skipping infinitely recursive symlink: " << folderPath;
+		return;
 	}
 
-	fs::path filePath;
-	std::string extension;
-	bool isGame;
-	for (fs::directory_iterator end, dir(folderPath); dir != end; ++dir)
+	for (const auto& childDir : fs::directory_iterator(folderPath))
 	{
-		filePath = (*dir).path();
-
-		if (filePath.stem().empty())
+		const fs::path& filePath = childDir.path();
+		if (filePath.stem().empty()) // Discards "." and ".." folders
 			continue;
 
-		// this is a little complicated because we allow a list of extensions to be defined (delimited with a space)
-		// we first get the extension of the file itself:
-		extension = filePath.extension().string();
+		// Folders may  also match a ROM extension and be added as games (i.e. for higan and DOSBox)
+		// https://github.com/Aloshi/EmulationStation/issues/75
 
-		// fyi, folders *can* also match the extension and be added as games - this is mostly just to support higan
-		// see issue #75: https://github.com/Aloshi/EmulationStation/issues/75
-
-		isGame = false;
+		bool isGame = false;
 		if ((searchExtensions.empty() && !fs::is_directory(filePath)) ||
-			(std::find(searchExtensions.begin(), searchExtensions.end(), extension) != searchExtensions.end() &&
+			// The configuration allows a list of extensions to be defined (delimited with a space)
+			// So, we first get the extension of the file itself:
+			(std::find(searchExtensions.begin(), searchExtensions.end(), filePath.extension().string()) != searchExtensions.end() &&
 				filePath.filename().string().compare(0, 1, ".") != 0))
 		{
-			FileData* newGame = new FileData(GAME, filePath.generic_string(), systemData);
-			folder->addChild(newGame);
+			folder->addChild(new FileData(GAME, filePath.generic_string(), systemData));
 			isGame = true;
 		}
 

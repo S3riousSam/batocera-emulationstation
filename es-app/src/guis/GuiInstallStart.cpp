@@ -1,6 +1,6 @@
 #include "guis/GuiInstallStart.h"
 
-#include "RecalboxSystem.h"
+#include "SystemInterface.h"
 #include "components/OptionListComponent.h"
 #include "guis/GuiInstall.h"
 #include "views/ViewController.h"
@@ -17,7 +17,7 @@ GuiInstallStart::GuiInstallStart(Window* window)
 	addChild(&mMenu);
 
 	// available install storage
-	std::vector<std::string> availableStorage = RecalboxSystem::getInstance()->getAvailableInstallDevices();
+	std::vector<std::string> availableStorage = SystemInterface::getAvailableInstallDevices();
 	moptionsStorage = std::make_shared<OptionListComponent<std::string>>(window, _("TARGET DEVICE"), false);
 	for (auto it = availableStorage.begin(); it != availableStorage.end(); it++)
 	{
@@ -25,7 +25,7 @@ GuiInstallStart::GuiInstallStart(Window* window)
 		boost::split(tokens, (*it), boost::is_any_of(" "));
 		if (tokens.size() >= 2)
 		{
-			// concatenat the ending words
+			// concatenate the ending words
 			std::string vname = "";
 			for (unsigned int i = 1; i < tokens.size(); i++)
 			{
@@ -39,7 +39,7 @@ GuiInstallStart::GuiInstallStart(Window* window)
 	mMenu.addWithLabel(_("TARGET DEVICE"), moptionsStorage);
 
 	// available install architecture
-	std::vector<std::string> availableArchitecture = RecalboxSystem::getInstance()->getAvailableInstallArchitectures();
+	std::vector<std::string> availableArchitecture = SystemInterface::getAvailableInstallArchitectures();
 	moptionsArchitecture = std::make_shared<OptionListComponent<std::string>>(window, _("TARGET ARCHITECTURE"), false);
 	for (auto it = availableArchitecture.begin(); it != availableArchitecture.end(); it++)
 	{

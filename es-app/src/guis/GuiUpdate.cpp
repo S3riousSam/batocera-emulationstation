@@ -3,8 +3,8 @@
 #include "guis/GuiMsgBox.h"
 #include "LocaleES.h"
 #include "Log.h"
-#include "RecalboxSystem.h"
 #include "Settings.h"
+#include "SystemInterface.h"
 #include "Window.h"
 #include <boost/thread.hpp>
 #include <string>
@@ -98,7 +98,7 @@ void GuiUpdate::update(int deltaTime)
 
 void GuiUpdate::threadUpdate()
 {
-	std::pair<std::string, int> updateStatus = RecalboxSystem::getInstance()->updateSystem(&mBusyAnim);
+	std::pair<std::string, int> updateStatus = SystemInterface::updateSystem(&mBusyAnim);
 	if (updateStatus.second == 0)
 		onUpdateOk();
 	else
@@ -107,9 +107,9 @@ void GuiUpdate::threadUpdate()
 
 void GuiUpdate::threadPing()
 {
-	if (RecalboxSystem::getInstance()->ping())
+	if (SystemInterface::ping())
 	{
-		if (RecalboxSystem::getInstance()->canUpdate())
+		if (SystemInterface::canUpdate())
 			onUpdateAvailable();
 		else
 			onNoUpdateAvailable();

@@ -3,42 +3,51 @@
 
 #include "AudioManager.h"
 #include "EmulationStation.h"
-#include "FileSorts.h"
-#include "LocaleES.h"
 #include "Log.h"
-#include "NetworkThread.h"
-#include "RecalboxSystem.h"
 #include "Renderer.h"
 #include "ScraperCmdLine.h"
 #include "Settings.h"
 #include "SystemData.h"
-#include "VolumeControl.h"
 #include "Window.h"
 #include "guis/GuiDetectDevice.h"
 #include "guis/GuiMsgBox.h"
-#include "guis/GuiMsgBoxScroll.h"
 #include "platform.h"
-#include "resources/Font.h"
 #include "views/ViewController.h"
-#include <RecalboxConf.h>
 #include <SDL.h>
-#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/locale.hpp>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#if defined(EXTENSION)
+#include "FileSorts.h"
+#include "LocaleES.h"
+#include "SystemInterface.h"
+
+namespace RecalBox
+{
+	void initAudio();
+	void playSound(const std::string& name);
+	int setLocale(char* argv1);
+
+	void performExtra(Window& window);
+	void byebye(bool reboot, bool shutdown);
+} // namespace RecalBox
+
+#else
+#define _(A) A
+#endif
 
 #ifdef WIN32
+#define _CRTDBG_MAP_ALLOC
 #include <Windows.h>
-#include <direct.h> // getcwd, chdir
-#define PATH_MAX 256
+#include <crtdbg.h>
+#include <stdlib.h>
 #endif
 
 namespace fs = boost::filesystem;
 
 bool scrape_cmdline = false;
-
-void playSound(std::string name);
 
 bool parseArgs(int argc, char* argv[], unsigned int* width, unsigned int* height)
 {
@@ -171,50 +180,11 @@ bool loadSystemConfigFile(const char** errorString)
 	return true;
 }
 
-int setLocale(char* argv1)
-{
-	char path_save[PATH_MAX];
-	char abs_exe_path[PATH_MAX];
-	char* p = strrchr(argv1, '/');
-
-	if (p == nullptr)
-	{
-		getcwd(abs_exe_path, sizeof(abs_exe_path));
-	}
-	else
-	{
-		*p = '\0';
-		getcwd(path_save, sizeof(path_save));
-		chdir(argv1);
-		getcwd(abs_exe_path, sizeof(abs_exe_path));
-		chdir(path_save);
-	}
-	boost::locale::localization_backend_manager my = boost::locale::localization_backend_manager::global();
-	// Get global backend
-
-	my.select("std");
-	boost::locale::localization_backend_manager::global(my);
-	// set this backend globally
-
-	boost::locale::generator gen;
-
-	std::string localeDir = abs_exe_path;
-	localeDir += "/locale/lang";
-	LOG(LogInfo) << "Setting local directory to " << localeDir;
-	// Specify location of dictionaries
-	gen.add_messages_path(localeDir);
-	gen.add_messages_path("/usr/share/locale");
-	gen.add_messages_domain("emulationstation2");
-
-	// Generate locales and imbue them to iostream
-	std::locale::global(gen(""));
-	std::cout.imbue(std::locale());
-	LOG(LogInfo) << "Locals set...";
-	return 0;
-}
-
 int main(int argc, char* argv[])
 {
+#if defined(WIN32)
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
 	unsigned int width = 0;
 	unsigned int height = 0;
 #if !defined(EXTENSION)
@@ -270,7 +240,7 @@ int main(int argc, char* argv[])
 	LOG(LogInfo) << "EmulationStation - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
 
 #if defined(EXTENSION)
-	setLocale(argv[0]);
+	RecalBox::setLocale(argv[0]);
 
 	// FileSorts::init(); // require locale
 	initMetadata(); // require locale
@@ -293,18 +263,23 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		std::string glExts = (const char*)glGetString(GL_EXTENSIONS);
-		LOG(LogInfo) << "Checking available OpenGL extensions...";
-		LOG(LogInfo) << " ARB_texture_non_power_of_two: " << (glExts.find("ARB_texture_non_power_of_two") != std::string::npos ? "OK" : "MISSING");
+		const GLubyte* result = glGetString(GL_EXTENSIONS);
+		if (result != NULL)
+		{
+			const std::string glExts = reinterpret_cast<const char*>(result);
+			LOG(LogInfo) << "Checking available OpenGL extensions...";
+			LOG(LogInfo) << " ARB_texture_non_power_of_two: " << (glExts.find("ARB_texture_non_power_of_two") != std::string::npos ? "ok" : "MISSING");
+		}
+		else
+		{
+			LOG(LogInfo) << "Checking available OpenGL extensions... FAILED";
+		}
 
 		window.renderLoadingScreen();
 	}
 #if defined(EXTENSION)
-	// Initialize audio manager
-	VolumeControl::getInstance()->init();
-	AudioManager::getInstance()->init();
-
-	playSound("loading");
+	RecalBox::initAudio();
+	RecalBox::playSound("loading");
 #endif
 	const char* errorMsg = NULL;
 	if (!loadSystemConfigFile(&errorMsg))
@@ -326,26 +301,7 @@ int main(int argc, char* argv[])
 		}));
 	}
 #if defined(EXTENSION)
-	RecalboxConf* recalboxConf = RecalboxConf::getInstance();
-	if (recalboxConf->get("kodi.enabled") == "1" && recalboxConf->get("kodi.atstartup") == "1")
-	{
-		RecalboxSystem::getInstance()->launchKodi(&window);
-	}
-	RecalboxSystem::getInstance()->getIpAdress();
-	// UPDATED VERSION MESSAGE
-	// if(RecalboxSystem::getInstance()->needToShowVersionMessage()){
-	//	 window.pushGui(new GuiMsgBoxScroll(&window,
-	//	RecalboxSystem::getInstance()->getVersionMessage(),
-	//				      _("OK"), [] {
-	//				 RecalboxSystem::getInstance()->updateLastVersionFile();
-	//				},"",nullptr,"",nullptr, ALIGN_LEFT));
-	//}
-
-	// UPDATE CHECK THREAD
-	if (recalboxConf->get("updates.enabled") == "1")
-	{
-		NetworkThread* nthread = new NetworkThread(window);
-	}
+	RecalBox::performExtra(window);
 #endif
 	// run the command line scraper then quit
 	if (scrape_cmdline)
@@ -414,21 +370,21 @@ int main(int argc, char* argv[])
 				running = false;
 				break;
 #if defined(EXTENSION)
-			case RecalboxSystem::SDL_FAST_QUIT | RecalboxSystem::SDL_RB_REBOOT:
+			case SystemInterface::SDL_FAST_QUIT | SystemInterface::SDL_RB_REBOOT:
 				running = false;
 				doReboot = true;
 				Settings::getInstance()->setBool("IgnoreGamelist", true);
 				break;
-			case RecalboxSystem::SDL_FAST_QUIT | RecalboxSystem::SDL_RB_SHUTDOWN:
+			case SystemInterface::SDL_FAST_QUIT | SystemInterface::SDL_RB_SHUTDOWN:
 				running = false;
 				doShutdown = true;
 				Settings::getInstance()->setBool("IgnoreGamelist", true);
 				break;
-			case SDL_QUIT | RecalboxSystem::SDL_RB_REBOOT:
+			case SDL_QUIT | SystemInterface::SDL_RB_REBOOT:
 				running = false;
 				doReboot = true;
 				break;
-			case SDL_QUIT | RecalboxSystem::SDL_RB_SHUTDOWN:
+			case SDL_QUIT | SystemInterface::SDL_RB_SHUTDOWN:
 				running = false;
 				doShutdown = true;
 				break;
@@ -475,28 +431,12 @@ int main(int argc, char* argv[])
 #endif
 	LOG(LogInfo) << "EmulationStation cleanly shutting down.";
 #if defined(EXTENSION)
-	if (doReboot)
-	{
-		LOG(LogInfo) << "Rebooting system";
-		system("touch /tmp/reboot.please");
-		system("shutdown -r now");
-	}
-	else if (doShutdown)
-	{
-		LOG(LogInfo) << "Shutting system down";
-		system("touch /tmp/shutdown.please");
-		system("shutdown -h now");
-	}
+	RecalBox::byebye(doReboot, doShutdown);
 #endif
-	return 0;
-}
 
-void playSound(std::string name)
-{
-	std::string selectedTheme = Settings::getInstance()->getString("ThemeSet");
-	std::string loadingMusic = getHomePath() + "/.emulationstation/themes/" + selectedTheme + "/fx/" + name + ".ogg";
-	if (boost::filesystem::exists(loadingMusic))
-	{
-		Music::get(loadingMusic)->play(false, NULL);
-	}
+	Font::uinitLibrary();
+	delete Settings::getInstance();
+	delete InputManager::getInstance();
+
+	return 0;
 }

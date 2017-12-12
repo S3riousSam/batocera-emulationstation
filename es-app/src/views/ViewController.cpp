@@ -2,20 +2,22 @@
 #include "Log.h"
 #include "Settings.h"
 #include "SystemData.h"
-#include <RecalboxConf.h>
-#include <RecalboxSystem.h>
 
 #include "animations/LambdaAnimation.h"
 #include "animations/LaunchAnimation.h"
 #include "animations/MoveCameraAnimation.h"
-#include "guis/GuiDetectDevice.h"
 #include "guis/GuiMenu.h"
 #include "guis/GuiMsgBox.h"
 #include "views/gamelist/BasicGameListView.h"
 #include "views/gamelist/DetailedGameListView.h"
 #include "views/gamelist/GridGameListView.h"
-
+#if defined(EXTENSION)
 #include "AudioManager.h"
+#include "LocaleES.h"
+#include "SystemInterface.h"
+#include "guis/GuiDetectDevice.h"
+#include <RecalboxConf.h>
+#endif
 
 ViewController* ViewController::sInstance = NULL;
 
@@ -234,13 +236,12 @@ void ViewController::playViewTransition()
 	}
 	else if (Settings::getInstance()->getString("TransitionStyle") == "slide")
 	{
-		// slide or simple slide
+		// slide
 		setAnimation(new MoveCameraAnimation(mCamera, target));
 		updateHelpPrompts(); // update help prompts immediately
 	}
-	else
+	else // instant
 	{
-		// instant
 		setAnimation(new LambdaAnimation([this, target](float t) { this->mCamera.translation() = -target; }, 1));
 		updateHelpPrompts();
 	}
@@ -371,7 +372,7 @@ bool ViewController::input(InputConfig* config, Input input)
 	// open menu
 	if (config->isMappedTo("start", input) && input.value != 0
 #if defined(EXTENSION)
-		&& RecalboxConf::getInstance()->get("system.es.menu") != "none"
+		&& RecalboxConf::get("system.es.menu") != "none"
 #endif
 	)
 	{
@@ -560,7 +561,7 @@ std::vector<HelpPrompt> ViewController::getHelpPrompts()
 
 	prompts = mCurrentView->getHelpPrompts();
 #if defined(EXTENSION)
-	if (RecalboxConf::getInstance()->get("system.es.menu") != "none")
+	if (RecalboxConf::get("system.es.menu") != "none")
 #endif
 	{
 		prompts.push_back(HelpPrompt("start", _("MENU")));

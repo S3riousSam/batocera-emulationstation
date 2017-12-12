@@ -1,10 +1,15 @@
 #include "components/SliderComponent.h"
-#include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
 #include "resources/Font.h"
 #include <assert.h>
+#if defined(EXTENSION)
+#include "LocaleES.h"
+#else
+#include <boost/locale.hpp>
+#define _(A) A
+#endif
 
 #define MOVE_REPEAT_DELAY 500
 #define MOVE_REPEAT_RATE 40

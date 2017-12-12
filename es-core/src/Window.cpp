@@ -1,17 +1,22 @@
 #include "Window.h"
 #include "AudioManager.h"
-#include "LocaleES.h"
 #include "Log.h"
 #include "RecalboxConf.h"
-#include "RecalboxSystem.h"
 #include "Renderer.h"
 #include "Settings.h"
+#include "SystemInterface.h"
 #include "components/HelpComponent.h"
 #include "components/ImageComponent.h"
 #include "guis/GuiMsgBox.h"
-#include <algorithm>
 #include <iomanip>
 #include <iostream>
+#if defined(EXTENSION)
+#include "LocaleES.h"
+#else
+#include <boost/locale.hpp>
+#define _(A) A
+#endif
+#include <algorithm>
 
 Window::Window()
 	: mNormalizeNextUpdate(false)
@@ -147,19 +152,19 @@ void Window::input(InputConfig* config, Input input)
 #if defined(EXTENSION)
 	else if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_F1)
 	{
-		RecalboxSystem::getInstance()->launchFileManager(this);
+		SystemInterface::launchFileManager(this);
 	}
 #endif
 	else
 	{
 #if defined(EXTENSION)
-		if (config->isMappedTo("x", input) && input.value && !launchKodi && RecalboxConf::getInstance()->get("kodi.enabled") == "1" &&
-			RecalboxConf::getInstance()->get("kodi.xbutton") == "1")
+		if (config->isMappedTo("x", input) && input.value && !launchKodi && RecalboxConf::get("kodi.enabled") == "1" &&
+			RecalboxConf::get("kodi.xbutton") == "1")
 		{
 			launchKodi = true;
 			this->pushGui(new GuiMsgBox(this, _("DO YOU WANT TO START KODI MEDIA CENTER?"), _("YES"),
 				[this] {
-					if (!RecalboxSystem::getInstance()->launchKodi(this))
+					if (!SystemInterface::launchKodi(this))
 						LOG(LogWarning) << "Shutdown terminated with non-zero result!";
 					launchKodi = false;
 				},

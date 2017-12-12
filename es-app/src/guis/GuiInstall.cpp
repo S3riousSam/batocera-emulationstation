@@ -3,7 +3,7 @@
 
 #include "LocaleES.h"
 #include "Log.h"
-#include "RecalboxSystem.h"
+#include "SystemInterface.h"
 #include "Settings.h"
 #include "Window.h"
 #include <boost/thread.hpp>
@@ -80,7 +80,7 @@ void GuiInstall::update(int deltaTime)
 
 void GuiInstall::threadInstall()
 {
-	std::pair<std::string, int> updateStatus = RecalboxSystem::getInstance()->installSystem(&mBusyAnim, mstorageDevice, marchitecture);
+	std::pair<std::string, int> updateStatus = SystemInterface::installSystem(&mBusyAnim, mstorageDevice, marchitecture);
 	if (updateStatus.second == 0)
 	{
 		this->onInstallOk();

@@ -7,14 +7,16 @@
 #include "Window.h"
 #include "animations/LambdaAnimation.h"
 #include "views/ViewController.h"
+#if defined(EXTENSION)
 #include "AudioManager.h"
 #include "LocaleES.h"
+#include "SystemInterface.h"
 #include "ThemeData.h"
 #include <RecalboxConf.h>
-#include <RecalboxSystem.h>
 #include <components/ComponentList.h>
 #include <guis/GuiMsgBox.h>
 #include <guis/GuiSettings.h>
+#endif
 
 #define SELECTED_SCALE 1.5f
 #define LOGO_PADDING ((logoSize().x() * (SELECTED_SCALE - 1) / 2) + (mSize.x() * 0.06f))
@@ -140,7 +142,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			return true;
 		}
 #if defined(EXTENSION)
-		if (config->isMappedTo("select", input) && RecalboxConf::getInstance()->get("system.es.menu") != "none")
+		if (config->isMappedTo("select", input) && RecalboxConf::get("system.es.menu") != "none")
 		{
 			// TODO: Duplicate Code!
 
@@ -151,7 +153,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			row.makeAcceptInputHandler([window] {
 				window->pushGui(new GuiMsgBox(window, _("REALLY RESTART?"), _("YES"),
 					[] {
-						if (RecalboxSystem::getInstance()->reboot() != 0)
+						if (SystemInterface::reboot() != 0)
 						{
 							LOG(LogWarning) << "Restart terminated with non-zero result!";
 						}
@@ -165,7 +167,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			row.makeAcceptInputHandler([window] {
 				window->pushGui(new GuiMsgBox(window, _("REALLY SHUTDOWN?"), _("YES"),
 					[] {
-						if (RecalboxSystem::getInstance()->shutdown() != 0)
+						if (SystemInterface::shutdown() != 0)
 						{
 							LOG(LogWarning) << "Shutdown terminated with non-zero result!";
 						}
@@ -179,7 +181,7 @@ bool SystemView::input(InputConfig* config, Input input)
 			row.makeAcceptInputHandler([window] {
 				window->pushGui(new GuiMsgBox(window, _("REALLY SHUTDOWN WITHOUT SAVING METADATAS?"), _("YES"),
 					[] {
-						if (RecalboxSystem::getInstance()->fastShutdown() != 0)
+						if (SystemInterface::fastShutdown() != 0)
 						{
 							LOG(LogWarning) << "Shutdown terminated with non-zero result!";
 						}
@@ -326,8 +328,8 @@ void SystemView::onCursorChanged(const CursorState& state)
 			},
 			500);
 	}
-	else if (Settings::getInstance()->getString("TransitionStyle") == "slide")
-	{
+	else
+	{ // slide
 		anim = new LambdaAnimation(
 			[startPos, endPos, posMax, this](float t) {
 				t -= 1;
@@ -341,22 +343,6 @@ void SystemView::onCursorChanged(const CursorState& state)
 				this->mExtrasCamOffset = f;
 			},
 			500);
-	}
-	else
-	{
-		anim = new LambdaAnimation(
-			[startPos, endPos, posMax, this](float t) {
-				t -= 1;
-				float f = lerp<float>(startPos, endPos, t * t * t + 1);
-				if (f < 0)
-					f += posMax;
-				if (f >= posMax)
-					f -= posMax;
-
-				this->mCamOffset = endPos;
-				this->mExtrasCamOffset = endPos;
-			},
-			this ? 500 : 1);
 	}
 
 	setAnimation(anim, 0, nullptr, false, 0);
@@ -475,20 +461,23 @@ void SystemView::removeFavoriteSystem()
 
 void SystemView::manageFavorite()
 {
-	bool hasFavorite = false;
-	for (auto it = mEntries.begin(); it != mEntries.end(); it++)
-		if (it->object->isFavorite())
+	const bool hasFavorite = [this]() {
+		for (const auto& it : mEntries)
 		{
-			hasFavorite = true;
+			if (it.object->isFavorite())
+				return true;
 		}
-	SystemData* favorite = SystemData::getFavoriteSystem();
+		return false;
+	}();
+
 	if (hasFavorite)
 	{
-		if (favorite->getFavoritesCount() == 0)
+		if (SystemData::getFavoriteSystem()->getFavoritesCount() == 0)
 			removeFavoriteSystem();
 	}
 	else
 	{
+		SystemData* favorite = SystemData::getFavoriteSystem();
 		if (favorite->getFavoritesCount() > 0)
 			addSystem(favorite);
 	}

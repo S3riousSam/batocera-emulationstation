@@ -88,7 +88,7 @@ void screenscraper_generate_scraper_requests(
 {
 	std::string path = "screenscraper.recalbox.com/api/thegamedb/GetGame.php?";
 #if defined(EXTENSION)
-	const std::string languageSystem = RecalboxConf::getInstance()->get("system.language");
+	const std::string languageSystem = RecalboxConf::get("system.language");
 	if ((system_language_map.find(languageSystem)) != system_language_map.end())
 	{
 		path += (system_language_map.find(languageSystem)->second);
@@ -99,7 +99,7 @@ void screenscraper_generate_scraper_requests(
 		path += "forcelangue=en&";
 	}
 
-	std::string cleanName = params.game->getPath().filename().generic_string().c_str();
+	std::string cleanName = params.game->getPath().filename().generic_string();
 
 	path += "name=" + HttpReq::urlEncode(cleanName);
 

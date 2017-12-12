@@ -1,27 +1,11 @@
 #if defined(EXTENSION) // Created by matthieu on 12/09/15.
 #pragma once
-#include <map>
 #include <string>
 
-class RecalboxConf
+namespace RecalboxConf
 {
-public:
-	RecalboxConf();
-
-	bool loadRecalboxConf();
-
 	bool saveRecalboxConf();
-
-	std::string get(const std::string& name);
-	std::string get(const std::string& name, const std::string& defaut);
-
+	std::string get(const std::string& name, const std::string& defaut = std::string());
 	void set(const std::string& name, const std::string& value);
-
-	static RecalboxConf* sInstance;
-
-	static RecalboxConf* getInstance();
-
-private:
-	std::map<std::string, std::string> confMap;
-};
+}; // namespace RecalboxConf
 #endif

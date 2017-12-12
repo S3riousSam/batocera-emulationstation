@@ -2,7 +2,7 @@
 #include "NetworkThread.h"
 #include "LocaleES.h"
 #include "RecalboxConf.h"
-#include "RecalboxSystem.h"
+#include "SystemInterface.h"
 #include "Window.h"
 #include "guis/GuiMsgBox.h"
 
@@ -32,7 +32,7 @@ void NetworkThread::run()
 
 		boost::this_thread::sleep(delay);
 
-		if ((RecalboxConf::getInstance()->get("updates.enabled") == "1") && RecalboxSystem::getInstance()->canUpdate())
+		if ((RecalboxConf::get("updates.enabled") == "1") && SystemInterface::canUpdate())
 		{
 			mWindow.displayMessage(_("AN UPDATE IS AVAILABLE FOR BATOCERA.LINUX"));
 			mRunning = false;

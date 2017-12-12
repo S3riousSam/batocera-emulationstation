@@ -56,7 +56,7 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/animations/MoveCameraAnimation.h
 
     # Recalbox
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RecalboxSystem.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemInterface.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LibretroRatio.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.h
 )
@@ -65,6 +65,7 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileData.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileSorts.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mainEx.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MameNameMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MetaData.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PlatformId.cpp
@@ -113,9 +114,10 @@ set(ES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/views/ViewController.cpp
 
     # Recalbox
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RecalboxSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SystemInterface.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LibretroRatio.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiMenuEx.cpp
 )
 
 SOURCE_GROUP(Animations REGULAR_EXPRESSION
