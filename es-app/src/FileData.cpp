@@ -174,32 +174,28 @@ void FileData::sort(const SortType& type)
 }
 
 #if defined(EXTENSION)
-std::vector<FileData*> FileData::getFavoritesRecursive(unsigned int typeMask) const
+std::vector<FileData*> getRecursive(const char* label, unsigned int typeMask, const std::vector<FileData*>& source)
 {
 	std::vector<FileData*> out;
-	std::vector<FileData*> files = getFilesRecursive(typeMask);
+	const std::vector<FileData*>& files = source;
 
-	for (auto it = files.begin(); it != files.end(); it++)
+	for (const auto& it : files)
 	{
-		if ((*it)->metadata.get("favorite").compare("true") == 0)
-			out.push_back(*it);
+		if (it->metadata.get(label).compare("true") == 0)
+			out.push_back(it);
 	}
 
 	return out;
 }
 
+std::vector<FileData*> FileData::getFavoritesRecursive(unsigned int typeMask) const
+{
+	return getRecursive("favorite", typeMask, getFilesRecursive(typeMask));
+}
+
 std::vector<FileData*> FileData::getHiddenRecursive(unsigned int typeMask) const
 {
-	std::vector<FileData*> out;
-	std::vector<FileData*> files = getFilesRecursive(typeMask);
-
-	for (auto it = files.begin(); it != files.end(); it++)
-	{
-		if ((*it)->metadata.get("hidden").compare("true") == 0)
-			out.push_back(*it);
-	}
-
-	return out;
+	return getRecursive("hidden", typeMask, getFilesRecursive(typeMask));
 }
 
 void FileData::changePath(const boost::filesystem::path& path)
