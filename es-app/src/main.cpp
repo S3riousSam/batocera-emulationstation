@@ -276,14 +276,16 @@ int main(int argc, char* argv[])
 	// always close the log on exit
 	atexit(&onExit);
 
+#if defined(EXTENSION)
 	// Set locale
 	setLocale(argv[0]);
 
 	// other init
-	FileSorts::init(); // require locale
+	// FileSorts::init(); // require locale
 	initMetadata(); // require locale
 
 	Renderer::init(width, height);
+#endif
 	Window window;
 	ViewController::init(&window);
 	window.pushGui(ViewController::get());
