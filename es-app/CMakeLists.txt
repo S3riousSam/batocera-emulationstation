@@ -31,12 +31,9 @@ set(ES_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackupStart.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInstallStart.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiUpdate.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiUpdate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiAutoScrape.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackup.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackup.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInstall.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInstall.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiRomsManager.h
 
     # Scrapers
