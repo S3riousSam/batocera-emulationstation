@@ -35,6 +35,7 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 
 .idea/
+*.bak
 *.iml
 *.txt.user*
 

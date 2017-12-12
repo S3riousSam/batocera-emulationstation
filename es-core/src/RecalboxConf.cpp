@@ -7,11 +7,12 @@
 #include <iostream>
 
 RecalboxConf* RecalboxConf::sInstance = NULL;
-boost::regex validLine("^(?<key>[^;|#].*?)=(?<val>.*?)$");
-boost::regex commentLine("^;(?<key>.*?)=(?<val>.*?)$");
 
-std::string recalboxConfFile = "/recalbox/share/system/recalbox.conf";
-std::string recalboxConfFileTmp = "/recalbox/share/system/recalbox.conf.tmp";
+namespace
+{
+	const char* const CONFIG_FILE_PATH = "/recalbox/share/system/recalbox.conf";
+	const char* const CONFIG_FILE_PATH_TMP = "/recalbox/share/system/recalbox.conf.tmp";
+} // namespace
 
 RecalboxConf::RecalboxConf()
 {
@@ -29,13 +30,13 @@ RecalboxConf* RecalboxConf::getInstance()
 bool RecalboxConf::loadRecalboxConf()
 {
 	std::string line;
-	std::ifstream recalboxConf(recalboxConfFile);
+	std::ifstream recalboxConf(CONFIG_FILE_PATH);
 	if (recalboxConf && recalboxConf.is_open())
 	{
 		while (std::getline(recalboxConf, line))
 		{
 			boost::smatch lineInfo;
-			if (boost::regex_match(line, lineInfo, validLine))
+			if (boost::regex_match(line, lineInfo, boost::regex("^(?<key>[^;|#].*?)=(?<val>.*?)$")))
 			{
 				confMap[std::string(lineInfo["key"])] = std::string(lineInfo["val"]);
 			}
@@ -44,7 +45,7 @@ bool RecalboxConf::loadRecalboxConf()
 	}
 	else
 	{
-		LOG(LogError) << "Unable to open " << recalboxConfFile;
+		LOG(LogError) << "Unable to open " << CONFIG_FILE_PATH;
 		return false;
 	}
 	return true;
@@ -52,19 +53,17 @@ bool RecalboxConf::loadRecalboxConf()
 
 bool RecalboxConf::saveRecalboxConf()
 {
-	std::ifstream filein(recalboxConfFile); // File to read from
+	std::ifstream filein(CONFIG_FILE_PATH); // File to read from
 	if (!filein)
 	{
-		LOG(LogError) << "Unable to open for saving:  " << recalboxConfFile << "\n";
+		LOG(LogError) << "Unable to open for saving:  " << CONFIG_FILE_PATH << "\n";
 		return false;
 	}
 	// Read all lines in a vector
 	std::vector<std::string> fileLines;
 	std::string line;
 	while (std::getline(filein, line))
-	{
 		fileLines.push_back(line);
-	}
 	filein.close();
 
 	// Save new value if exists
@@ -88,10 +87,10 @@ bool RecalboxConf::saveRecalboxConf()
 			fileLines.push_back(key + "=" + val);
 		}
 	}
-	std::ofstream fileout(recalboxConfFileTmp); // Temporary file
+	std::ofstream fileout(CONFIG_FILE_PATH_TMP); // Temporary file
 	if (!fileout)
 	{
-		LOG(LogError) << "Unable to open for saving :  " << recalboxConfFileTmp << "\n";
+		LOG(LogError) << "Unable to open for saving :  " << CONFIG_FILE_PATH_TMP << "\n";
 		return false;
 	}
 	for (size_t i = 0; i < fileLines.size(); i++)
@@ -102,11 +101,11 @@ bool RecalboxConf::saveRecalboxConf()
 	fileout.close();
 
 	// Copy back the tmp to recalbox.conf
-	std::ifstream src(recalboxConfFileTmp, std::ios::binary);
-	std::ofstream dst(recalboxConfFile, std::ios::binary);
+	std::ifstream src(CONFIG_FILE_PATH_TMP, std::ios::binary);
+	std::ofstream dst(CONFIG_FILE_PATH, std::ios::binary);
 	dst << src.rdbuf();
 
-	remove(recalboxConfFileTmp.c_str());
+	remove(CONFIG_FILE_PATH_TMP);
 
 	return true;
 }
@@ -123,7 +122,6 @@ std::string RecalboxConf::get(const std::string& name, const std::string& defaut
 {
 	return confMap.count(name) != 0 ? confMap.at(name) : defaut;
 }
-
 void RecalboxConf::set(const std::string& name, const std::string& value)
 {
 	confMap[name] = value;

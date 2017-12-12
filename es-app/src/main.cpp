@@ -171,12 +171,6 @@ bool loadSystemConfigFile(const char** errorString)
 	return true;
 }
 
-// called on exit, assuming we get far enough to have the log initialized
-void onExit()
-{
-	Log::close();
-}
-
 int setLocale(char* argv1)
 {
 	char path_save[PATH_MAX];
@@ -223,9 +217,10 @@ int main(int argc, char* argv[])
 {
 	unsigned int width = 0;
 	unsigned int height = 0;
-
-	// std::locale::global(boost::locale::generator().generate(""));
-	// boost::filesystem::path::imbue(std::locale());
+#if !defined(EXTENSION)
+	std::locale::global(boost::locale::generator().generate(""));
+	boost::filesystem::path::imbue(std::locale());
+#endif
 
 	if (!parseArgs(argc, argv, &width, &height))
 		return 0;
@@ -271,16 +266,12 @@ int main(int argc, char* argv[])
 
 	// start the logger
 	Log::open();
+	atexit(&Log::close); // Always close the log on exit
 	LOG(LogInfo) << "EmulationStation - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
 
-	// always close the log on exit
-	atexit(&onExit);
-
 #if defined(EXTENSION)
-	// Set locale
 	setLocale(argv[0]);
 
-	// other init
 	// FileSorts::init(); // require locale
 	initMetadata(); // require locale
 
@@ -292,7 +283,11 @@ int main(int argc, char* argv[])
 
 	if (!scrape_cmdline)
 	{
+#if defined(EXTENSION)
 		if (!window.init(width, height, false))
+#else
+		if (!window.init(width, height))
+#endif
 		{
 			LOG(LogError) << "Window failed to initialize!";
 			return 1;
@@ -304,13 +299,13 @@ int main(int argc, char* argv[])
 
 		window.renderLoadingScreen();
 	}
-
+#if defined(EXTENSION)
 	// Initialize audio manager
 	VolumeControl::getInstance()->init();
 	AudioManager::getInstance()->init();
 
 	playSound("loading");
-
+#endif
 	const char* errorMsg = NULL;
 	if (!loadSystemConfigFile(&errorMsg))
 	{
@@ -330,7 +325,7 @@ int main(int argc, char* argv[])
 			SDL_PushEvent(quit);
 		}));
 	}
-
+#if defined(EXTENSION)
 	RecalboxConf* recalboxConf = RecalboxConf::getInstance();
 	if (recalboxConf->get("kodi.enabled") == "1" && recalboxConf->get("kodi.atstartup") == "1")
 	{
@@ -351,7 +346,7 @@ int main(int argc, char* argv[])
 	{
 		NetworkThread* nthread = new NetworkThread(window);
 	}
-
+#endif
 	// run the command line scraper then quit
 	if (scrape_cmdline)
 	{
@@ -363,7 +358,9 @@ int main(int argc, char* argv[])
 
 	// preload what we can right away instead of waiting for the user to select it
 	// this makes for no delays when accessing content, but a longer startup time
-	// ViewController::get()->preload();
+#if !defined(EXTENSION)
+	ViewController::get()->preload();
+#endif
 
 	// choose which GUI to open depending on if an input configuration already exists
 	if (errorMsg == NULL)
@@ -377,22 +374,23 @@ int main(int argc, char* argv[])
 			window.pushGui(new GuiDetectDevice(&window, true, [] { ViewController::get()->goToStart(); }));
 		}
 	}
-
+#if defined(EXTENSION)
 	// Create a flag in  temporary directory to signal READY state
 	fs::path ready_path = fs::temp_directory_path();
 	ready_path /= "emulationstation.ready";
 	FILE* ready_file = fopen(ready_path.generic_string().c_str(), "w");
 	if (ready_file)
 		fclose(ready_file);
-
+#endif
 	// generate joystick events since we're done loading
 	SDL_JoystickEventState(SDL_ENABLE);
 
 	int lastTime = SDL_GetTicks();
 	bool running = true;
+#if defined(EXTENSION)
 	bool doReboot = false;
 	bool doShutdown = false;
-
+#endif
 	while (running)
 	{
 		SDL_Event event;
@@ -415,6 +413,7 @@ int main(int argc, char* argv[])
 			case SDL_QUIT:
 				running = false;
 				break;
+#if defined(EXTENSION)
 			case RecalboxSystem::SDL_FAST_QUIT | RecalboxSystem::SDL_RB_REBOOT:
 				running = false;
 				doReboot = true;
@@ -433,6 +432,7 @@ int main(int argc, char* argv[])
 				running = false;
 				doShutdown = true;
 				break;
+#endif
 			}
 		}
 
@@ -457,18 +457,24 @@ int main(int argc, char* argv[])
 
 		Log::flush();
 	}
-
-	// Clean ready flag
+#if defined(EXTENSION)
 	if (fs::exists(ready_path))
 		fs::remove(ready_path); // Clean ready flag
-
+#endif
 	while (window.peekGui() != ViewController::get())
 		delete window.peekGui();
+#if !defined(EXTENSION)
+	window.deinit();
 
+	SystemData::deleteSystems();
+
+#else
 	window.renderShutdownScreen();
 	SystemData::deleteSystems();
 	window.deinit();
+#endif
 	LOG(LogInfo) << "EmulationStation cleanly shutting down.";
+#if defined(EXTENSION)
 	if (doReboot)
 	{
 		LOG(LogInfo) << "Rebooting system";
@@ -481,7 +487,7 @@ int main(int argc, char* argv[])
 		system("touch /tmp/shutdown.please");
 		system("shutdown -h now");
 	}
-
+#endif
 	return 0;
 }
 
