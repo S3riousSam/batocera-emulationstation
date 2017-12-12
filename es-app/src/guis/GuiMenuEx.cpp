@@ -8,6 +8,7 @@
 #include "components\SwitchComponent.h"
 #include "guis\GuiAutoScrape.h"
 #include "guis\GuiDetectDevice.h"
+#include "guis\GuiInstallStart.h"
 #include "guis\GuiMsgBox.h"
 #include "guis\GuiTextEditPopup.h"
 #include "guis\GuiTextEditPopupKeyboard.h"
@@ -591,6 +592,19 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				auto kodiSettings = std::make_shared<TextComponent>(window, _("KODI SETTINGS"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 				auto bracket = makeArrow(window);
 				row.addElement(kodiSettings, true);
+				row.addElement(bracket, false);
+				s->addRow(row);
+			}
+
+			// install
+			{
+				ComponentListRow row;
+				auto openInstallNow = [window] { window->pushGui(new GuiInstallStart(window)); };
+				row.makeAcceptInputHandler(openInstallNow);
+				auto installSettings =
+					std::make_shared<TextComponent>(window, _("INSTALL BATOCERA ON A NEW DISK"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto bracket = makeArrow(window);
+				row.addElement(installSettings, true);
 				row.addElement(bracket, false);
 				s->addRow(row);
 			}
