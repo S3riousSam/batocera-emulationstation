@@ -267,27 +267,7 @@ std::pair<std::string, int> SystemInterface::backupSystem(BusyComponent* ui, con
 
 std::pair<std::string, int> SystemInterface::installSystem(BusyComponent* ui, const std::string& device, const std::string& architecture)
 {
-    std::string updatecommand = std::string("/recalbox/scripts/recalbox-install.sh install ") + device + " " + architecture;
-    FILE* pipe = popen(updatecommand.c_str(), "r");
-    char line[1024] = "";
-    if (pipe == NULL)
-    {
-        return std::pair<std::string, int>(std::string("Cannot call install command"), -1);
-    }
-
-    FILE* flog = fopen("/recalbox/share/system/logs/recalbox-install.log", "w");
-    while (fgets(line, 1024, pipe))
-    {
-        strtok(line, "\n");
-        if (flog != NULL)
-            fprintf(flog, "%s\n", line);
-        ui->setText(std::string(line));
-    }
-    if (flog != NULL)
-        fclose(flog);
-
-    int exitCode = pclose(pipe);
-    return std::pair<std::string, int>(std::string(line), exitCode);
+	return executeCommand(*ui, std::string("/recalbox/scripts/recalbox-sync.sh sync ") + device + " " + architecture);
 }
 
 std::pair<std::string, int> SystemInterface::scrape(BusyComponent* ui)
@@ -539,7 +519,6 @@ std::vector<std::string> SystemInterface::getAvailableInstallDevices()
 		res.push_back(std::string(line));
 	}
 	pclose(pipe);
-
 	return res;
 }
 
@@ -562,7 +541,6 @@ std::vector<std::string> SystemInterface::getAvailableInstallArchitectures()
 		res.push_back(std::string(line));
 	}
 	pclose(pipe);
-
 	return res;
 }
 
