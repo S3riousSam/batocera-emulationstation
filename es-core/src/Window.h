@@ -36,11 +36,10 @@ public:
 	void setAllowSleep(bool sleep);
 
 	void renderLoadingScreen();
+	void renderShutdownScreen();
 
 	void renderHelpPromptsEarly(); // used to render HelpPrompts before a fade
 	void setHelpPrompts(const std::vector<HelpPrompt>& prompts, const HelpStyle& style);
-
-	void renderShutdownScreen();
 
 private:
 	void onSleep();
@@ -49,7 +48,6 @@ private:
 
 	// Returns true if at least one component on the stack is processing
 	bool isProcessing();
-	void renderScreenSaver();
 
 	HelpComponent* mHelp;
 	ImageComponent* mBackgroundOverlay;

@@ -255,9 +255,15 @@ void Window::render()
 	const unsigned int screensaverTime = (unsigned int)Settings::getInstance()->getInt("ScreenSaverTime");
 	if (mTimeSinceLastInput >= screensaverTime && screensaverTime != 0)
 	{
-		renderScreenSaver();
+#if defined(EXTENSION)
+		{ // Render screen saver
+			Renderer::setMatrix(Eigen::Affine3f::Identity());
+			unsigned char opacity = Settings::getInstance()->getString("ScreenSaverBehavior") == "dim" ? 0xA0 : 0xFF;
+			Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x00000000 | opacity);
+		}
 
 		if (!isProcessing() && mAllowSleep)
+#endif
 		{
 			// go to sleep
 			mSleeping = true;
@@ -402,11 +408,4 @@ void Window::renderShutdownScreen()
 bool Window::isProcessing()
 {
 	return count_if(mGuiStack.begin(), mGuiStack.end(), [](GuiComponent* c) { return c->isProcessing(); }) > 0;
-}
-
-void Window::renderScreenSaver()
-{
-	Renderer::setMatrix(Eigen::Affine3f::Identity());
-	unsigned char opacity = Settings::getInstance()->getString("ScreenSaverBehavior") == "dim" ? 0xA0 : 0xFF;
-	Renderer::drawRect(0, 0, Renderer::getScreenWidth(), Renderer::getScreenHeight(), 0x00000000 | opacity);
 }
