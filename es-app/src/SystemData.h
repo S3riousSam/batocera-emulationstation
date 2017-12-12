@@ -9,10 +9,21 @@
 
 class SystemData
 {
+private:
+	friend SystemData* createSystem(pugi::xml_node system);
+	SystemData(const std::string& name, const std::string& fullName, const std::string& startPath, const std::vector<std::string>& extensions,
+		const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder
+#if defined(EXTENSION)
+		,
+		std::map<std::string, std::vector<std::string>*>* emulators
+#endif
+	);
+
+#if defined(EXTENSION)
+	SystemData(const std::string& name, const std::string& fullName, const std::string& command, const std::string& themeFolder,
+		std::vector<SystemData*>* systems);
+#endif
 public:
-	SystemData(std::string name, std::string fullName, std::string startPath, std::vector<std::string> extensions, std::string command,
-		std::vector<PlatformIds::PlatformId> platformIds, std::string themeFolder, std::map<std::string, std::vector<std::string>*>* map);
-	SystemData(std::string name, std::string fullName, std::string command, std::string themeFolder, std::vector<SystemData*>* systems);
 	~SystemData();
 
 	inline FileData* getRootFolder() const
@@ -86,7 +97,7 @@ public:
 	// Loads the system config file at getConfigPath() returning true if no errors were encountered.
 	// An example will be written if the file doesn't exist.
 	static bool loadConfig();
-	static void writeExampleConfig(const std::string& path);
+
 	static std::string getConfigPath(
 		bool forWrite); // if forWrite, will only return ~/.emulationstation/es_systems.cfg, never /etc/emulationstation/es_systems.cfg
 
@@ -125,17 +136,17 @@ public:
 	void loadTheme(); // Load or re-load theme.
 #if defined(EXTENSION)
 	void refreshRootFolder(); // refresh the ROMs files
-	std::map<std::string, std::vector<std::string>*>* getEmulators();
+	const std::map<std::string, std::vector<std::string>*>* getEmulators() const;
 #endif
 
 private:
-	std::string mName;
-	std::string mFullName;
-	std::string mStartPath;
-	std::vector<std::string> mSearchExtensions;
-	std::string mLaunchCommand;
+	const std::string mName;
+	const std::string mFullName;
+	const std::string mStartPath;
+	const std::vector<std::string> mSearchExtensions;
+	const std::string mLaunchCommand;
 	std::vector<PlatformIds::PlatformId> mPlatformIds;
-	std::string mThemeFolder;
+	const std::string mThemeFolder;
 	std::shared_ptr<ThemeData> mTheme;
 #if defined(EXTENSION)
 	bool mHasFavorites;
@@ -145,6 +156,6 @@ private:
 
 	FileData* mRootFolder;
 #if defined(EXTENSION)
-	std::map<std::string, std::vector<std::string>*>* mEmulators;
+	const std::map<std::string, std::vector<std::string>*>* mEmulators;
 #endif
 };

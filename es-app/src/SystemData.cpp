@@ -24,29 +24,83 @@ std::vector<SystemData*> SystemData::sSystemVector;
 
 namespace fs = boost::filesystem;
 
-SystemData::SystemData(std::string name, std::string fullName, std::string startPath, std::vector<std::string> extensions, std::string command,
-	std::vector<PlatformIds::PlatformId> platformIds, std::string themeFolder, std::map<std::string, std::vector<std::string>*>* emulators)
+namespace
 {
-	mName = name;
-	mFullName = fullName;
-	mStartPath = getExpandedPath(startPath);
-	mEmulators = emulators;
-
-	// make it absolute if needed
+	void writeExampleConfig(const std::string& path)
 	{
-		const std::string defaultRomsPath = getExpandedPath(Settings::getInstance()->getString("DefaultRomsPath"));
+		std::ofstream file(path.c_str());
 
-		if (!defaultRomsPath.empty())
-		{
-			mStartPath = fs::absolute(mStartPath, defaultRomsPath).generic_string();
-		}
+		file << "<!-- This is the EmulationStation Systems configuration file.\n"
+				"All systems must be contained within the <systemList> tag.-->\n"
+				"\n"
+				"<systemList>\n"
+				"	<!-- Here's an example system to get you started. -->\n"
+				"	<system>\n"
+				"\n"
+				"		<!-- A short name, used internally. Traditionally lower-case. -->\n"
+				"		<name>nes</name>\n"
+				"\n"
+				"		<!-- A \"pretty\" name, displayed in menus and such. -->\n"
+				"		<fullname>Nintendo Entertainment System</fullname>\n"
+				"\n"
+				"		<!-- The path to start searching for ROMs in. '~' will be expanded to $HOME on Linux or %HOMEPATH% on Windows. -->\n"
+				"		<path>~/roms/nes</path>\n"
+				"\n"
+				"		<!-- A list of extensions to search for, delimited by any of the whitespace characters (\", \\r\\n\\t\").\n"
+				"		You MUST include the period at the start of the extension! It's also case sensitive. -->\n"
+				"		<extension>.nes .NES</extension>\n"
+				"\n"
+				"		<!-- The shell command executed when a game is selected. A few special tags are replaced if found in a command:\n"
+				"		%ROM% is replaced by a bash-special-character-escaped absolute path to the ROM.\n"
+				"		%BASENAME% is replaced by the \"base\" name of the ROM.  For example, \"/foo/bar.rom\" would have a basename of \"bar\". "
+				"Useful for MAME.\n"
+				"		%ROM_RAW% is the raw, unescaped path to the ROM. -->\n"
+				"		<command>retroarch -L ~/cores/libretro-fceumm.so %ROM%</command>\n"
+				"\n"
+				"		<!-- The platform to use when scraping. You can see the full list of accepted platforms in src/PlatformIds.cpp.\n"
+				"		It's case sensitive, but everything is lowercase. This tag is optional.\n"
+				"		You can use multiple platforms too, delimited with any of the whitespace characters (\", \\r\\n\\t\"), eg: \"genesis, "
+				"megadrive\" -->\n"
+				"		<platform>nes</platform>\n"
+				"\n"
+				"		<!-- The theme to load from the current theme set.  See THEMES.md for more information.\n"
+				"		This tag is optional. If not set, it will default to the value of <name>. -->\n"
+				"		<theme>nes</theme>\n"
+				"	</system>\n"
+				"</systemList>\n";
+
+		file.close();
+
+		LOG(LogError) << "Example config written!  Go read it at \"" << path << "\"!";
 	}
 
-	mSearchExtensions = extensions;
-	mLaunchCommand = command;
-	mPlatformIds = platformIds;
-	mThemeFolder = themeFolder;
+	std::string GetStartPath(const std::string& path)
+	{
+		const std::string defaultRomsPath = getExpandedPath(Settings::getInstance()->getString("DefaultRomsPath"));
+		return defaultRomsPath.empty() ? path : fs::absolute(path, defaultRomsPath).generic_string();
+	}
+} // namespace
 
+SystemData::SystemData(const std::string& name, const std::string& fullName, const std::string& startPath, const std::vector<std::string>& extensions,
+	const std::string& command, const std::vector<PlatformIds::PlatformId>& platformIds, const std::string& themeFolder
+#if defined(EXTENSION)
+	,
+	std::map<std::string, std::vector<std::string>*>* emulators
+#endif
+	)
+	: mName(name)
+	, mFullName(fullName)
+#if defined(EXTENSION)
+	, mStartPath(GetStartPath(getExpandedPath(startPath)))
+	, mEmulators(emulators)
+#else
+	, mStartPath(startPath)
+#endif
+	, mSearchExtensions(extensions)
+	, mLaunchCommand(command)
+	, mPlatformIds(platformIds)
+	, mThemeFolder(themeFolder)
+{
 	mRootFolder = new FileData(FOLDER, mStartPath, this);
 	mRootFolder->metadata.set("name", mFullName);
 
@@ -57,29 +111,26 @@ SystemData::SystemData(std::string name, std::string fullName, std::string start
 		parseGamelist(this);
 
 	mRootFolder->sort(FileSorts::SortTypes.at(0));
+#if defined(EXTENSION)
 	mIsFavorite = false;
 	loadTheme();
+#endif
 }
 
-SystemData::SystemData(std::string name, std::string fullName, std::string command, std::string themeFolder, std::vector<SystemData*>* systems)
+#if defined(EXTENSION)
+SystemData::SystemData(const std::string& name, const std::string& fullName, const std::string& command, const std::string& themeFolder, std::vector<SystemData*>* systems)
+	: mName(name)
+	, mFullName(fullName)
+	, mLaunchCommand(command)
+	, mThemeFolder(themeFolder)
 {
-	mName = name;
-	mFullName = fullName;
-	mStartPath = "";
-
-	mLaunchCommand = command;
-	mThemeFolder = themeFolder;
-
 	mRootFolder = new FileData(FOLDER, mStartPath, this);
 	mRootFolder->metadata.set("name", mFullName);
 
-	for (auto system = systems->begin(); system != systems->end(); system++)
+	for (const auto& system : *systems)
 	{
-		std::vector<FileData*> favorites = (*system)->getFavorites();
-		for (auto favorite = favorites.begin(); favorite != favorites.end(); favorite++)
-		{
-			mRootFolder->addAlreadyExisitingChild((*favorite));
-		}
+		for (auto favorite : system->getFavorites())
+			mRootFolder->addAlreadyExisitingChild(favorite);
 	}
 
 	if (mRootFolder->getChildren().size())
@@ -88,22 +139,19 @@ SystemData::SystemData(std::string name, std::string fullName, std::string comma
 	mPlatformIds.push_back(PlatformIds::PLATFORM_IGNORE);
 	loadTheme();
 }
+#endif
 
 SystemData::~SystemData()
 {
 	// save changed game data back to xml
 	if (!Settings::getInstance()->getBool("IgnoreGamelist"))
 		updateGamelist(this);
+#if defined(EXTENSION)
+	for (const auto& it : *mEmulators)
+		delete it.second;
+	delete mEmulators;
+#endif
 	delete mRootFolder;
-}
-
-std::string strreplace(std::string str, const std::string& replace, const std::string& with)
-{
-	size_t pos;
-	while ((pos = str.find(replace)) != std::string::npos)
-		str = str.replace(pos, replace.length(), with.c_str(), with.length());
-
-	return str;
 }
 
 // plaform-specific escape path function
@@ -142,6 +190,17 @@ std::string escapePath(const boost::filesystem::path& path)
 
 void SystemData::launchGame(Window* window, FileData* game)
 {
+	struct Local
+	{
+		static std::string replaceAll(std::string str, const std::string& replace, const std::string& with)
+		{
+			size_t pos;
+			while ((pos = str.find(replace)) != std::string::npos)
+				str = str.replace(pos, replace.length(), with.c_str(), with.length());
+			return str;
+		}
+	};
+
 	LOG(LogInfo) << "Attempting to launch game...";
 
 	AudioManager::getInstance()->deinit();
@@ -157,14 +216,16 @@ void SystemData::launchGame(Window* window, FileData* game)
 	const std::string rom_raw = fs::path(game->getPath()).make_preferred().string();
 
 	std::string command = mLaunchCommand;
-	command = strreplace(command, "%ROM%", rom);
-	command = strreplace(command, "%CONTROLLERSCONFIG%", controlersConfig);
-	command = strreplace(command, "%SYSTEM%", game->metadata.get("system"));
-	command = strreplace(command, "%BASENAME%", basename);
-	command = strreplace(command, "%ROM_RAW%", rom_raw);
-	command = strreplace(command, "%EMULATOR%", game->metadata.get("emulator"));
-	command = strreplace(command, "%CORE%", game->metadata.get("core"));
-	command = strreplace(command, "%RATIO%", game->metadata.get("ratio"));
+	command = Local::replaceAll(command, "%ROM%", rom);
+	command = Local::replaceAll(command, "%BASENAME%", basename);
+	command = Local::replaceAll(command, "%ROM_RAW%", rom_raw);
+#if defined(EXTENSION)
+	command = Local::replaceAll(command, "%CONTROLLERSCONFIG%", controlersConfig);
+	command = Local::replaceAll(command, "%SYSTEM%", game->metadata.get("system"));
+	command = Local::replaceAll(command, "%EMULATOR%", game->metadata.get("emulator"));
+	command = Local::replaceAll(command, "%CORE%", game->metadata.get("core"));
+	command = Local::replaceAll(command, "%RATIO%", game->metadata.get("ratio"));
+#endif
 
 	LOG(LogInfo) << "	" << command;
 	std::cout << "==============================================\n";
@@ -215,86 +276,70 @@ std::vector<std::string> readList(const std::string& str, const char* delims = "
 	return result;
 }
 
-SystemData* createSystem(pugi::xml_node* systemsNode, int index)
+struct SystemInfo
 {
-	std::string name, fullname, path, cmd, themeFolder;
+	std::string name;
+	std::string fullname;
+	std::string path;
+	std::vector<std::string> extensions;
+	std::string command;
+	std::vector<PlatformIds::PlatformId> platforms;
+	std::string theme;
+	std::map<std::string, std::vector<std::string>> emulators; // emulators/cores
+};
 
-	int myIndex = 0;
-	pugi::xml_node* system = nullptr;
-	for (pugi::xml_node systemIn = systemsNode->child("system"); systemIn; systemIn = systemIn.next_sibling("system"))
-	{
-		if (myIndex >= index)
-		{
-			system = &(systemIn);
-			break;
-		}
-		myIndex++;
-	}
+#if defined(EXTENSION) || !defined(EXTENSION)
+SystemData* createSystem(pugi::xml_node system)
+{
+	const std::string name = system.child("name").text().get();
+	const std::string fullname = system.child("fullname").text().get();
+	const std::string path = [](std::string path) {
+		return path.empty() ? path : boost::filesystem::path(path).generic_string(); // convert path to generic directory separators
+	}(system.child("path").text().get());
 
-	if (system == nullptr)
-		return nullptr;
+	const std::vector<std::string> extensions = readList(system.child("extension").text().get());
 
-	name = system->child("name").text().get();
-	fullname = system->child("fullname").text().get();
-	path = system->child("path").text().get();
+	const std::string cmd = system.child("command").text().get();
 
-	// convert extensions list from a string into a vector of strings
-	std::vector<std::string> extensions = readList(system->child("extension").text().get());
-
-	cmd = system->child("command").text().get();
-
-	// platform id list
-	const char* platformList = system->child("platform").text().get();
-	std::vector<std::string> platformStrs = readList(platformList);
-	std::vector<PlatformIds::PlatformId> platformIds;
-	for (auto it = platformStrs.begin(); it != platformStrs.end(); it++)
-	{
-		const char* str = it->c_str();
-		PlatformIds::PlatformId platformId = PlatformIds::getPlatformId(str);
-
-		if (platformId == PlatformIds::PLATFORM_IGNORE)
-		{
-			// when platform is ignore, do not allow other platforms
-			platformIds.clear();
-			platformIds.push_back(platformId);
-			break;
-		}
-
-		// if there appears to be an actual platform ID supplied but it didn't match the list, warn
-		if (str != NULL && str[0] != '\0' && platformId == PlatformIds::PLATFORM_UNKNOWN)
-			LOG(LogWarning) << "  Unknown platform for system \"" << name << "\" (platform \"" << str << "\" from list \"" << platformList << "\")";
-		else if (platformId != PlatformIds::PLATFORM_UNKNOWN)
-			platformIds.push_back(platformId);
-	}
-
-	// theme folder
-	themeFolder = system->child("theme").text().as_string(name.c_str());
-
-	// validate
-	if (name.empty() || path.empty() || extensions.empty() || cmd.empty())
+	if (name.empty() || path.empty() || extensions.empty() || cmd.empty()) // validate
 	{
 		LOG(LogError) << "System \"" << name << "\" is missing name, path, extension, or command!";
 		return NULL;
 	}
 
-	// convert path to generic directory seperators
-	boost::filesystem::path genericPath(path);
-	path = genericPath.generic_string();
+	// platform id list
+	const char* platformList = system.child("platform").text().get();
+	std::vector<PlatformIds::PlatformId> platformIds;
+	for (const auto& it : readList(platformList))
+	{
+		const PlatformIds::PlatformId platformId = PlatformIds::getPlatformId(it.c_str());
+		if (platformId == PlatformIds::PLATFORM_IGNORE)
+		{
+			platformIds.clear(); // Do not allow other platforms
+			platformIds.push_back(platformId);
+			break;
+		}
+
+		// if there appears to be an actual platform ID supplied but it didn't match the list, warn
+		if (it.c_str() != NULL && it.c_str()[0] != '\0' && platformId == PlatformIds::PLATFORM_UNKNOWN)
+			LOG(LogWarning) << "  Unknown platform for system \"" << name << "\" (platform \"" << it.c_str() << "\" from list \"" << platformList
+							<< "\")";
+		else if (platformId != PlatformIds::PLATFORM_UNKNOWN)
+			platformIds.push_back(platformId);
+	}
+
+	// theme folder
+	const std::string themeFolder = system.child("theme").text().as_string(name.c_str());
 
 #if defined(EXTENSION)
 	// emulators and cores
 	std::map<std::string, std::vector<std::string>*>* systemEmulators = new std::map<std::string, std::vector<std::string>*>();
-	pugi::xml_node emulatorsNode = system->child("emulators");
-	for (pugi::xml_node emuNode = emulatorsNode.child("emulator"); emuNode; emuNode = emuNode.next_sibling("emulator"))
+	for (const auto& node : system.child("emulators").children("emulator"))
 	{
-		std::string emulatorName = emuNode.attribute("name").as_string();
+		const std::string emulatorName = node.attribute("name").as_string();
 		(*systemEmulators)[emulatorName] = new std::vector<std::string>();
-		pugi::xml_node coresNode = emuNode.child("cores");
-		for (pugi::xml_node coreNode = coresNode.child("core"); coreNode; coreNode = coreNode.next_sibling("core"))
-		{
-			std::string corename = coreNode.text().as_string();
-			(*systemEmulators)[emulatorName]->push_back(corename);
-		}
+		for (const auto& coreNode : node.child("cores").children("core"))
+			(*systemEmulators)[emulatorName]->push_back(coreNode.text().as_string());
 	}
 
 //  pugi::xml_node emulatorsNode = system.child("emulators");
@@ -326,6 +371,7 @@ SystemData* createSystem(pugi::xml_node* systemsNode, int index)
 		return newSys;
 	}
 }
+#endif
 
 // creates systems from information located in a config file
 bool SystemData::loadConfig()
@@ -366,14 +412,13 @@ bool SystemData::loadConfig()
 	for (int i = 0; i < 4; i++)
 		threadpool.create_thread(boost::bind(&boost::asio::io_service::run, &ioService));
 
-	int index = 0;
 	std::vector<boost::unique_future<SystemData*>> pending_data;
 	for (pugi::xml_node system = systemList.child("system"); system; system = system.next_sibling("system"))
 	{
 		LOG(LogInfo) << "creating thread for system " << system.child("name").text().get();
 
 		typedef boost::packaged_task<SystemData*> task_t;
-		boost::shared_ptr<task_t> task = boost::make_shared<task_t>(boost::bind(&createSystem, &systemList, index++));
+		boost::shared_ptr<task_t> task = boost::make_shared<task_t>(boost::bind(&createSystem, system));
 		boost::unique_future<SystemData*> fut = task->get_future();
 		pending_data.push_back(std::move(fut));
 		ioService.post(boost::bind(&task_t::operator(), task));
@@ -410,60 +455,6 @@ bool SystemData::loadConfig()
 	return true;
 }
 
-void SystemData::writeExampleConfig(const std::string& path)
-{
-	std::ofstream file(path.c_str());
-
-	file << "<!-- This is the EmulationStation Systems configuration file.\n"
-			"All systems must be contained within the <systemList> tag.-->\n"
-			"\n"
-			"<systemList>\n"
-			"	<!-- Here's an example system to get you started. -->\n"
-			"	<system>\n"
-			"\n"
-			"		<!-- A short name, used internally. Traditionally lower-case. -->\n"
-			"		<name>nes</name>\n"
-			"\n"
-			"		<!-- A \"pretty\" name, displayed in menus and such. -->\n"
-			"		<fullname>Nintendo Entertainment System</fullname>\n"
-			"\n"
-			"		<!-- The path to start searching for ROMs in. '~' will be expanded to $HOME on Linux or %HOMEPATH% on Windows. -->\n"
-			"		<path>~/roms/nes</path>\n"
-			"\n"
-			"		<!-- A list of extensions to search for, delimited by any of the whitespace characters (\", \\r\\n\\t\").\n"
-			"		You MUST include the period at the start of the extension! It's also case sensitive. -->\n"
-			"		<extension>.nes .NES</extension>\n"
-			"\n"
-			"		<!-- The shell command executed when a game is selected. A few special tags are replaced if found in a command:\n"
-			"		%ROM% is replaced by a bash-special-character-escaped absolute path to the ROM.\n"
-			"		%BASENAME% is replaced by the \"base\" name of the ROM.  For example, \"/foo/bar.rom\" would have a basename of \"bar\". Useful "
-			"for MAME.\n"
-			"		%ROM_RAW% is the raw, unescaped path to the ROM. -->\n"
-			"		<command>retroarch -L ~/cores/libretro-fceumm.so %ROM%</command>\n"
-			"\n"
-			"		<!-- The platform to use when scraping. You can see the full list of accepted platforms in src/PlatformIds.cpp.\n"
-			"		It's case sensitive, but everything is lowercase. This tag is optional.\n"
-			"		You can use multiple platforms too, delimited with any of the whitespace characters (\", \\r\\n\\t\"), eg: \"genesis, megadrive\" "
-			"-->\n"
-			"		<platform>nes</platform>\n"
-			"\n"
-			"		<!-- The theme to load from the current theme set.  See THEMES.md for more information.\n"
-			"		This tag is optional. If not set, it will default to the value of <name>. -->\n"
-			"		<theme>nes</theme>\n"
-			"	</system>\n"
-			"</systemList>\n";
-
-	file.close();
-
-	LOG(LogError) << "Example config written!  Go read it at \"" << path << "\"!";
-}
-
-bool deleteSystem(SystemData* system)
-{
-	delete system;
-	return true; // TODO: REVIEW
-}
-
 void SystemData::deleteSystems()
 {
 #if defined(EXTENSION)
@@ -485,9 +476,14 @@ void SystemData::deleteSystems()
 			if (!(sSystemVector.at(i))->isFavorite())
 			{
 				typedef boost::packaged_task<bool> task_t;
-				boost::shared_ptr<task_t> task = boost::make_shared<task_t>(boost::bind(&deleteSystem, sSystemVector.at(i)));
-				boost::unique_future<bool> fut = task->get_future();
-				pending_data.push_back(std::move(fut));
+				boost::shared_ptr<task_t> task = boost::make_shared<task_t>(boost::bind<bool>(
+					[](SystemData* system) {
+						delete system;
+						return true;
+					},
+					sSystemVector.at(i)));
+				// boost::unique_future<bool> fut = ;
+				pending_data.push_back(std::move(task->get_future()));
 				ioService.post(boost::bind(&task_t::operator(), task));
 			}
 		}
@@ -600,7 +596,7 @@ void SystemData::refreshRootFolder()
 	mRootFolder->sort(FileSorts::SortTypes.at(0));
 }
 
-std::map<std::string, std::vector<std::string>*>* SystemData::getEmulators()
+const std::map<std::string, std::vector<std::string>*>* SystemData::getEmulators() const
 {
 	return mEmulators;
 }
