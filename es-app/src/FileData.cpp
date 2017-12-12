@@ -127,6 +127,53 @@ std::vector<FileData*> FileData::getFilesRecursive(unsigned int typeMask) const
 	return out;
 }
 
+void FileData::addChild(FileData* file)
+{
+	assert(mType == FOLDER);
+	assert(file->getParent() == NULL);
+
+	mChildren.push_back(file);
+	file->mParent = this;
+}
+
+void FileData::removeChild(FileData* file)
+{
+	assert(mType == FOLDER);
+	assert(file->getParent() == this);
+
+	for (auto it = mChildren.begin(); it != mChildren.end(); it++)
+	{
+		if (*it == file)
+		{
+			mChildren.erase(it);
+			return;
+		}
+	}
+
+	// File somehow wasn't in our children.
+	assert(false);
+}
+
+void FileData::sort(ComparisonFunction& comparator, bool ascending)
+{
+	std::sort(mChildren.begin(), mChildren.end(), comparator);
+
+	for (auto& child : mChildren)
+	{
+		if (child->getChildren().size() > 0)
+			child->sort(comparator, ascending); // Recursive call
+	}
+
+	if (!ascending)
+		std::reverse(mChildren.begin(), mChildren.end());
+}
+
+void FileData::sort(const SortType& type)
+{
+	sort(*type.comparisonFunction, type.ascending);
+}
+
+#if defined(EXTENSION)
 std::vector<FileData*> FileData::getFavoritesRecursive(unsigned int typeMask) const
 {
 	std::vector<FileData*> out;
@@ -135,9 +182,7 @@ std::vector<FileData*> FileData::getFavoritesRecursive(unsigned int typeMask) co
 	for (auto it = files.begin(); it != files.end(); it++)
 	{
 		if ((*it)->metadata.get("favorite").compare("true") == 0)
-		{
 			out.push_back(*it);
-		}
 	}
 
 	return out;
@@ -151,9 +196,7 @@ std::vector<FileData*> FileData::getHiddenRecursive(unsigned int typeMask) const
 	for (auto it = files.begin(); it != files.end(); it++)
 	{
 		if ((*it)->metadata.get("hidden").compare("true") == 0)
-		{
 			out.push_back(*it);
-		}
 	}
 
 	return out;
@@ -168,15 +211,6 @@ void FileData::changePath(const boost::filesystem::path& path)
 	// metadata needs at least a name field (since that's what getName() will return)
 	if (metadata.get("name").empty())
 		metadata.set("name", getCleanName());
-}
-
-void FileData::addChild(FileData* file)
-{
-	assert(mType == FOLDER);
-	assert(file->getParent() == NULL);
-
-	mChildren.push_back(file);
-	file->mParent = this;
 }
 
 void FileData::addAlreadyExisitingChild(FileData* file)
@@ -199,24 +233,6 @@ void FileData::removeAlreadyExisitingChild(FileData* file)
 	assert(false); // File somehow wasn't in our children.
 }
 
-void FileData::removeChild(FileData* file)
-{
-	assert(mType == FOLDER);
-	assert(file->getParent() == this);
-
-	for (auto it = mChildren.begin(); it != mChildren.end(); it++)
-	{
-		if (*it == file)
-		{
-			mChildren.erase(it);
-			return;
-		}
-	}
-
-	// File somehow wasn't in our children.
-	assert(false);
-}
-
 void FileData::clear()
 {
 	while (mChildren.size())
@@ -227,25 +243,6 @@ void FileData::lazyPopulate(const std::vector<std::string>& searchExtensions, Sy
 {
 	clear();
 	populateFolder(this, searchExtensions, systemData);
-}
-
-void FileData::sort(ComparisonFunction& comparator, bool ascending)
-{
-	std::sort(mChildren.begin(), mChildren.end(), comparator);
-
-	for (auto it = mChildren.begin(); it != mChildren.end(); it++)
-	{
-		if ((*it)->getChildren().size() > 0)
-			(*it)->sort(comparator, ascending);
-	}
-
-	if (!ascending)
-		std::reverse(mChildren.begin(), mChildren.end());
-}
-
-void FileData::sort(const SortType& type)
-{
-	sort(*type.comparisonFunction, type.ascending);
 }
 
 void FileData::populateFolder(FileData* folder, const std::vector<std::string>& searchExtensions, SystemData* systemData)
@@ -366,3 +363,4 @@ void FileData::populateRecursiveFolder(FileData* folder, const std::vector<std::
 		}
 	}
 }
+#endif
