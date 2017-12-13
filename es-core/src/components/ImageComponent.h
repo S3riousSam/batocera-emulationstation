@@ -19,6 +19,8 @@ public:
 	// Use an already existing texture.
 	void setImage(const std::shared_ptr<TextureResource>& texture);
 
+	void resetImage();
+
 	void onSizeChanged() override;
 	void setOpacity(unsigned char opacity) override;
 

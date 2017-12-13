@@ -75,6 +75,11 @@ void TextComponent::setText(const std::string& text)
 	onTextChanged();
 }
 
+void TextComponent::resetText()
+{
+	setText(std::string());
+}
+
 void TextComponent::setUppercase(bool uppercase)
 {
 	mUppercase = uppercase;

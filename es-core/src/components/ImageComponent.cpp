@@ -140,6 +140,11 @@ void ImageComponent::setImage(const std::shared_ptr<TextureResource>& texture)
 	resize();
 }
 
+void ImageComponent::resetImage()
+{
+	mTexture.reset();
+}
+
 void ImageComponent::setOrigin(float originX, float originY)
 {
 	mOrigin << originX, originY;

@@ -1,6 +1,4 @@
-#ifndef _TEXTCOMPONENT_H_
-#define _TEXTCOMPONENT_H_
-
+#pragma once
 #include "GuiComponent.h"
 #include "resources/Font.h"
 
@@ -22,6 +20,7 @@ public:
 	void setUppercase(bool uppercase);
 	void onSizeChanged() override;
 	void setText(const std::string& text);
+    void resetText();
 	void setColor(unsigned int color);
 	void setAlignment(Alignment align);
 	void setLineSpacing(float spacing);
@@ -57,5 +56,3 @@ private:
 	Alignment mAlignment;
 	float mLineSpacing;
 };
-
-#endif
