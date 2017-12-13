@@ -409,7 +409,7 @@ void ScraperSearchComponent::update(int deltaTime)
 		updateThumbnail();
 	}
 
-	if (mSearchHandle && mSearchHandle->status() != ASYNC_IN_PROGRESS)
+	if (mSearchHandle && mSearchHandle->status() != AsyncHandleStatus::Progressing)
 	{
 		auto status = mSearchHandle->status();
 		auto results = mSearchHandle->getResults();
@@ -419,19 +419,19 @@ void ScraperSearchComponent::update(int deltaTime)
 		// another search() which will set our mSearchHandle to something important
 		mSearchHandle.reset();
 
-		if (status == ASYNC_DONE)
+		if (status == AsyncHandleStatus::Done)
 		{
 			onSearchDone(results);
 		}
-		else if (status == ASYNC_ERROR)
+		else if (status == AsyncHandleStatus::Error)
 		{
 			onSearchError(statusString);
 		}
 	}
 
-	if (mMDResolveHandle && mMDResolveHandle->status() != ASYNC_IN_PROGRESS)
+	if (mMDResolveHandle && mMDResolveHandle->status() != AsyncHandleStatus::Progressing)
 	{
-		if (mMDResolveHandle->status() == ASYNC_DONE)
+		if (mMDResolveHandle->status() == AsyncHandleStatus::Done)
 		{
 			ScraperSearchResult result = mMDResolveHandle->getResult();
 			mMDResolveHandle.reset();
@@ -439,7 +439,7 @@ void ScraperSearchComponent::update(int deltaTime)
 			// this might end in us being deleted, depending on mAcceptCallback - so make sure this is the last thing we do in update()
 			returnResult(result);
 		}
-		else if (mMDResolveHandle->status() == ASYNC_ERROR)
+		else if (mMDResolveHandle->status() == AsyncHandleStatus::Error)
 		{
 			onSearchError(mMDResolveHandle->getStatusString());
 			mMDResolveHandle.reset();

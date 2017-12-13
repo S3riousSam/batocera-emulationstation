@@ -82,19 +82,20 @@ private:
 };
 
 // a request to get a list of results
-class ScraperSearchHandle : public AsyncHandle
+class ScraperSearchHandle final : public AsyncHandle
 {
 public:
 	ScraperSearchHandle();
 
 	void update();
+
 	inline const std::vector<ScraperSearchResult>& getResults() const
 	{
-		assert(mStatus != ASYNC_IN_PROGRESS);
+		assert(mStatus != AsyncHandleStatus::Progressing);
 		return mResults;
 	}
 
-protected:
+private:
 	friend std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params);
 
 	std::queue<std::unique_ptr<ScraperRequest>> mRequestQueue;
@@ -124,7 +125,7 @@ public:
 	void update() override;
 	inline const ScraperSearchResult& getResult() const
 	{
-		assert(mStatus == ASYNC_DONE);
+		assert(mStatus == AsyncHandleStatus::Done);
 		return mResult;
 	}
 

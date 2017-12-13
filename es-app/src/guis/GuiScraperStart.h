@@ -26,6 +26,7 @@ public:
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
+	void pressedStart();
 	void start();
 	std::queue<ScraperSearchParams> getSearches(std::vector<SystemData*> systems, GameFilterFunc selector);
 

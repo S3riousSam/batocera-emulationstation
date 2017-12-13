@@ -21,15 +21,15 @@ GuiScraperStart::GuiScraperStart(Window* window)
 	// add filters (with first one selected)
 	mFilters = std::make_shared<OptionListComponent<GameFilterFunc>>(mWindow, _("SCRAPE THESE GAMES"), false);
 	mFilters->add(_("All Games"), [](SystemData*, FileData*) { return true; }, false);
-	mFilters->add(_("Only missing image"), [](SystemData*, FileData* g) { return g->metadata.get("image").empty(); }, true);
+	mFilters->add(_("Only missing image"), [](SystemData*, FileData* fd) { return fd->metadata.get("image").empty(); }, true);
 	mMenu.addWithLabel(_("FILTER"), mFilters);
 
 	// add systems (all with a platform id specified selected)
 	mSystems = std::make_shared<OptionListComponent<SystemData*>>(mWindow, _("SCRAPE THESE SYSTEMS"), true);
-	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (const auto& it : SystemData::sSystemVector)
 	{
-		if (!(*it)->hasPlatformId(PlatformIds::PLATFORM_IGNORE))
-			mSystems->add((*it)->getFullName(), *it, !(*it)->getPlatformIds().empty());
+		if (!it->hasPlatformId(PlatformIds::PLATFORM_IGNORE))
+			mSystems->add(it->getFullName(), it, !it->getPlatformIds().empty());
 	}
 	mMenu.addWithLabel(_("SYSTEMS"), mSystems);
 

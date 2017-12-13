@@ -1,20 +1,18 @@
 #pragma once
 #include <string>
 
-enum AsyncHandleStatus
+enum class AsyncHandleStatus
 {
-	ASYNC_IN_PROGRESS,
-	ASYNC_ERROR,
-	ASYNC_DONE
+	Progressing,
+	Error,
+	Done
 };
 
-// Handle for some asynchronous operation.
+// Abstract class handling asynchronous operations.
 class AsyncHandle
 {
 public:
-	AsyncHandle()
-		: mStatus(ASYNC_IN_PROGRESS){};
-	virtual ~AsyncHandle(){};
+	virtual ~AsyncHandle() = default;
 
 	virtual void update() = 0;
 
@@ -30,11 +28,11 @@ public:
 	{
 		switch (mStatus)
 		{
-		case ASYNC_IN_PROGRESS:
+		case AsyncHandleStatus::Progressing:
 			return "in progress";
-		case ASYNC_ERROR:
+		case AsyncHandleStatus::Error:
 			return mError;
-		case ASYNC_DONE:
+		case AsyncHandleStatus::Done:
 			return "done";
 		default:
 			return "something impossible has occured; row, row, fight the power";
@@ -42,13 +40,18 @@ public:
 	}
 
 protected:
+	AsyncHandle()
+		: mStatus(AsyncHandleStatus::Progressing)
+	{
+	}
+
 	inline void setStatus(AsyncHandleStatus status)
 	{
 		mStatus = status;
 	}
 	inline void setError(const std::string& error)
 	{
-		setStatus(ASYNC_ERROR);
+		setStatus(AsyncHandleStatus::Error);
 		mError = error;
 	}
 
