@@ -295,13 +295,12 @@ bool ComponentGrid::moveCursor(Eigen::Vector2i dir)
 	{
 		mCursor = mCursor + dir;
 
-		Eigen::Vector2i curDirPos = mCursor;
+		const Eigen::Vector2i curDirPos = mCursor;
 
-		GridEntry* cursorEntry;
 		// spread out on search axis+
 		while (mCursor.x() < mGridSize.x() && mCursor.y() < mGridSize.y() && mCursor.x() >= 0 && mCursor.y() >= 0)
 		{
-			cursorEntry = getCellAt(mCursor);
+			const GridEntry* cursorEntry = getCellAt(mCursor);
 			if (cursorEntry && cursorEntry->canFocus && cursorEntry != currentCursorEntry)
 			{
 				onCursorMoved(origCursor, mCursor);
@@ -315,7 +314,7 @@ bool ComponentGrid::moveCursor(Eigen::Vector2i dir)
 		mCursor = curDirPos;
 		while (mCursor.x() >= 0 && mCursor.y() >= 0 && mCursor.x() < mGridSize.x() && mCursor.y() < mGridSize.y())
 		{
-			cursorEntry = getCellAt(mCursor);
+			const GridEntry* cursorEntry = getCellAt(mCursor);
 			if (cursorEntry && cursorEntry->canFocus && cursorEntry != currentCursorEntry)
 			{
 				onCursorMoved(origCursor, mCursor);
@@ -440,17 +439,17 @@ std::vector<HelpPrompt> ComponentGrid::getHelpPrompts()
 	bool canScrollHoriz = mGridSize.x() > 1;
 	for (const auto& it : prompts)
 	{
-		if (strcmp(it.first.c_str(), "up/down/left/right") == 0)
+		if (it.first == "up/down/left/right")
 		{
 			canScrollHoriz = false;
 			canScrollVert = false;
 			break;
 		}
-		else if (strcmp(it.first.c_str(), "up/down") == 0)
+		else if (it.first == "up/down")
 		{
 			canScrollVert = false;
 		}
-		else if (strcmp(it.first.c_str(), "left/right") == 0)
+		else if (it.first == "left/right")
 		{
 			canScrollHoriz = false;
 		}

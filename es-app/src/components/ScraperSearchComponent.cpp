@@ -27,18 +27,16 @@ ScraperSearchComponent::ScraperSearchComponent(Window* window, SearchType type)
 
 	mBlockAccept = false;
 
-	using namespace Eigen;
-
 	// left spacer (empty component, needed for borders)
-	mGrid.setEntry(
-		std::make_shared<GuiComponent>(mWindow), Vector2i(0, 0), false, false, Vector2i(1, 3), GridFlags::BORDER_TOP | GridFlags::BORDER_BOTTOM);
+	mGrid.setEntry(std::make_shared<GuiComponent>(mWindow), Eigen::Vector2i(0, 0), false, false, Eigen::Vector2i(1, 3),
+		GridFlags::BORDER_TOP | GridFlags::BORDER_BOTTOM);
 
 	// selected result name
 	mResultName = std::make_shared<TextComponent>(mWindow, "RESULT NAME", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 
 	// selected result thumbnail
 	mResultThumbnail = std::make_shared<ImageComponent>(mWindow);
-	mGrid.setEntry(mResultThumbnail, Vector2i(1, 1), false, false, Vector2i(1, 1));
+	mGrid.setEntry(mResultThumbnail, Eigen::Vector2i(1, 1), false, false, Eigen::Vector2i(1, 1));
 
 	// selected result desc + container
 	mDescContainer = std::make_shared<ScrollableContainer>(mWindow);
@@ -47,34 +45,34 @@ ScraperSearchComponent::ScraperSearchComponent(Window* window, SearchType type)
 	mDescContainer->setAutoScroll(true);
 
 	// metadata
-	auto font = Font::get(FONT_SIZE_SMALL); // this gets replaced in onSizeChanged() so its just a placeholder
-	const unsigned int mdColor = 0x777777FF;
-	const unsigned int mdLblColor = 0x666666FF;
+	const auto font = Font::get(FONT_SIZE_SMALL); // this gets replaced in onSizeChanged() so its just a placeholder
+	const unsigned int COLOR_TEXT = 0x777777FF;
+	const unsigned int COLOR_LABEL = 0x666666FF;
 	mMD_Rating = std::make_shared<RatingComponent>(mWindow);
 	mMD_ReleaseDate = std::make_shared<DateTimeComponent>(mWindow);
-	mMD_ReleaseDate->setColor(mdColor);
-	mMD_Developer = std::make_shared<TextComponent>(mWindow, "", font, mdColor);
-	mMD_Publisher = std::make_shared<TextComponent>(mWindow, "", font, mdColor);
-	mMD_Genre = std::make_shared<TextComponent>(mWindow, "", font, mdColor);
-	mMD_Players = std::make_shared<TextComponent>(mWindow, "", font, mdColor);
+	mMD_ReleaseDate->setColor(COLOR_TEXT);
+	mMD_Developer = std::make_shared<TextComponent>(mWindow, "", font, COLOR_TEXT);
+	mMD_Publisher = std::make_shared<TextComponent>(mWindow, "", font, COLOR_TEXT);
+	mMD_Genre = std::make_shared<TextComponent>(mWindow, "", font, COLOR_TEXT);
+	mMD_Players = std::make_shared<TextComponent>(mWindow, "", font, COLOR_TEXT);
 
-	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Rating") + std::string(":")), font, mdLblColor), mMD_Rating, false));
-	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Released") + std::string(":")), font, mdLblColor), mMD_ReleaseDate));
-	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Developer") + std::string(":")), font, mdLblColor), mMD_Developer));
-	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Publisher") + std::string(":")), font, mdLblColor), mMD_Publisher));
-	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Genre") + std::string(":")), font, mdLblColor), mMD_Genre));
-	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Players") + std::string(":")), font, mdLblColor), mMD_Players));
+	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Rating") + std::string(":")), font, COLOR_LABEL), mMD_Rating, false));
+	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Released") + std::string(":")), font, COLOR_LABEL), mMD_ReleaseDate));
+	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Developer") + std::string(":")), font, COLOR_LABEL), mMD_Developer));
+	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Publisher") + std::string(":")), font, COLOR_LABEL), mMD_Publisher));
+	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Genre") + std::string(":")), font, COLOR_LABEL), mMD_Genre));
+	mMD_Pairs.push_back(MetaDataPair(std::make_shared<TextComponent>(mWindow, strToUpper(_("Players") + std::string(":")), font, COLOR_LABEL), mMD_Players));
 
-	mMD_Grid = std::make_shared<ComponentGrid>(mWindow, Vector2i(2, mMD_Pairs.size() * 2 - 1));
+	mMD_Grid = std::make_shared<ComponentGrid>(mWindow, Eigen::Vector2i(2, mMD_Pairs.size() * 2 - 1));
 	unsigned int i = 0;
 	for (auto it = mMD_Pairs.begin(); it != mMD_Pairs.end(); it++)
 	{
-		mMD_Grid->setEntry(it->first, Vector2i(0, i), false, true);
-		mMD_Grid->setEntry(it->second, Vector2i(1, i), false, it->resize);
+		mMD_Grid->setEntry(it->first, Eigen::Vector2i(0, i), false, true);
+		mMD_Grid->setEntry(it->second, Eigen::Vector2i(1, i), false, it->resize);
 		i += 2;
 	}
 
-	mGrid.setEntry(mMD_Grid, Vector2i(2, 1), false, false);
+	mGrid.setEntry(mMD_Grid, Eigen::Vector2i(2, 1), false, false);
 
 	// result list
 	mResultList = std::make_shared<ComponentList>(mWindow);
@@ -109,13 +107,9 @@ void ScraperSearchComponent::onSizeChanged()
 		mGrid.setRowHeightPerc(0, 0.0825f); // hide name but do padding
 
 	if (mSearchType == ALWAYS_ACCEPT_FIRST_RESULT)
-	{
 		mGrid.setRowHeightPerc(2, 0.2f);
-	}
 	else
-	{
 		mGrid.setRowHeightPerc(1, 0.505f);
-	}
 
 	const float boxartCellScale = 0.9f;
 
@@ -144,8 +138,8 @@ void ScraperSearchComponent::resizeMetadata()
 	if (mMD_Grid->getSize().y() > mMD_Pairs.size())
 	{
 		const int fontHeight = (int)(mMD_Grid->getSize().y() / mMD_Pairs.size() * 0.8f);
-		auto fontLbl = Font::get(fontHeight, FONT_PATH_REGULAR);
-		auto fontComp = Font::get(fontHeight, FONT_PATH_LIGHT);
+		const auto fontLbl = Font::get(fontHeight, FONT_PATH_REGULAR);
+		const auto fontComp = Font::get(fontHeight, FONT_PATH_LIGHT);
 
 		// update label fonts
 		float maxLblWidth = 0;
@@ -245,12 +239,12 @@ void ScraperSearchComponent::onSearchDone(const std::vector<ScraperSearchResult>
 
 	const int end = results.size() > MAX_SCRAPER_RESULTS ? MAX_SCRAPER_RESULTS : results.size(); // at max display 5
 
-	auto font = Font::get(FONT_SIZE_MEDIUM);
-	unsigned int color = 0x777777FF;
+	const auto font = Font::get(FONT_SIZE_MEDIUM);
+	const unsigned int COLOR = 0x777777FF;
 	if (end == 0)
 	{
 		ComponentListRow row;
-		row.addElement(std::make_shared<TextComponent>(mWindow, _("NO GAMES FOUND - SKIP"), font, color), true);
+		row.addElement(std::make_shared<TextComponent>(mWindow, _("NO GAMES FOUND - SKIP"), font, COLOR), true);
 
 		if (mSkipCallback)
 			row.makeAcceptInputHandler(mSkipCallback);
@@ -264,7 +258,7 @@ void ScraperSearchComponent::onSearchDone(const std::vector<ScraperSearchResult>
 		for (int i = 0; i < end; i++)
 		{
 			row.elements.clear();
-			row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(results.at(i).mdl.get("name")), font, color), true);
+			row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(results.at(i).mdl.get("name")), font, COLOR), true);
 			row.makeAcceptInputHandler([this, i] { returnResult(mScraperResults.at(i)); });
 			mResultList->addRow(row);
 		}
@@ -281,10 +275,12 @@ void ScraperSearchComponent::onSearchDone(const std::vector<ScraperSearchResult>
 		else
 			returnResult(mScraperResults.front());
 	}
+#if defined(ENABLE_SCRAPER_CRC)
 	else if (mSearchType == ALWAYS_ACCEPT_MATCHING_CRC)
 	{
 		// TODO
 	}
+#endif
 }
 
 void ScraperSearchComponent::onSearchError(const std::string& error)
@@ -296,10 +292,7 @@ void ScraperSearchComponent::onSearchError(const std::string& error)
 
 int ScraperSearchComponent::getSelectedIndex() const
 {
-	if (!mScraperResults.size() || mGrid.getSelectedComponent() != mResultList)
-		return -1;
-
-	return mResultList->getCursorId();
+	return (!mScraperResults.size() || mGrid.getSelectedComponent() != mResultList)  ? -1 : mResultList->getCursorId();
 }
 
 void ScraperSearchComponent::updateInfoPane()
@@ -341,11 +334,11 @@ void ScraperSearchComponent::updateInfoPane()
 	{
 		mResultName->resetText();
 		mResultDesc->resetText();
-		mResultThumbnail->setImage("");
+		mResultThumbnail->setImage(std::string());
 
 		// metadata
-		mMD_Rating->setValue("");
-		mMD_ReleaseDate->setValue("");
+		mMD_Rating->setValue(std::string());
+		mMD_ReleaseDate->setValue(std::string());
 		mMD_Developer->resetText();
 		mMD_Publisher->resetText();
 		mMD_Genre->resetText();

@@ -1,23 +1,26 @@
 #pragma once
-
+#include "platform.h"
 #include "GuiComponent.h"
-#include "resources/TextureResource.h"
+#include GLHEADER
+#include <Eigen/Dense>
 
-// Display an image in a way so that edges don't get too distorted no matter the final size. Useful for UI elements like backgrounds, buttons, etc.
+class TextureResource;
+
+// Displays an image in a way so that edges don't get too distorted no matter the final size.
+// Useful for UI elements like backgrounds, buttons, etc.
 // This is accomplished by splitting an image into 9 pieces:
 //  ___________
 // |_1_|_2_|_3_|
 // |_4_|_5_|_6_|
 // |_7_|_8_|_9_|
-
+//
 // Corners (1, 3, 7, 9) will not be stretched at all.
 // Borders (2, 4, 6, 8) will be stretched along one axis (2 and 8 horizontally, 4 and 6 vertically).
 // The center (5) will be stretched.
-
 class NinePatchComponent : public GuiComponent
 {
 public:
-	NinePatchComponent(Window* window, const std::string& path = "", unsigned int edgeColor = 0xFFFFFFFF, unsigned int centerColor = 0xFFFFFFFF);
+	NinePatchComponent(Window* window, const std::string& path = std::string(), unsigned int edgeColor = 0xFFFFFFFF, unsigned int centerColor = 0xFFFFFFFF);
 	virtual ~NinePatchComponent();
 
 	void render(const Eigen::Affine3f& parentTrans) override;
@@ -39,14 +42,14 @@ private:
 	void buildVertices();
 	void updateColors();
 
-	struct Vertex
-	{
-		Eigen::Vector2f pos;
-		Eigen::Vector2f tex;
-	};
+    struct Vertex
+    {
+        Eigen::Vector2f pos;
+        Eigen::Vector2f tex;
+    };
 
-	Vertex* mVertices;
-	GLubyte* mColors;
+	Vertex* mVertices;  // TODO: use std::vector<Vectex*> instead
+	GLubyte* mColors;   // TODO: use std::vector<GLubyte*> instead
 
 	std::string mPath;
 	unsigned int mEdgeColor;

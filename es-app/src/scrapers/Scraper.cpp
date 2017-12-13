@@ -16,7 +16,9 @@ const std::map<std::string, generate_scraper_requests_func> scraper_request_func
 {
     { "TheGamesDB", &thegamesdb_generate_scraper_requests},
 #if defined(EXTENSION)
+#if defined(ENABLE_MAMEDB_SCRAPER)
     { "Mamedb", &mamedb_generate_scraper_requests},
+#endif
     { "Screenscraper", &screenscraper_generate_scraper_requests}
 #else
     { "TheArchive", &thearchive_generate_scraper_requests}

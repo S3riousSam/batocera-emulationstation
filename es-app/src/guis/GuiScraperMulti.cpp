@@ -39,9 +39,14 @@ GuiScraperMulti::GuiScraperMulti(Window* window, const std::queue<ScraperSearchP
 
 	mSubtitle = std::make_shared<TextComponent>(mWindow, _("subtitle text"), Font::get(FONT_SIZE_SMALL), 0x888888FF, ALIGN_CENTER);
 	mGrid.setEntry(mSubtitle, Vector2i(0, 2), false, true);
-
-	mSearchComp = std::make_shared<ScraperSearchComponent>(
-		mWindow, approveResults ? ScraperSearchComponent::ALWAYS_ACCEPT_MATCHING_CRC : ScraperSearchComponent::ALWAYS_ACCEPT_FIRST_RESULT);
+#if defined(ENABLE_SCRAPER_CRC)
+	mSearchComp = std::make_shared<ScraperSearchComponent>(mWindow, approveResults
+		? ScraperSearchComponent::ALWAYS_ACCEPT_MATCHING_CRC
+		: ScraperSearchComponent::ALWAYS_ACCEPT_FIRST_RESULT);
+#else
+	mSearchComp = std::make_shared<ScraperSearchComponent>(mWindow,
+		ScraperSearchComponent::ALWAYS_ACCEPT_FIRST_RESULT);
+#endif
 	mSearchComp->setAcceptCallback(std::bind(&GuiScraperMulti::acceptResult, this, std::placeholders::_1));
 	mSearchComp->setSkipCallback(std::bind(&GuiScraperMulti::skip, this));
 	mSearchComp->setCancelCallback(std::bind(&GuiScraperMulti::finish, this));

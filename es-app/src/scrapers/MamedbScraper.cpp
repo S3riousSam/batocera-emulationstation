@@ -1,5 +1,6 @@
 #if defined(EXTENSION)
 #include "MamedbScraper.h"
+#if defined(ENABLE_MAMEDB_SCRAPER)
 #include "Log.h"
 #include <boost/regex.hpp>
 
@@ -81,4 +82,5 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 		LOG(LogInfo) << req->getContent().c_str() << TITLE_REGEX << "\nNot found";
 	}
 }
+#endif
 #endif

@@ -1,4 +1,5 @@
 #include "components/NinePatchComponent.h"
+#include "resources/TextureResource.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "ThemeData.h"
@@ -72,11 +73,11 @@ void NinePatchComponent::buildVertices()
 	const Eigen::Vector2f pieceSizes = getCornerSize();
 
 	// corners never stretch, so we calculate a width and height for slices 1, 3, 5, and 7
-	float borderWidth = mSize.x() - (pieceSizes.x() * 2); // should be pieceSizes[0] and pieceSizes[2]
+	const float borderWidth = mSize.x() - (pieceSizes.x() * 2); // should be pieceSizes[0] and pieceSizes[2]
 	// if(borderWidth < pieceSizes.x())
 	//	borderWidth = pieceSizes.x();
 
-	float borderHeight = mSize.y() - (pieceSizes.y() * 2); // should be pieceSizes[0] and pieceSizes[6]
+    const float borderHeight = mSize.y() - (pieceSizes.y() * 2); // should be pieceSizes[0] and pieceSizes[6]
 	// if(borderHeight < pieceSizes.y())
 	//	borderHeight = pieceSizes.y();
 
@@ -144,7 +145,7 @@ void NinePatchComponent::buildVertices()
 
 void NinePatchComponent::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
+	const Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
 
 	if (mTexture && mVertices != NULL)
 	{

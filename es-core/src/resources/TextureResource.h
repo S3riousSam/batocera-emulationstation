@@ -1,8 +1,6 @@
 #pragma once
-
-#include "resources/ResourceManager.h"
-
 #include "platform.h"
+#include "resources/ResourceManager.h"
 #include GLHEADER
 #include <Eigen/Dense>
 #include <string>

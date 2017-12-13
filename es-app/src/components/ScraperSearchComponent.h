@@ -20,7 +20,9 @@ public:
 	enum SearchType
 	{
 		ALWAYS_ACCEPT_FIRST_RESULT,
+#if defined(ENABLE_SCRAPER_CRC)
 		ALWAYS_ACCEPT_MATCHING_CRC,
+#endif
 		NEVER_AUTO_ACCEPT
 	};
 
@@ -102,7 +104,7 @@ private:
 
 	std::vector<MetaDataPair> mMD_Pairs;
 
-	SearchType mSearchType;
+	const SearchType mSearchType;
 	ScraperSearchParams mLastSearch;
 	std::function<void(const ScraperSearchResult&)> mAcceptCallback;
 	std::function<void()> mSkipCallback;

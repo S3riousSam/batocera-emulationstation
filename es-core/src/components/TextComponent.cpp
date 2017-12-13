@@ -49,10 +49,7 @@ void TextComponent::setFont(const std::shared_ptr<Font>& font)
 void TextComponent::setColor(unsigned int color)
 {
 	mColor = color;
-
-	unsigned char opacity = mColor & 0x000000FF;
-	GuiComponent::setOpacity(opacity);
-
+	GuiComponent::setOpacity(mColor & 0x000000FF);
 	onColorChanged();
 }
 
@@ -170,7 +167,7 @@ void TextComponent::onTextChanged()
 	bool addAbbrev = false;
 	if (!isMultiline)
 	{
-		size_t newline = text.find('\n');
+		const size_t newline = text.find('\n');
 		text = text.substr(0, newline); // single line of text - stop at the first newline since it'll mess everything up
 		addAbbrev = newline != std::string::npos;
 	}
@@ -180,7 +177,7 @@ void TextComponent::onTextChanged()
 	{
 		// abbreviate text
 		const std::string abbrev = "...";
-		Eigen::Vector2f abbrevSize = f->sizeText(abbrev);
+		const Eigen::Vector2f abbrevSize = f->sizeText(abbrev);
 
 		while (text.size() && size.x() + abbrevSize.x() > mSize.x())
 		{
