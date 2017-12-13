@@ -1,11 +1,13 @@
 #include "components/AsyncReqComponent.h"
+#include "HttpReq.h"
 #include "Renderer.h"
 
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"
 
-AsyncReqComponent::AsyncReqComponent(
-	Window* window, std::shared_ptr<HttpReq> req, std::function<void(std::shared_ptr<HttpReq>)> onSuccess, std::function<void()> onCancel)
+AsyncReqComponent::AsyncReqComponent(Window* window, std::shared_ptr<HttpReq> req,
+	std::function<void(std::shared_ptr<HttpReq>)> onSuccess,
+	std::function<void()> onCancel)
 	: GuiComponent(window)
 	, mSuccessFunc(onSuccess)
 	, mCancelFunc(onCancel)
@@ -29,7 +31,7 @@ bool AsyncReqComponent::input(InputConfig* config, Input input)
 
 void AsyncReqComponent::update(int deltaTime)
 {
-	if (mRequest->status() != HttpReq::REQ_IN_PROGRESS)
+	if (mRequest->status() != HttpReq::Status::Processing)
 	{
 		mSuccessFunc(mRequest);
 		delete this;
@@ -45,13 +47,11 @@ void AsyncReqComponent::render(const Eigen::Affine3f& parentTrans)
 	trans = trans.translate(Eigen::Vector3f(Renderer::getScreenWidth() / 2.0f, Renderer::getScreenHeight() / 2.0f, 0));
 	Renderer::setMatrix(trans);
 
-	Eigen::Vector3f point(cos(mTime * 0.01f) * 12, sin(mTime * 0.01f) * 12, 0);
-	Renderer::drawRect((int)point.x(), (int)point.y(), 8, 8, 0x0000FFFF);
+	const Eigen::Vector3f point(cos(mTime * 0.01f) * 12, sin(mTime * 0.01f) * 12, 0);
+	Renderer::drawRect(static_cast<int>(point.x()), static_cast<int>(point.y()), 8, 8, 0x0000FFFF);
 }
 
 std::vector<HelpPrompt> AsyncReqComponent::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-	prompts.push_back(HelpPrompt(BUTTON_BACK, "cancel"));
-	return prompts;
+	return { HelpPrompt(BUTTON_BACK, "cancel") };
 }

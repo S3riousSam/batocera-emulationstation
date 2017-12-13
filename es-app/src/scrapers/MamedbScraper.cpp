@@ -19,7 +19,7 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 		"<b>Filename:&nbsp;</b>(?<filename>.*?)<br/><b>.*$";
 	//const char* const CLONE_REGEX = "^.*?&nbsp;\\(clone of: <a href='.*?'>(?<clone>.*?)</a>\\)&nbsp;<br/>.*$";
 
-	assert(req->status() == HttpReq::REQ_SUCCESS);
+	assert(req->status() == HttpReq::Status::Success);
 
 	boost::smatch infolinematches;
 	if (boost::regex_match(req->getContent(), infolinematches, boost::regex("^.*?<h1>Game Details</h1>(.*?)</table>.*$")))

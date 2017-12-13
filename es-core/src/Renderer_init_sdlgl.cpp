@@ -146,9 +146,9 @@ namespace Renderer
 
 	bool init(int w, int h)
 	{
-		if (w)
+		if (w != 0)
 			display_width = w;
-		if (h)
+		if (h != 0)
 			display_height = h;
 
 		bool createdSurface = createSurface();

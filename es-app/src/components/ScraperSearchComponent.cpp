@@ -294,7 +294,7 @@ void ScraperSearchComponent::onSearchError(const std::string& error)
 		mSkipCallback, _("CANCEL"), mCancelCallback));
 }
 
-int ScraperSearchComponent::getSelectedIndex()
+int ScraperSearchComponent::getSelectedIndex() const
 {
 	if (!mScraperResults.size() || mGrid.getSelectedComponent() != mResultList)
 		return -1;
@@ -304,15 +304,15 @@ int ScraperSearchComponent::getSelectedIndex()
 
 void ScraperSearchComponent::updateInfoPane()
 {
-	int i = getSelectedIndex();
+	int index = getSelectedIndex();
 	if (mSearchType == ALWAYS_ACCEPT_FIRST_RESULT && mScraperResults.size())
 	{
-		i = 0;
+		index = 0;
 	}
 
-	if (i != -1 && (int)mScraperResults.size() > i)
+	if (index != -1 && (int)mScraperResults.size() > index)
 	{
-		ScraperSearchResult& res = mScraperResults.at(i);
+		ScraperSearchResult& res = mScraperResults.at(index);
 		mResultName->setText(strToUpper(res.mdl.get("name")));
 		mResultDesc->setText(strToUpper(res.mdl.get("desc")));
 		mDescContainer->reset();
@@ -339,17 +339,17 @@ void ScraperSearchComponent::updateInfoPane()
 	}
 	else
 	{
-		mResultName->setText("");
-		mResultDesc->setText("");
+		mResultName->resetText();
+		mResultDesc->resetText();
 		mResultThumbnail->setImage("");
 
 		// metadata
 		mMD_Rating->setValue("");
 		mMD_ReleaseDate->setValue("");
-		mMD_Developer->setText("");
-		mMD_Publisher->setText("");
-		mMD_Genre->setText("");
-		mMD_Players->setText("");
+		mMD_Developer->resetText();
+		mMD_Publisher->resetText();
+		mMD_Genre->resetText();
+		mMD_Players->resetText();
 	}
 }
 
@@ -404,7 +404,7 @@ void ScraperSearchComponent::update(int deltaTime)
 		mBusyAnim.update(deltaTime);
 	}
 
-	if (mThumbnailReq && mThumbnailReq->status() != HttpReq::REQ_IN_PROGRESS)
+	if (mThumbnailReq && mThumbnailReq->status() != HttpReq::Status::Processing)
 	{
 		updateThumbnail();
 	}
@@ -449,16 +449,16 @@ void ScraperSearchComponent::update(int deltaTime)
 
 void ScraperSearchComponent::updateThumbnail()
 {
-	if (mThumbnailReq && mThumbnailReq->status() == HttpReq::REQ_SUCCESS)
+	if (mThumbnailReq && mThumbnailReq->status() == HttpReq::Status::Success)
 	{
-		std::string content = mThumbnailReq->getContent();
+		const std::string content = mThumbnailReq->getContent();
 		mResultThumbnail->setImage(content.data(), content.length());
 		mGrid.onSizeChanged(); // a hack to fix the thumbnail position since its size changed
 	}
 	else
 	{
-		LOG(LogWarning) << "thumbnail req failed: " << mThumbnailReq->getErrorMsg();
-		mResultThumbnail->setImage("");
+		LOG(LogWarning) << "Thumbnail request failed: " << mThumbnailReq->getErrorMsg();
+		mResultThumbnail->resetImage();
 	}
 
 	mThumbnailReq.reset();
@@ -471,7 +471,7 @@ void ScraperSearchComponent::openInputScreen(ScraperSearchParams& params)
 		search(params);
 	};
 #if defined(EXTENSION)
-	bool openOSK = Settings::getInstance()->getBool("UseOSK");
+	const bool openOSK = Settings::getInstance()->getBool("UseOSK");
 #endif
 	stop();
 #if defined(EXTENSION)

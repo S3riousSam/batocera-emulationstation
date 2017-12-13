@@ -66,7 +66,7 @@ private:
 	void onSearchError(const std::string& error);
 	void onSearchDone(const std::vector<ScraperSearchResult>& results);
 
-	int getSelectedIndex();
+	int getSelectedIndex() const;
 
 	// resolve any metadata assets that need to be downloaded and return
 	void returnResult(ScraperSearchResult result);

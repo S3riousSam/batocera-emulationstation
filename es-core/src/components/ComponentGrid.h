@@ -22,7 +22,7 @@ namespace GridFlags
 	};
 }; // namespace GridFlags
 
-// Used to arrange a bunch of components in a spreadsheet-esque grid.
+// Arranges components in a spreadsheet-style grid.
 class ComponentGrid : public GuiComponent
 {
 public:
@@ -55,9 +55,9 @@ public:
 	bool moveCursor(Eigen::Vector2i dir);
 	void setCursorTo(const std::shared_ptr<GuiComponent>& comp);
 
-	inline std::shared_ptr<GuiComponent> getSelectedComponent()
+	inline std::shared_ptr<GuiComponent> getSelectedComponent() const
 	{
-		GridEntry* e = getCellAt(mCursor);
+		const GridEntry* e = getCellAt(mCursor);
 		return (e != nullptr) ? e->component : nullptr;
 	}
 
@@ -87,7 +87,9 @@ private:
 			, canFocus(f)
 			, resize(r)
 			, updateType(u)
-			, border(b){};
+			, border(b)
+		{
+		}
 
 		operator bool() const
 		{
@@ -100,9 +102,7 @@ private:
 
 	struct Vert
 	{
-		Vert(float xi = 0, float yi = 0)
-			: x(xi)
-			, y(yi){};
+		Vert(float xi = 0, float yi = 0) : x(xi) , y(yi) {}
 		float x;
 		float y;
 	};
@@ -115,7 +115,13 @@ private:
 	void updateSeparators();
 
 	GridEntry* getCellAt(int x, int y);
+	const GridEntry* getCellAt(int x, int y) const;
 	inline GridEntry* getCellAt(const Eigen::Vector2i& pos)
+	{
+		return getCellAt(pos.x(), pos.y());
+	}
+
+	inline const GridEntry* getCellAt(const Eigen::Vector2i& pos) const
 	{
 		return getCellAt(pos.x(), pos.y());
 	}
@@ -124,6 +130,6 @@ private:
 
 	std::vector<GridEntry> mCells;
 
-	void onCursorMoved(Eigen::Vector2i from, Eigen::Vector2i to);
+	void onCursorMoved(const Eigen::Vector2i& from, const Eigen::Vector2i& to);
 	Eigen::Vector2i mCursor;
 };

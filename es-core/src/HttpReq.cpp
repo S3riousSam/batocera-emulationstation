@@ -3,13 +3,18 @@
 #include <boost/filesystem.hpp>
 #include <iostream>
 
-CURLM* HttpReq::s_multi_handle = curl_multi_init();
+namespace
+{
+	CURLM* s_multi_handle = curl_multi_init();
 
-std::map<CURL*, HttpReq*> HttpReq::s_requests;
+	// god dammit libcurl why can't you have some way to check the status of an individual handle
+	// why do I have to handle ALL messages at once
+	std::map<CURL*, HttpReq*> s_requests;
+} // namespace
 
 std::string HttpReq::urlEncode(const std::string& s)
 {
-	const std::string unreserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
+	const static std::string unreserved = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~";
 
 	std::string escaped;
 	for (size_t i = 0; i < s.length(); i++)
@@ -29,23 +34,23 @@ std::string HttpReq::urlEncode(const std::string& s)
 	return escaped;
 }
 
+#if defined(USEFUL)
 bool HttpReq::isUrl(const std::string& str)
 {
-	// the worst guess
-	return (!str.empty() && !boost::filesystem::exists(str) &&
-		(str.find("http://") != std::string::npos || str.find("https://") != std::string::npos || str.find("www.") != std::string::npos));
+	return (!str.empty() && !boost::filesystem::exists(str) && (
+		str.find("http://") != std::string::npos ||
+		str.find("https://") != std::string::npos ||
+		str.find("www.") != std::string::npos));
 }
+#endif
 
 HttpReq::HttpReq(const std::string& url)
-	: mHandle(nullptr)
-	, mStatus(REQ_IN_PROGRESS)
+	: mHandle(curl_easy_init())
+	, mStatus(Status::Processing)
 {
-	mHandle = curl_easy_init();
-
 	if (mHandle == nullptr)
 	{
-		mStatus = REQ_IO_ERROR;
-		onError("curl_easy_init failed");
+		setErrorState("curl_easy_init failed");
 		return;
 	}
 
@@ -53,8 +58,7 @@ HttpReq::HttpReq(const std::string& url)
 	CURLcode err = curl_easy_setopt(mHandle, CURLOPT_URL, url.c_str());
 	if (err != CURLE_OK)
 	{
-		mStatus = REQ_IO_ERROR;
-		onError(curl_easy_strerror(err));
+		setErrorState(curl_easy_strerror(err));
 		return;
 	}
 
@@ -62,8 +66,7 @@ HttpReq::HttpReq(const std::string& url)
 	err = curl_easy_setopt(mHandle, CURLOPT_WRITEFUNCTION, &HttpReq::write_content);
 	if (err != CURLE_OK)
 	{
-		mStatus = REQ_IO_ERROR;
-		onError(curl_easy_strerror(err));
+		setErrorState(curl_easy_strerror(err));
 		return;
 	}
 
@@ -71,8 +74,7 @@ HttpReq::HttpReq(const std::string& url)
 	err = curl_easy_setopt(mHandle, CURLOPT_WRITEDATA, this);
 	if (err != CURLE_OK)
 	{
-		mStatus = REQ_IO_ERROR;
-		onError(curl_easy_strerror(err));
+		setErrorState(curl_easy_strerror(err));
 		return;
 	}
 
@@ -80,8 +82,7 @@ HttpReq::HttpReq(const std::string& url)
 	CURLMcode merr = curl_multi_add_handle(s_multi_handle, mHandle);
 	if (merr != CURLM_OK)
 	{
-		mStatus = REQ_IO_ERROR;
-		onError(curl_multi_strerror(merr));
+		setErrorState(curl_multi_strerror(merr));
 		return;
 	}
 
@@ -90,7 +91,7 @@ HttpReq::HttpReq(const std::string& url)
 
 HttpReq::~HttpReq()
 {
-	if (mHandle)
+	if (mHandle != nullptr)
 	{
 		s_requests.erase(mHandle);
 
@@ -104,14 +105,13 @@ HttpReq::~HttpReq()
 
 HttpReq::Status HttpReq::status()
 {
-	if (mStatus == REQ_IN_PROGRESS)
+	if (mStatus == Status::Processing)
 	{
 		int handle_count;
-		CURLMcode merr = curl_multi_perform(s_multi_handle, &handle_count);
-		if (merr != CURLM_OK && merr != CURLM_CALL_MULTI_PERFORM)
+		const CURLMcode mcode = curl_multi_perform(s_multi_handle, &handle_count);
+		if (mcode != CURLM_OK && mcode != CURLM_CALL_MULTI_PERFORM)
 		{
-			mStatus = REQ_IO_ERROR;
-			onError(curl_multi_strerror(merr));
+			setErrorState(curl_multi_strerror(mcode));
 			return mStatus;
 		}
 
@@ -131,12 +131,11 @@ HttpReq::Status HttpReq::status()
 
 				if (msg->data.result == CURLE_OK)
 				{
-					req->mStatus = REQ_SUCCESS;
+					req->mStatus = Status::Success;
 				}
 				else
 				{
-					req->mStatus = REQ_IO_ERROR;
-					req->onError(curl_easy_strerror(msg->data.result));
+					req->setErrorState(curl_easy_strerror(msg->data.result));
 				}
 			}
 		}
@@ -147,12 +146,13 @@ HttpReq::Status HttpReq::status()
 
 std::string HttpReq::getContent() const
 {
-	assert(mStatus == REQ_SUCCESS);
+	assert(mStatus == Status::Success);
 	return mContent.str();
 }
 
-void HttpReq::onError(const char* msg)
+void HttpReq::setErrorState(const char* msg)
 {
+	mStatus = Status::Error;
 	mErrorMsg = msg;
 }
 
@@ -161,18 +161,12 @@ std::string HttpReq::getErrorMsg()
 	return mErrorMsg;
 }
 
-// used as a curl callback
+// curl callback where:
 // size = size of an element, nmemb = number of elements
 // return value is number of elements successfully read
 size_t HttpReq::write_content(void* buff, size_t size, size_t nmemb, void* req_ptr)
 {
-	std::stringstream& ss = ((HttpReq*)req_ptr)->mContent;
-	ss.write((char*)buff, size * nmemb);
-
+	std::stringstream& ss = static_cast<HttpReq*>(req_ptr)->mContent;
+	ss.write(static_cast<char*>(buff), size * nmemb);
 	return nmemb;
 }
-
-// used as a curl callback
-/*int HttpReq::update_progress(void* req_ptr, double dlTotal, double dlNow, double ulTotal, double ulNow)
-{
-}*/

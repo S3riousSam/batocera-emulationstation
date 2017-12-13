@@ -113,7 +113,7 @@ void thegamesdb_generate_scraper_requests(
 
 void TheGamesDBRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results)
 {
-	assert(req->status() == HttpReq::REQ_SUCCESS);
+	assert(req->status() == HttpReq::Status::Success);
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result parseResult = doc.load(req->getContent().c_str());

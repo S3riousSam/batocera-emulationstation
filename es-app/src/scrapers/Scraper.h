@@ -1,5 +1,4 @@
 #pragma once
-
 #include "AsyncHandle.h"
 #include "HttpReq.h"
 #include "MetaData.h"
@@ -14,14 +13,15 @@ struct ScraperSearchParams
 {
 	SystemData* system;
 	FileData* game;
-
 	std::string nameOverride;
 };
 
 struct ScraperSearchResult
 {
 	ScraperSearchResult()
-		: mdl(GAME_METADATA){};
+		: mdl(GAME_METADATA)
+	{
+	}
 
 	MetaDataList mdl;
 	std::string imageUrl;
@@ -54,34 +54,34 @@ struct ScraperSearchResult
 // ScraperRequest - encapsulates some sort of asynchronous request that will ultimately return some results
 // ScraperHttpRequest - implementation of ScraperRequest that waits on an HttpReq, then processes it with some processing function.
 
-// a scraper search gathers results from (potentially multiple) ScraperRequests
-class ScraperRequest : public AsyncHandle
+// Gathers results from (potentially multiple) ScraperRequests
+class ScraperRequest : public AsyncHandle // Abstract class
 {
 public:
-	ScraperRequest(std::vector<ScraperSearchResult>& resultsWrite);
-
-	// returns "true" once we're done
 	virtual void update() = 0;
 
 protected:
+	ScraperRequest(std::vector<ScraperSearchResult>& resultsWrite);
+
 	std::vector<ScraperSearchResult>& mResults;
 };
 
-// a single HTTP request that needs to be processed to get the results
-class ScraperHttpRequest : public ScraperRequest
+// Defines a single HTTP request to process for results
+class ScraperHttpRequest : public ScraperRequest // Abstract class
 {
 public:
-	ScraperHttpRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url);
-	virtual void update() override;
+	void update() override;
 
 protected:
+	ScraperHttpRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url);
+
 	virtual void process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results) = 0;
 
 private:
 	std::unique_ptr<HttpReq> mReq;
 };
 
-// a request to get a list of results
+// Defines a request to get a list of results
 class ScraperSearchHandle final : public AsyncHandle
 {
 public:
@@ -102,12 +102,12 @@ private:
 	std::vector<ScraperSearchResult> mResults;
 };
 
-// will use the current scraper settings to pick the result source
+// This method uses the current scraper settings to pick the result source
 std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params);
 
 namespace Scraper
 {
-    // returns a list of valid scraper names
+    // Returns a list of valid scraper names
     std::vector<std::string> getScraperList();
 }
 

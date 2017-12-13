@@ -95,27 +95,26 @@ ScraperRequest::ScraperRequest(std::vector<ScraperSearchResult>& resultsWrite)
 // ScraperHttpRequest
 ScraperHttpRequest::ScraperHttpRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url)
 	: ScraperRequest(resultsWrite)
+	, mReq(std::unique_ptr<HttpReq>(new HttpReq(url)))
 {
 	setStatus(AsyncHandleStatus::Progressing);
-	mReq = std::unique_ptr<HttpReq>(new HttpReq(url));
 }
 
 void ScraperHttpRequest::update()
 {
 	const HttpReq::Status status = mReq->status();
-	if (status == HttpReq::REQ_SUCCESS)
+	if (status == HttpReq::Status::Processing)
+		return;
+
+	if (status == HttpReq::Status::Success)
 	{
 		setStatus(AsyncHandleStatus::Done); // if process() has an error, status will be changed to ASYNC_ERROR
 		process(mReq, mResults);
 		return;
 	}
 
-	// not ready yet
-	if (status == HttpReq::REQ_IN_PROGRESS)
-		return;
-
 	// everything else is some sort of error
-	LOG(LogError) << "ScraperHttpRequest network error (status: " << status << ") - " << mReq->getErrorMsg();
+	LOG(LogError) << "ScraperHttpRequest network error (status: " << static_cast<int>(status) << ") - " << mReq->getErrorMsg();
 	setError(mReq->getErrorMsg());
 }
 
@@ -131,10 +130,10 @@ MDResolveHandle::MDResolveHandle(const ScraperSearchResult& result, const Scrape
 {
 	if (!result.imageUrl.empty())
 	{
-		std::string imgPath = getSaveAsPath(search, "image", result.imageUrl);
+		const std::string imgPath = getSaveAsPath(search, "image", result.imageUrl);
 		mFuncs.push_back(ResolvePair(downloadImageAsync(result.imageUrl, imgPath), [this, imgPath] {
 			mResult.mdl.set("image", imgPath);
-			mResult.imageUrl = "";
+			mResult.imageUrl = std::string();
 		}));
 	}
 }
@@ -181,10 +180,10 @@ ImageDownloadHandle::ImageDownloadHandle(const std::string& url, const std::stri
 
 void ImageDownloadHandle::update()
 {
-	if (mReq->status() == HttpReq::REQ_IN_PROGRESS)
+	if (mReq->status() == HttpReq::Status::Processing)
 		return;
 
-	if (mReq->status() != HttpReq::REQ_SUCCESS)
+	if (mReq->status() != HttpReq::Status::Success)
 	{
 		std::stringstream ss;
 		ss << "Network error: " << mReq->getErrorMsg();
@@ -281,7 +280,7 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 
 std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& suffix, const std::string& url)
 {
-	const std::string subdirectory = params.system->getName();
+	const std::string& subdirectory = params.system->getName();
 	const std::string name = params.game->getPath().stem().generic_string() + "-" + suffix;
 
 #if !defined(EXTENSION)
@@ -314,6 +313,5 @@ std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& 
 	if (dot != std::string::npos)
 		ext = url.substr(dot, std::string::npos);
 
-	path += name + ext;
-	return path;
+	return path + name + ext;
 }

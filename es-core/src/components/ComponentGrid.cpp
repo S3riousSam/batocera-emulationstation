@@ -4,8 +4,6 @@
 #include "Renderer.h"
 #include "Settings.h"
 
-using namespace GridFlags;
-
 ComponentGrid::ComponentGrid(Window* window, const Eigen::Vector2i& gridDimensions)
 	: GuiComponent(window)
 	, mGridSize(gridDimensions)
@@ -158,39 +156,39 @@ void ComponentGrid::updateSeparators()
 
 	Eigen::Vector2f pos;
 	Eigen::Vector2f size;
-	for (auto it = mCells.begin(); it != mCells.end(); it++)
+	for (const auto& it : mCells)
 	{
-		if (!it->border && !drawAll)
+		if (!it.border && !drawAll)
 			continue;
 
 		// find component position + size
 		pos << 0, 0;
 		size << 0, 0;
-		for (int x = 0; x < it->pos.x(); x++)
+		for (int x = 0; x < it.pos.x(); x++)
 			pos[0] += getColWidth(x);
-		for (int y = 0; y < it->pos.y(); y++)
+		for (int y = 0; y < it.pos.y(); y++)
 			pos[1] += getRowHeight(y);
-		for (int x = it->pos.x(); x < it->pos.x() + it->dim.x(); x++)
+		for (int x = it.pos.x(); x < it.pos.x() + it.dim.x(); x++)
 			size[0] += getColWidth(x);
-		for (int y = it->pos.y(); y < it->pos.y() + it->dim.y(); y++)
+		for (int y = it.pos.y(); y < it.pos.y() + it.dim.y(); y++)
 			size[1] += getRowHeight(y);
 
-		if (it->border & BORDER_TOP || drawAll)
+		if (it.border & GridFlags::BORDER_TOP || drawAll)
 		{
 			mLines.push_back(Vert(pos.x(), pos.y()));
 			mLines.push_back(Vert(pos.x() + size.x(), pos.y()));
 		}
-		if (it->border & BORDER_BOTTOM || drawAll)
+		if (it.border & GridFlags::BORDER_BOTTOM || drawAll)
 		{
 			mLines.push_back(Vert(pos.x(), pos.y() + size.y()));
 			mLines.push_back(Vert(pos.x() + size.x(), mLines.back().y));
 		}
-		if (it->border & BORDER_LEFT || drawAll)
+		if (it.border & GridFlags::BORDER_LEFT || drawAll)
 		{
 			mLines.push_back(Vert(pos.x(), pos.y()));
 			mLines.push_back(Vert(pos.x(), pos.y() + size.y()));
 		}
-		if (it->border & BORDER_RIGHT || drawAll)
+		if (it.border & GridFlags::BORDER_RIGHT || drawAll)
 		{
 			mLines.push_back(Vert(pos.x() + size.x(), pos.y()));
 			mLines.push_back(Vert(mLines.back().x, pos.y() + size.y()));
@@ -203,8 +201,8 @@ void ComponentGrid::updateSeparators()
 
 void ComponentGrid::onSizeChanged()
 {
-	for (auto it = mCells.begin(); it != mCells.end(); it++)
-		updateCellComponent(*it);
+	for (auto it : mCells)
+		updateCellComponent(it);
 
 	updateSeparators();
 }
@@ -213,18 +211,36 @@ ComponentGrid::GridEntry* ComponentGrid::getCellAt(int x, int y)
 {
 	assert(x >= 0 && x < mGridSize.x() && y >= 0 && y < mGridSize.y());
 
-	for (auto it = mCells.begin(); it != mCells.end(); it++)
+	for (auto& it : mCells)
 	{
-		int xmin = it->pos.x();
-		int xmax = xmin + it->dim.x();
-		int ymin = it->pos.y();
-		int ymax = ymin + it->dim.y();
+		const int xmin = it.pos.x();
+		const int xmax = xmin + it.dim.x();
+		const int ymin = it.pos.y();
+		const int ymax = ymin + it.dim.y();
 
 		if (x >= xmin && y >= ymin && x < xmax && y < ymax)
-			return &(*it);
+			return &it;
 	}
 
-	return NULL;
+	return nullptr;
+}
+
+const ComponentGrid::GridEntry* ComponentGrid::getCellAt(int x, int y) const
+{
+	assert(x >= 0 && x < mGridSize.x() && y >= 0 && y < mGridSize.y());
+
+	for (const auto& it : mCells)
+	{
+		const int xmin = it.pos.x();
+		const int xmax = xmin + it.dim.x();
+		const int ymin = it.pos.y();
+		const int ymax = ymin + it.dim.y();
+
+		if (x >= xmin && y >= ymin && x < xmax && y < ymax)
+			return &it;
+	}
+
+	return nullptr;
 }
 
 bool ComponentGrid::input(InputConfig* config, Input input)
@@ -237,21 +253,13 @@ bool ComponentGrid::input(InputConfig* config, Input input)
 		return false;
 
 	if (config->isMappedTo("down", input))
-	{
 		return moveCursor(Eigen::Vector2i(0, 1));
-	}
 	if (config->isMappedTo("up", input))
-	{
 		return moveCursor(Eigen::Vector2i(0, -1));
-	}
 	if (config->isMappedTo("left", input))
-	{
 		return moveCursor(Eigen::Vector2i(-1, 0));
-	}
 	if (config->isMappedTo("right", input))
-	{
 		return moveCursor(Eigen::Vector2i(1, 0));
-	}
 
 	return false;
 }
@@ -261,12 +269,12 @@ void ComponentGrid::resetCursor()
 	if (!mCells.size())
 		return;
 
-	for (auto it = mCells.begin(); it != mCells.end(); it++)
+	for (const auto& it : mCells)
 	{
-		if (it->canFocus)
+		if (it.canFocus)
 		{
-			Eigen::Vector2i origCursor = mCursor;
-			mCursor = it->pos;
+			const Eigen::Vector2i origCursor = mCursor;
+			mCursor = it.pos;
 			onCursorMoved(origCursor, mCursor);
 			break;
 		}
@@ -328,37 +336,37 @@ bool ComponentGrid::moveCursor(Eigen::Vector2i dir)
 void ComponentGrid::onFocusLost()
 {
 	GridEntry* cursorEntry = getCellAt(mCursor);
-	if (cursorEntry)
+	if (cursorEntry != nullptr)
 		cursorEntry->component->onFocusLost();
 }
 
 void ComponentGrid::onFocusGained()
 {
 	GridEntry* cursorEntry = getCellAt(mCursor);
-	if (cursorEntry)
+	if (cursorEntry != nullptr)
 		cursorEntry->component->onFocusGained();
 }
 
 bool ComponentGrid::cursorValid()
 {
 	GridEntry* e = getCellAt(mCursor);
-	return (e != NULL && e->canFocus);
+	return (e != nullptr && e->canFocus);
 }
 
 void ComponentGrid::update(int deltaTime)
 {
 	// update ALL THE THINGS
 	GridEntry* cursorEntry = getCellAt(mCursor);
-	for (auto it = mCells.begin(); it != mCells.end(); it++)
+	for (auto& it : mCells)
 	{
-		if (it->updateType == UPDATE_ALWAYS || (it->updateType == UPDATE_WHEN_SELECTED && cursorEntry == &(*it)))
-			it->component->update(deltaTime);
+		if (it.updateType == GridFlags::UPDATE_ALWAYS || (it.updateType == GridFlags::UPDATE_WHEN_SELECTED && cursorEntry == &it))
+			it.component->update(deltaTime);
 	}
 }
 
 void ComponentGrid::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
+	const Eigen::Affine3f trans = parentTrans * getTransform();
 
 	renderChildren(trans);
 
@@ -386,62 +394,63 @@ void ComponentGrid::render(const Eigen::Affine3f& parentTrans)
 void ComponentGrid::textInput(const char* text)
 {
 	GridEntry* selectedEntry = getCellAt(mCursor);
-	if (selectedEntry != NULL && selectedEntry->canFocus)
+	if (selectedEntry != nullptr && selectedEntry->canFocus)
 		selectedEntry->component->textInput(text);
 }
 
-void ComponentGrid::onCursorMoved(Eigen::Vector2i from, Eigen::Vector2i to)
+void ComponentGrid::onCursorMoved(const Eigen::Vector2i& from, const Eigen::Vector2i& to)
 {
-	GridEntry* cell = getCellAt(from);
-	if (cell)
-		cell->component->onFocusLost();
-
-	cell = getCellAt(to);
-	if (cell)
-		cell->component->onFocusGained();
+	{
+		GridEntry* cell = getCellAt(from);
+		if (cell != nullptr)
+			cell->component->onFocusLost();
+	}
+	{
+		GridEntry* cell = getCellAt(to);
+		if (cell != nullptr)
+			cell->component->onFocusGained();
+	}
 
 	updateHelpPrompts();
 }
 
 void ComponentGrid::setCursorTo(const std::shared_ptr<GuiComponent>& comp)
 {
-	for (auto it = mCells.begin(); it != mCells.end(); it++)
+	for (const auto& it : mCells)
 	{
-		if (it->component == comp)
+		if (it.component == comp)
 		{
-			Eigen::Vector2i oldCursor = mCursor;
-			mCursor = it->pos;
+			const Eigen::Vector2i oldCursor = mCursor;
+			mCursor = it.pos;
 			onCursorMoved(oldCursor, mCursor);
 			return;
 		}
 	}
 
-	// component not found!!
-	assert(false);
+	assert(false); // Component not found!
 }
 
 std::vector<HelpPrompt> ComponentGrid::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-	GridEntry* e = getCellAt(mCursor);
-	if (e)
-		prompts = e->component->getHelpPrompts();
+	std::vector<HelpPrompt> prompts = (getCellAt(mCursor) != nullptr)
+		? getCellAt(mCursor)->component->getHelpPrompts()
+		: std::vector<HelpPrompt>();
 
 	bool canScrollVert = mGridSize.y() > 1;
 	bool canScrollHoriz = mGridSize.x() > 1;
-	for (auto it = prompts.begin(); it != prompts.end(); it++)
+	for (const auto& it : prompts)
 	{
-		if (strcmp(it->first.c_str(), "up/down/left/right") == 0)
+		if (strcmp(it.first.c_str(), "up/down/left/right") == 0)
 		{
 			canScrollHoriz = false;
 			canScrollVert = false;
 			break;
 		}
-		else if (strcmp(it->first.c_str(), "up/down") == 0)
+		else if (strcmp(it.first.c_str(), "up/down") == 0)
 		{
 			canScrollVert = false;
 		}
-		else if (strcmp(it->first.c_str(), "left/right") == 0)
+		else if (strcmp(it.first.c_str(), "left/right") == 0)
 		{
 			canScrollHoriz = false;
 		}
