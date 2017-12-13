@@ -4,57 +4,106 @@
 #include "Settings.h"
 #include "Util.h"
 #include "pugixml/pugixml.hpp"
-#include <boost/assign.hpp>
-
-using namespace PlatformIds;
-const std::map<PlatformId, const char*> gamesdb_platformid_map =
-	boost::assign::map_list_of(THREEDO, "3DO")(AMIGA, "Amiga")(AMSTRAD_CPC, "Amstrad CPC")(APPLE_II, "Apple II")(ARCADE, "Arcade")(
-		ATARI_800, "Atari 800")(ATARI_2600, "Atari 2600")(ATARI_5200, "Atari 5200")(ATARI_7800, "Atari 7800")(ATARI_LYNX, "Atari Lynx")(
-		ATARI_ST, "Atari ST")(ATARI_JAGUAR, "Atari Jaguar")(ATARI_JAGUAR_CD, "Atari Jaguar CD")(ATARI_XE, "Atari XE")(COLECOVISION, "Colecovision")(
-		COMMODORE_64, "Commodore 64")(FAMILY_COMPUTER_DISK_SYSTEM, "Famicom Disk System")(INTELLIVISION, "Intellivision")(MACOS, "Mac OS")(
-		XBOX, "Microsoft Xbox")(XBOX_360, "Microsoft Xbox 360")(MSX, "MSX")(NEOGEO, "NeoGeo")(NEOGEO_POCKET, "Neo Geo Pocket")(NEOGEO_POCKET_COLOR,
-		"Neo Geo Pocket Color")(NINTENDO_3DS, "Nintendo 3DS")(NINTENDO_64, "Nintendo 64")(NINTENDO_DS, "Nintendo DS")(NINTENDO_ENTERTAINMENT_SYSTEM,
-		"Nintendo Entertainment System (NES)")(GAME_BOY, "Nintendo Game Boy")(GAME_BOY_ADVANCE, "Nintendo Game Boy Advance")(GAME_BOY_COLOR,
-		"Nintendo Game Boy Color")(NINTENDO_GAMECUBE, "Nintendo GameCube")(NINTENDO_WII, "Nintendo Wii")(NINTENDO_WII_U, "Nintendo Wii U")(PC, "PC")(
-		SEGA_32X, "Sega 32X")(SEGA_CD, "Sega CD")(SEGA_DREAMCAST, "Sega Dreamcast")(SEGA_GAME_GEAR, "Sega Game Gear")(SEGA_GENESIS, "Sega Genesis")(
-		SEGA_MASTER_SYSTEM, "Sega Master System")(SEGA_MEGA_DRIVE, "Sega Mega Drive")(SEGA_SATURN, "Sega Saturn")(PLAYSTATION, "Sony Playstation")(
-		PLAYSTATION_2, "Sony Playstation 2")(PLAYSTATION_3, "Sony Playstation 3")(PLAYSTATION_4, "Sony Playstation 4")(
-		PLAYSTATION_VITA, "Sony Playstation Vita")(PLAYSTATION_PORTABLE, "Sony Playstation Portable")(SUPER_NINTENDO, "Super Nintendo (SNES)")(
-		TURBOGRAFX_16, "TurboGrafx 16")(WONDERSWAN, "WonderSwan")(WONDERSWAN_COLOR, "WonderSwan Color")(ZX_SPECTRUM, "Sinclair ZX Spectrum")(
-		VIRTUAL_BOY, "Nintendo Virtual Boy")(GAME_AND_WATCH, "game-and-watch")(PC_ENGINE_CD, "TurboGrafx CD")(SUPERGRAFX, "TurboGrafx 16")(PRBOOM,
-		"PC")(VECTREX, "Vectrex")(LUTRO, "PC")(CAVE_STORY, "PC")(ODYSSEY_2, "Magnavox Odyssey 2")(ZX_81, "Sinclair ZX Spectrum")(MOONLIGHT, "PC");
 
 void thegamesdb_generate_scraper_requests(
 	const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results)
 {
-	std::string path = "thegamesdb.net/api/GetGame.php?";
+    using namespace PlatformIds;
+	static const std::map<PlatformId, const char*> mapPlatformId =
+	{
+		{ THREEDO, "3DO" },
+		{ AMIGA, "Amiga" },
+		{ AMSTRAD_CPC, "Amstrad CPC" },
+		{ APPLE_II, "Apple II" },
+		{ ARCADE, "Arcade" },
+		{ ATARI_800, "Atari 800" },
+		{ ATARI_2600, "Atari 2600" },
+		{ ATARI_5200, "Atari 5200" },
+		{ ATARI_7800, "Atari 7800" },
+		{ ATARI_LYNX, "Atari Lynx" },
+		{ ATARI_ST, "Atari ST" },
+		{ ATARI_JAGUAR, "Atari Jaguar" },
+		{ ATARI_JAGUAR_CD, "Atari Jaguar CD" },
+		{ ATARI_XE, "Atari XE" },
+		{ COLECOVISION, "Colecovision" },
+		{ COMMODORE_64, "Commodore 64" },
+		{ FAMILY_COMPUTER_DISK_SYSTEM, "Famicom Disk System" },
+		{ INTELLIVISION, "Intellivision" },
+		{ MACOS, "Mac OS" },
+		{ XBOX, "Microsoft Xbox" },
+		{ XBOX_360, "Microsoft Xbox 360" },
+		{ MSX, "MSX" },
+		{ NEOGEO, "NeoGeo" },
+		{ NEOGEO_POCKET, "Neo Geo Pocket" },
+		{ NEOGEO_POCKET_COLOR, "Neo Geo Pocket Color" },
+		{ NINTENDO_3DS, "Nintendo 3DS" },
+		{ NINTENDO_64, "Nintendo 64" },
+		{ NINTENDO_DS, "Nintendo DS" },
+		{ NINTENDO_ENTERTAINMENT_SYSTEM, "Nintendo Entertainment System (NES)" },
+		{ GAME_BOY, "Nintendo Game Boy" },
+		{ GAME_BOY_ADVANCE, "Nintendo Game Boy Advance" },
+		{ GAME_BOY_COLOR, "Nintendo Game Boy Color" },
+		{ NINTENDO_GAMECUBE, "Nintendo GameCube" },
+		{ NINTENDO_WII, "Nintendo Wii" },
+		{ NINTENDO_WII_U, "Nintendo Wii U" },
+		{ PC, "PC" },
+		{ SEGA_32X, "Sega 32X" },
+		{ SEGA_CD, "Sega CD" },
+		{ SEGA_DREAMCAST, "Sega Dreamcast" },
+		{ SEGA_GAME_GEAR, "Sega Game Gear" },
+		{ SEGA_GENESIS, "Sega Genesis" },
+		{ SEGA_MASTER_SYSTEM, "Sega Master System" },
+		{ SEGA_MEGA_DRIVE, "Sega Mega Drive" },
+		{ SEGA_SATURN, "Sega Saturn" },
+		{ PLAYSTATION, "Sony Playstation" },
+		{ PLAYSTATION_2, "Sony Playstation 2" },
+		{ PLAYSTATION_3, "Sony Playstation 3" },
+		{ PLAYSTATION_4, "Sony Playstation 4" },
+		{ PLAYSTATION_VITA, "Sony Playstation Vita" },
+		{ PLAYSTATION_PORTABLE, "Sony Playstation Portable" },
+		{ SUPER_NINTENDO, "Super Nintendo (SNES)" },
+		{ TURBOGRAFX_16, "TurboGrafx 16" },
+		{ WONDERSWAN, "WonderSwan" },
+		{ WONDERSWAN_COLOR, "WonderSwan Color" },
+		{ ZX_SPECTRUM, "Sinclair ZX Spectrum" },
+		{ VIRTUAL_BOY, "Nintendo Virtual Boy" },
+		{ GAME_AND_WATCH, "game-and-watch" },
+		{ PC_ENGINE_CD, "TurboGrafx CD" },
+		{ SUPERGRAFX, "TurboGrafx 16" },
+		{ PRBOOM, "PC" },
+		{ VECTREX, "Vectrex" },
+		{ LUTRO, "PC" },
+		{ CAVE_STORY, "PC" },
+		{ ODYSSEY_2, "Magnavox Odyssey 2" },
+		{ ZX_81, "Sinclair ZX Spectrum" },
+		{ MOONLIGHT, "PC" }
+	};
 
+    // http://wiki.thegamesdb.net/index.php/GetGame
 	const std::string cleanName = !params.nameOverride.empty() ? params.nameOverride : params.game->getCleanName();
-	path += "name=" + HttpReq::urlEncode(cleanName);
+	std::string path = "thegamesdb.net/api/GetGame.php?name=" + HttpReq::urlEncode(cleanName);
 
 	if (params.system->getPlatformIds().empty())
 	{
-		// no platform specified, we're done
 		requests.push(std::unique_ptr<ScraperRequest>(new TheGamesDBRequest(results, path)));
 	}
 	else
 	{
 		// go through the list, we need to split this into multiple requests
 		// because TheGamesDB API either sucks or I don't know how to use it properly...
-		std::string urlBase = path;
-		auto& platforms = params.system->getPlatformIds();
-		for (auto platformIt = platforms.begin(); platformIt != platforms.end(); platformIt++)
+		const std::string urlBase = path;
+		for (const auto& platformIt : params.system->getPlatformIds())
 		{
 			path = urlBase;
-			auto mapIt = gamesdb_platformid_map.find(*platformIt);
-			if (mapIt != gamesdb_platformid_map.end())
+			const auto mapIt = mapPlatformId.find(platformIt);
+			if (mapIt != mapPlatformId.end())
 			{
 				path += "&platform=";
 				path += HttpReq::urlEncode(mapIt->second);
 			}
 			else
 			{
-				LOG(LogWarning) << "TheGamesDB scraper warning - no support for platform " << getPlatformName(*platformIt);
+				LOG(LogWarning) << "TheGamesDB scraper warning - no support for platform " << getPlatformName(platformIt);
 			}
 
 			requests.push(std::unique_ptr<ScraperRequest>(new TheGamesDBRequest(results, path)));
@@ -78,9 +127,8 @@ void TheGamesDBRequest::process(const std::unique_ptr<HttpReq>& req, std::vector
 		return;
 	}
 
-	pugi::xml_node data = doc.child("Data");
-
-	std::string baseImageUrl = data.child("baseImgUrl").text().get();
+	const pugi::xml_node data = doc.child("Data");
+	const std::string baseImageUrl = data.child("baseImgUrl").text().get();
 
 	pugi::xml_node game = data.child("Game");
 	while (game && results.size() < MAX_SCRAPER_RESULTS)

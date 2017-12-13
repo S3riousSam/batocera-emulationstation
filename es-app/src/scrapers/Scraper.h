@@ -104,8 +104,11 @@ protected:
 // will use the current scraper settings to pick the result source
 std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params);
 
-// returns a list of valid scraper names
-std::vector<std::string> getScraperList();
+namespace Scraper
+{
+    // returns a list of valid scraper names
+    std::vector<std::string> getScraperList();
+}
 
 typedef void (*generate_scraper_requests_func)(
 	const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results);

@@ -68,10 +68,10 @@ int run_scraper_cmdline()
 	if (system_choice == "y" || system_choice == "Y")
 	{
 		out << "Will scrape all platforms.\n";
-		for (auto i = SystemData::sSystemVector.begin(); i != SystemData::sSystemVector.end(); i++)
+		for (const auto& i : SystemData::sSystemVector)
 		{
-			out << "   " << (*i)->getName() << " (" << (*i)->getGameCount() << " games)\n";
-			systems.push_back(*i);
+			out << "   " << i->getName() << " (" << i->getGameCount() << " games)\n";
+			systems.push_back(i);
 		}
 	}
 	else
@@ -83,14 +83,14 @@ int run_scraper_cmdline()
 
 		do
 		{
-			for (auto i = SystemData::sSystemVector.begin(); i != SystemData::sSystemVector.end(); i++)
+			for (const auto& i : SystemData::sSystemVector)
 			{
-				if (std::find(systems.begin(), systems.end(), (*i)) != systems.end())
+				if (std::find(systems.begin(), systems.end(), i) != systems.end())
 					out << " C ";
 				else
 					out << "   ";
 
-				out << "\"" << (*i)->getName() << "\" (" << (*i)->getGameCount() << " games)\n";
+				out << "\"" << i->getName() << "\" (" << i->getGameCount() << " games)\n";
 			}
 
 			std::getline(std::cin, sys_name);
@@ -99,11 +99,11 @@ int run_scraper_cmdline()
 				break;
 
 			bool found = false;
-			for (auto i = SystemData::sSystemVector.begin(); i != SystemData::sSystemVector.end(); i++)
+			for (const auto& i : SystemData::sSystemVector)
 			{
-				if ((*i)->getName() == sys_name)
+				if (i->getName() == sys_name)
 				{
-					systems.push_back(*i);
+					systems.push_back(i);
 					found = true;
 					break;
 				}

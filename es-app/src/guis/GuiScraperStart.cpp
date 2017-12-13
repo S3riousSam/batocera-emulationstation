@@ -14,16 +14,17 @@
 GuiScraperStart::GuiScraperStart(Window* window)
 	: GuiComponent(window)
 	, mMenu(window, _("SCRAPE NOW"))
+	, mApproveResults(std::make_shared<SwitchComponent>(window))
 {
 	addChild(&mMenu);
 
 	// add filters (with first one selected)
 	mFilters = std::make_shared<OptionListComponent<GameFilterFunc>>(mWindow, _("SCRAPE THESE GAMES"), false);
-	mFilters->add(_("All Games"), [](SystemData*, FileData*) -> bool { return true; }, false);
-	mFilters->add(_("Only missing image"), [](SystemData*, FileData* g) -> bool { return g->metadata.get("image").empty(); }, true);
+	mFilters->add(_("All Games"), [](SystemData*, FileData*) { return true; }, false);
+	mFilters->add(_("Only missing image"), [](SystemData*, FileData* g) { return g->metadata.get("image").empty(); }, true);
 	mMenu.addWithLabel(_("FILTER"), mFilters);
 
-	// add systems (all with a platformid specified selected)
+	// add systems (all with a platform id specified selected)
 	mSystems = std::make_shared<OptionListComponent<SystemData*>>(mWindow, _("SCRAPE THESE SYSTEMS"), true);
 	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
 	{
@@ -32,37 +33,32 @@ GuiScraperStart::GuiScraperStart(Window* window)
 	}
 	mMenu.addWithLabel(_("SYSTEMS"), mSystems);
 
-	mApproveResults = std::make_shared<SwitchComponent>(mWindow);
 	mApproveResults->setState(true);
 	mMenu.addWithLabel(_("USER DECIDES ON CONFLICTS"), mApproveResults);
 
-	mMenu.addButton(_("START"), "start", std::bind(&GuiScraperStart::pressedStart, this));
+	mMenu.addButton(_("START"), "start", std::bind(&GuiScraperStart::start, this));
 	mMenu.addButton(_("BACK"), "back", [&] { delete this; });
 
 	mMenu.setPosition((Renderer::getScreenWidth() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.1f);
 }
 
-void GuiScraperStart::pressedStart()
+void GuiScraperStart::start()
 {
 	std::vector<SystemData*> sys = mSystems->getSelectedObjects();
-	for (auto it = sys.begin(); it != sys.end(); it++)
+	for (const auto& it : sys)
 	{
-		if ((*it)->getPlatformIds().empty())
+		if (it->getPlatformIds().empty())
 		{
 			mWindow->pushGui(new GuiMsgBox(mWindow,
-				_("WARNING: SOME OF YOUR SELECTED SYSTEMS DO NOT HAVE A PLATFORM SET. RESULTS MAY BE EVEN MORE INACCURATE THAN USUAL!\nCONTINUE "
-				  "ANYWAY?"),
+				_("WARNING: SOME OF YOUR SELECTED SYSTEMS DO NOT HAVE A PLATFORM SET. "
+				  "RESULTS MAY BE MORE INACCURATE THAN USUAL!\n"
+				  "CONTINUE ANYWAY?"),
 				_("YES"), std::bind(&GuiScraperStart::start, this), _("NO"), nullptr));
 			return;
 		}
 	}
 
-	start();
-}
-
-void GuiScraperStart::start()
-{
-	std::queue<ScraperSearchParams> searches = getSearches(mSystems->getSelectedObjects(), mFilters->getSelected());
+	const std::queue<ScraperSearchParams> searches = getSearches(mSystems->getSelectedObjects(), mFilters->getSelected());
 
 	if (searches.empty())
 	{
@@ -70,8 +66,7 @@ void GuiScraperStart::start()
 	}
 	else
 	{
-		GuiScraperMulti* gsm = new GuiScraperMulti(mWindow, searches, mApproveResults->getState());
-		mWindow->pushGui(gsm);
+		mWindow->pushGui(new GuiScraperMulti(mWindow, searches, mApproveResults->getState()));
 		delete this;
 	}
 }
@@ -79,19 +74,13 @@ void GuiScraperStart::start()
 std::queue<ScraperSearchParams> GuiScraperStart::getSearches(std::vector<SystemData*> systems, GameFilterFunc selector)
 {
 	std::queue<ScraperSearchParams> queue;
-	for (auto sys = systems.begin(); sys != systems.end(); sys++)
+	for (const auto& sys : systems)
 	{
-		std::vector<FileData*> games = (*sys)->getRootFolder()->getFilesRecursive(GAME);
-		for (auto game = games.begin(); game != games.end(); game++)
+		const std::vector<FileData*> games = sys->getRootFolder()->getFilesRecursive(GAME);
+		for (const auto& game : games)
 		{
-			if (selector((*sys), (*game)))
-			{
-				ScraperSearchParams search;
-				search.game = *game;
-				search.system = *sys;
-
-				queue.push(search);
-			}
+			if (selector(sys, game))
+				queue.push(ScraperSearchParams{ sys, game });
 		}
 	}
 
@@ -100,8 +89,7 @@ std::queue<ScraperSearchParams> GuiScraperStart::getSearches(std::vector<SystemD
 
 bool GuiScraperStart::input(InputConfig* config, Input input)
 {
-	bool consumed = GuiComponent::input(config, input);
-	if (consumed)
+	if (GuiComponent::input(config, input)) // consumed?
 		return true;
 
 	if (input.value != 0 && config->isMappedTo(BUTTON_BACK, input))
@@ -114,7 +102,7 @@ bool GuiScraperStart::input(InputConfig* config, Input input)
 	{
 		// close everything
 		Window* window = mWindow;
-		while (window->peekGui() && window->peekGui() != ViewController::get())
+		while (window->peekGui() && window->peekGui() != ViewController::get()) // Why the loop here?
 			delete window->peekGui();
 	}
 

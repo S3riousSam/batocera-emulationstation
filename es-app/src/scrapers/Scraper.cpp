@@ -2,7 +2,6 @@
 #include "Log.h"
 #include "Settings.h"
 #include <FreeImage.h>
-#include <boost/assign.hpp>
 #include <boost/filesystem.hpp>
 
 #include "GamesDBScraper.h"
@@ -13,13 +12,16 @@
 #endif
 #include "ScreenscraperScraper.h"
 
-const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs = boost::assign::map_list_of("TheGamesDB", &thegamesdb_generate_scraper_requests)
+const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs =
+{
+    { "TheGamesDB", &thegamesdb_generate_scraper_requests},
 #if defined(EXTENSION)
-		("Mamedb", &mamedb_generate_scraper_requests)("Screenscraper", &screenscraper_generate_scraper_requests);
+    { "Mamedb", &mamedb_generate_scraper_requests},
+    { "Screenscraper", &screenscraper_generate_scraper_requests}
 #else
-	//	("TheArchive", &thearchive_generate_scraper_requests);
-	;
+    { "TheArchive", &thearchive_generate_scraper_requests}
 #endif
+};
 
 std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params)
 {
@@ -30,13 +32,11 @@ std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParam
 	return handle;
 }
 
-std::vector<std::string> getScraperList()
+std::vector<std::string> Scraper::getScraperList()
 {
 	std::vector<std::string> list;
 	for (auto item : scraper_request_funcs)
-	{
 		list.push_back(item.first);
-	}
 	return list;
 }
 

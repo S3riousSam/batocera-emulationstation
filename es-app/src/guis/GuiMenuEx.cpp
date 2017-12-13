@@ -289,7 +289,7 @@ namespace GuiMenuEx
 		gui.addRow(row);
 	}
 
-	void AddManuScrape(GuiSettings& gui, Window* window, std::function<void()>& handler)
+	void AddMenuScrape(GuiSettings& gui, Window* window, std::function<void()>& handler)
 	{
 		ComponentListRow row;
 		row.makeAcceptInputHandler(handler);
@@ -599,12 +599,10 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 			// install
 			{
 				ComponentListRow row;
-				auto openInstallNow = [window] { window->pushGui(new GuiInstallStart(window)); };
-				row.makeAcceptInputHandler(openInstallNow);
-				auto installSettings =
-					std::make_shared<TextComponent>(window, _("INSTALL BATOCERA ON A NEW DISK"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				row.makeAcceptInputHandler([window] { window->pushGui(new GuiInstallStart(window)); });
+				auto component = std::make_shared<TextComponent>(window, _("INSTALL ON A NEW DISK"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 				auto bracket = makeArrow(window);
-				row.addElement(installSettings, true);
+				row.addElement(component, true);
 				row.addElement(bracket, false);
 				s->addRow(row);
 			}

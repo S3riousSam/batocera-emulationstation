@@ -35,7 +35,7 @@ namespace GuiMenuEx
 	std::shared_ptr<OptionListComponent<std::string>> createRatioOptionList(Window* window, std::string configname);
 	void clearLoadedInput(std::vector<GuiMenu::StrInputConfig*>& v);
 	void AddAutoScrape(GuiSettings& gui, Window* window);
-	void AddManuScrape(GuiSettings& gui, Window* window, std::function<void()>& handler);
+	void AddMenuScrape(GuiSettings& gui, Window* window, std::function<void()>& handler);
 } // namespace GuiMenuEx
 #else
 #define _(A) A
@@ -74,32 +74,28 @@ GuiMenu::GuiMenu(Window* window)
 		auto openScrapeNow = [this] { mWindow->pushGui(new GuiScraperStart(mWindow)); };
 		auto s = new GuiSettings(mWindow, _("MANUAL SCRAPER"));
 #else
-			auto s = new GuiSettings(mWindow, _("SCRAPER"));
+		auto s = new GuiSettings(mWindow, _("SCRAPER"));
 #endif
-
 		// scrape from
-		auto scraper_list = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SCRAPE FROM"), false);
-		std::vector<std::string> scrapers = getScraperList();
-		for (auto it = scrapers.begin(); it != scrapers.end(); it++)
-			scraper_list->add(*it, *it, *it == Settings::getInstance()->getString("Scraper"));
+		auto scraperList = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SCRAPE FROM"), false);
+		for (const auto& it : Scraper::getScraperList())
+			scraperList->add(it, it, (it == Settings::getInstance()->getString("Scraper")));
 
-		s->addWithLabel(_("SCRAPE FROM"), scraper_list);
-		s->addSaveFunc([scraper_list] { Settings::getInstance()->setString("Scraper", scraper_list->getSelected()); });
+		s->addWithLabel(_("SCRAPE FROM"), scraperList);
+		s->addSaveFunc([scraperList] { Settings::getInstance()->setString("Scraper", scraperList->getSelected()); });
 
 		// scrape ratings
-		auto scrape_ratings = std::make_shared<SwitchComponent>(mWindow);
-		scrape_ratings->setState(Settings::getInstance()->getBool("ScrapeRatings"));
-		s->addWithLabel(_("SCRAPE RATINGS"), scrape_ratings);
-		s->addSaveFunc([scrape_ratings] { Settings::getInstance()->setBool("ScrapeRatings", scrape_ratings->getState()); });
+		auto scrapeRatings = std::make_shared<SwitchComponent>(mWindow);
+		scrapeRatings->setState(Settings::getInstance()->getBool("ScrapeRatings"));
+		s->addWithLabel(_("SCRAPE RATINGS"), scrapeRatings);
+		s->addSaveFunc([scrapeRatings] { Settings::getInstance()->setBool("ScrapeRatings", scrapeRatings->getState()); });
 
 		// scrape now
 		ComponentListRow row;
-		std::function<void()> openAndSave = openScrapeNow;
-		openAndSave = [s, openAndSave] {
+		row.makeAcceptInputHandler([s, openScrapeNow] {
 			s->save();
-			openAndSave();
-		};
-		row.makeAcceptInputHandler(openAndSave);
+			openScrapeNow();
+		});
 
 		auto scrape_now = std::make_shared<TextComponent>(mWindow, _("SCRAPE NOW"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
 		auto bracket = makeArrow(mWindow);
@@ -252,7 +248,7 @@ GuiMenu::GuiMenu(Window* window)
 		addEntry(_("SCRAPER"), 0x777777FF, true, [this, &manualScrape] {
 			auto s = new GuiSettings(mWindow, _("SCRAPER"));
 			GuiMenuEx::AddAutoScrape(*s, mWindow);
-			GuiMenuEx::AddManuScrape(*s, mWindow, manualScrape);
+			GuiMenuEx::AddMenuScrape(*s, mWindow, manualScrape);
 			mWindow->pushGui(s);
 		});
 	}

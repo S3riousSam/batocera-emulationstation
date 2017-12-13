@@ -13,33 +13,27 @@ void mamedb_generate_scraper_requests(
 
 void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results)
 {
-	const boost::regex infolineregex("^.*?<h1>Game Details</h1>(.*?)</table>.*$");
-	const boost::regex titleregex("^.*?<b>Name:&nbsp</b>(?<title>.*?)<br/>.*?<b>Year:&nbsp</b> \
-<a href='/year/.*?'>(?<date>.*?)</a><br/>\
-<b>Manufacturer:&nbsp</b> <a href='/manufacturer/.*?'>(?<developer>.*?)</a><br/>\
-<b>Filename:&nbsp;</b>(?<filename>.*?)<br/><b>.*$");
-	const boost::regex cloneregex("^.*?&nbsp;\\(clone of: <a href='.*?'>(?<clone>.*?)</a>\\)&nbsp;<br/>.*$");
-	const boost::regex cleantitleregex("^(?<title>.*?)&nbsp.*$");
-	const boost::regex scoreregex("^.*?<b>Score:&nbsp;</b>(?<rating>.*?) \\(.*? votes\\)<br/>.*$");
-	const boost::regex genreregex("^.*?<b>Category:&nbsp;</b><a href='.*?'>(?<genre>.*?)</a><br/>.*$");
-	const boost::regex playersregex("^.*?<b>Players:&nbsp;</b>(?<players>.*?)<br/>.*$");
-	const boost::regex snapregex("^.*?<img src='/snap/(?<img>.*?)\\.png'.*$");
+	const char* const TITLE_REGEX = "^.*?<b>Name:&nbsp</b>(?<title>.*?)<br/>.*?<b>Year:&nbsp</b> "
+		"<a href='/year/.*?'>(?<date>.*?)</a><br/>"
+		"<b>Manufacturer:&nbsp</b> <a href='/manufacturer/.*?'>(?<developer>.*?)</a><br/>"
+		"<b>Filename:&nbsp;</b>(?<filename>.*?)<br/><b>.*$";
+	//const char* const CLONE_REGEX = "^.*?&nbsp;\\(clone of: <a href='.*?'>(?<clone>.*?)</a>\\)&nbsp;<br/>.*$";
 
 	assert(req->status() == HttpReq::REQ_SUCCESS);
 
 	boost::smatch infolinematches;
-	if (boost::regex_match(req->getContent(), infolinematches, infolineregex))
+	if (boost::regex_match(req->getContent(), infolinematches, boost::regex("^.*?<h1>Game Details</h1>(.*?)</table>.*$")))
 	{
 		boost::smatch linematches;
-		std::string line(infolinematches[1]);
-		if (boost::regex_match(line, linematches, titleregex))
+		const std::string line(infolinematches[1]);
+		if (boost::regex_match(line, linematches, boost::regex(TITLE_REGEX)))
 		{
 			ScraperSearchResult result;
 
 			// TITLE
 			result.mdl.set("name", std::string(linematches["title"]));
 			boost::smatch tmatches;
-			if (boost::regex_match(std::string(linematches["title"]), tmatches, cleantitleregex))
+			if (boost::regex_match(std::string(linematches["title"]), tmatches, boost::regex("^(?<title>.*?)&nbsp.*$")))
 				result.mdl.set("name", std::string(tmatches["title"]));
 
 			// DATE
@@ -51,12 +45,12 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 
 			// GENRE
 			boost::smatch genrematches;
-			if (boost::regex_match(line, genrematches, genreregex))
+			if (boost::regex_match(line, genrematches, boost::regex("^.*?<b>Category:&nbsp;</b><a href='.*?'>(?<genre>.*?)</a><br/>.*$")))
 				result.mdl.set("genre", std::string(genrematches["genre"]));
 
 			// RATING
 			boost::smatch scorematches;
-			if (boost::regex_match(req->getContent(), scorematches, scoreregex))
+			if (boost::regex_match(req->getContent(), scorematches, boost::regex("^.*?<b>Score:&nbsp;</b>(?<rating>.*?) \\(.*? votes\\)<br/>.*$")))
 			{
 				float score = 0;
 				std::stringstream(std::string(scorematches["rating"])) >> score;
@@ -66,13 +60,13 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 
 			// PLAYERS
 			boost::smatch playersmatches;
-			if (boost::regex_match(line, playersmatches, playersregex))
+			if (boost::regex_match(line, playersmatches, boost::regex("^.*?<b>Players:&nbsp;</b>(?<players>.*?)<br/>.*$")))
 				result.mdl.set("players", std::string(playersmatches["players"]));
 
 			// IMAGES
 			boost::smatch snapmatches;
 			std::stringstream ss;
-			if (boost::regex_match(req->getContent(), snapmatches, snapregex))
+			if (boost::regex_match(req->getContent(), snapmatches, boost::regex("^.*?<img src='/snap/(?<img>.*?)\\.png'.*$")))
 			{
 				ss << "http://www.mamedb.com/snap/" << std::string(snapmatches["img"]) << ".png";
 				result.imageUrl = ss.str();
@@ -84,7 +78,7 @@ void MamedbRequest::process(const std::unique_ptr<HttpReq>& req, std::vector<Scr
 	}
 	else
 	{
-		LOG(LogInfo) << req->getContent().c_str() << titleregex.str() << "\nNot found";
+		LOG(LogInfo) << req->getContent().c_str() << TITLE_REGEX << "\nNot found";
 	}
 }
 #endif
