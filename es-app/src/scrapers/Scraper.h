@@ -7,8 +7,6 @@
 #include <queue>
 #include <vector>
 
-#define MAX_SCRAPER_RESULTS 7
-
 struct ScraperSearchParams
 {
 	SystemData* system;
@@ -71,6 +69,8 @@ class ScraperHttpRequest : public ScraperRequest // Abstract class
 {
 public:
 	void update() override;
+
+	static const size_t MAX_SCRAPER_RESULTS = 7ull;
 
 protected:
 	ScraperHttpRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url);

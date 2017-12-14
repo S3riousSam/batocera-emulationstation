@@ -237,7 +237,7 @@ void ScraperSearchComponent::onSearchDone(const std::vector<ScraperSearchResult>
 
 	mScraperResults = results;
 
-	const int end = results.size() > MAX_SCRAPER_RESULTS ? MAX_SCRAPER_RESULTS : results.size(); // at max display 5
+	const int end = results.size() > ScraperHttpRequest::MAX_SCRAPER_RESULTS ? ScraperHttpRequest::MAX_SCRAPER_RESULTS : results.size(); // at max display 5
 
 	const auto font = Font::get(FONT_SIZE_MEDIUM);
 	const unsigned int COLOR = 0x777777FF;
@@ -299,9 +299,7 @@ void ScraperSearchComponent::updateInfoPane()
 {
 	int index = getSelectedIndex();
 	if (mSearchType == ALWAYS_ACCEPT_FIRST_RESULT && mScraperResults.size())
-	{
 		index = 0;
-	}
 
 	if (index != -1 && (int)mScraperResults.size() > index)
 	{
@@ -313,13 +311,9 @@ void ScraperSearchComponent::updateInfoPane()
 		mResultThumbnail->setImage("");
 		const std::string& thumb = res.thumbnailUrl.empty() ? res.imageUrl : res.thumbnailUrl;
 		if (!thumb.empty())
-		{
 			mThumbnailReq = std::unique_ptr<HttpReq>(new HttpReq(thumb));
-		}
 		else
-		{
 			mThumbnailReq.reset();
-		}
 
 		// metadata
 		mMD_Rating->setValue(strToUpper(res.mdl.get("rating")));
@@ -485,11 +479,13 @@ void ScraperSearchComponent::openInputScreen(ScraperSearchParams& params)
 
 std::vector<HelpPrompt> ScraperSearchComponent::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts = mGrid.getHelpPrompts();
-	if (getSelectedIndex() != -1)
-		prompts.push_back(HelpPrompt("b", _("ACCEPT RESULT")));
-
-	return prompts;
+    if (getSelectedIndex() != -1)
+    {
+        std::vector<HelpPrompt> prompts = mGrid.getHelpPrompts();
+        prompts.push_back(HelpPrompt("b", _("ACCEPT RESULT")));
+        return prompts;
+    }
+    return mGrid.getHelpPrompts();
 }
 
 void ScraperSearchComponent::onFocusGained()
