@@ -35,7 +35,7 @@ namespace GuiMenuEx
 	std::shared_ptr<OptionListComponent<std::string>> createRatioOptionList(Window* window, std::string configname);
 	void clearLoadedInput(std::vector<GuiMenu::StrInputConfig*>& v);
 	void AddAutoScrape(GuiSettings& gui, Window* window);
-	void AddMenuScrape(GuiSettings& gui, Window* window, std::function<void()>& handler);
+	void AddMenuScrape(GuiSettings& gui, Window* window, std::function<void()> handler);
 } // namespace GuiMenuEx
 #else
 #define _(A) A
@@ -245,7 +245,7 @@ GuiMenu::GuiMenu(Window* window)
 	if (RecalboxConf::get("system.es.menu") != "bartop")
 	{
 		// manual or automatic?
-		addEntry(_("SCRAPER"), 0x777777FF, true, [this, &manualScrape] {
+		addEntry(_("SCRAPER"), 0x777777FF, true, [this, manualScrape] {
 			auto s = new GuiSettings(mWindow, _("SCRAPER"));
 			GuiMenuEx::AddAutoScrape(*s, mWindow);
 			GuiMenuEx::AddMenuScrape(*s, mWindow, manualScrape);

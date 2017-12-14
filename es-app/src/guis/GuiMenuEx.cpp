@@ -289,7 +289,7 @@ namespace GuiMenuEx
 		gui.addRow(row);
 	}
 
-	void AddMenuScrape(GuiSettings& gui, Window* window, std::function<void()>& handler)
+	void AddMenuScrape(GuiSettings& gui, Window* window, std::function<void()> handler)
 	{
 		ComponentListRow row;
 		row.makeAcceptInputHandler(handler);
@@ -822,7 +822,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 			// Custom config for systems
 			{
 				ComponentListRow row;
-				std::function<void()> openGuiD = [menu, window, s] {
+				std::function<void()> openGuiD = [&menu, window, s] {
 					s->save();
 					GuiSettings* configuration = new GuiSettings(window, _("ADVANCED").c_str());
 					// For each activated system
