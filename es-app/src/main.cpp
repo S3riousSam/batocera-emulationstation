@@ -303,11 +303,13 @@ int main(int argc, char* argv[])
 #if defined(EXTENSION)
 	RecalBox::performExtra(window);
 #endif
+#if defined(ENABLE_COMMAND_LINE_SCRAPER)
 	// run the command line scraper then quit
 	if (scrape_cmdline)
 	{
 		return run_scraper_cmdline();
 	}
+#endif
 
 	// dont generate joystick events while we're loading (hopefully fixes "automatically started emulator" bug)
 	SDL_JoystickEventState(SDL_DISABLE);

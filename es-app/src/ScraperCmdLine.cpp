@@ -1,12 +1,11 @@
 #include "ScraperCmdLine.h"
+#if defined(ENABLE_COMMAND_LINE_SCRAPER)
 #include "Log.h"
 #include "Settings.h"
 #include "SystemData.h"
 #include <iostream>
 #include <signal.h>
 #include <vector>
-
-std::ostream& out = std::cout;
 
 void handle_interrupt_signal(int p)
 {
@@ -25,6 +24,8 @@ void handle_interrupt_signal(int p)
 
 int run_scraper_cmdline()
 {
+	std::ostream& out = std::cout;
+
 	out << "EmulationStation scraper\n";
 	out << "========================\n";
 	out << "\n";
@@ -147,7 +148,8 @@ int run_scraper_cmdline()
 	out << "Alright, let's do this thing!\n";
 	out << "=============================\n";
 
-	/*
+//#define ENABLE_COMMAND_LINE_SCRAPER_PROCESSING
+#if defined(ENABLE_COMMAND_LINE_SCRAPER_PROCESSING) // This is also disabled in ES-vanilla sources!
 	std::shared_ptr<Scraper> scraper = Settings::getInstance()->getScraper();
 	for(auto sysIt = systems.begin(); sysIt != systems.end(); sysIt++)
 	{
@@ -285,10 +287,11 @@ int run_scraper_cmdline()
 	out << "==============================\n";
 	out << "SCRAPE COMPLETE!\n";
 	out << "==============================\n";
-	*/
+#endif
 
 	out << "\n\n";
 	out << "ACTUALLY THIS IS STILL TODO\n";
 
 	return 0;
 }
+#endif
