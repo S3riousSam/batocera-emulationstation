@@ -1,15 +1,16 @@
 #if defined(MANUAL_SCRAPING)
 #pragma once
 #include "GuiComponent.h"
-#include "SystemData.h"
 #include "components/MenuComponent.h"
-#include "scrapers/Scraper.h"
 #include <queue>
 
 template<typename T>
 class OptionListComponent;
 
+class FileData;
+class SystemData;
 class SwitchComponent;
+struct ScraperSearchParams;
 
 // Performs multi-game scraping (starting point) allowing the user to set various parameters
 // (filters, target systems, enabling manual mode).

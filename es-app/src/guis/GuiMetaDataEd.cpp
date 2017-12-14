@@ -3,15 +3,15 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Settings.h"
+#include "SystemData.h"
 #include "components/AsyncReqComponent.h"
 #include "guis/GuiGameScraper.h"
 #include "guis/GuiMsgBox.h"
-#include "views/ViewController.h"
-#include <boost/filesystem.hpp>
 #include "components/DateTimeComponent.h"
 #include "components/RatingComponent.h"
 #include "components/TextEditComponent.h"
 #include "guis/GuiTextEditPopup.h"
+#include "views/ViewController.h"
 #if defined(EXTENSION)
 #include "components/OptionListComponent.h"
 #include "guis/GuiTextEditPopupKeyboard.h"
@@ -21,6 +21,7 @@
 #else
 #include "LocaleES.h"
 #endif
+#include <boost/filesystem.hpp>
 
 #define BUTTON_BACK "a"
 

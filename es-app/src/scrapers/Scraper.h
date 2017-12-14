@@ -3,10 +3,12 @@
 #include "AsyncHandle.h"
 #include "HttpReq.h"
 #include "MetaData.h"
-#include "SystemData.h"
 #include <functional>
 #include <queue>
 #include <vector>
+
+class FileData;
+class SystemData;
 
 struct ScraperSearchParams
 {
@@ -75,6 +77,16 @@ private:
 	std::vector<ScraperSearchResult>& mResults;
 };
 
+class ScraperSearchHandle;
+
+namespace Scraper
+{
+	// Picks the result source using the current scraper settings
+	std::unique_ptr<ScraperSearchHandle> startSearch(const ScraperSearchParams& params);
+
+	std::vector<std::string> getNames();
+}
+
 // Defines a request to get a list of results
 class ScraperSearchHandle final : public AsyncHandle
 {
@@ -90,22 +102,13 @@ public:
 private:
 	void update() override;
 
-	friend std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params);
+	friend std::unique_ptr<ScraperSearchHandle> Scraper::startSearch(const ScraperSearchParams& params);
 
 	std::queue<std::unique_ptr<ScraperRequest>> mRequestQueue;
 	std::vector<ScraperSearchResult> mResults;
 };
 
-// This method uses the current scraper settings to pick the result source
-std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params);
-
-namespace Scraper
-{
-	std::vector<std::string> getScraperList(); // returns valid scraper names
-}
-
-// Meta data asset downloading stuff.
-class MDResolveHandle : public AsyncHandle
+class MDResolveHandle : public AsyncHandle // Meta data asset downloading stuff.
 {
 public:
 	MDResolveHandle(const ScraperSearchResult& result, const ScraperSearchParams& search);
@@ -125,6 +128,12 @@ private:
 	std::vector<ResolvePair> mFuncs;
 };
 
+namespace Scraper
+{
+	// Resolves all metadata assets that need to be downloaded.
+	std::unique_ptr<MDResolveHandle> resolveMetaDataAssets(const ScraperSearchResult& result, const ScraperSearchParams& search);
+}
+
 class ImageDownloadHandle : public AsyncHandle
 {
 public:
@@ -138,20 +147,5 @@ private:
 	int mMaxWidth;
 	int mMaxHeight;
 };
-
-// About the same as "~/.emulationstation/downloaded_images/[system_name]/[game_name].[url's extension]".
-// Will create the "downloaded_images" and "subdirectory" directories if they do not exist.
-std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& suffix, const std::string& url);
-
-// Will resize according to Settings::getInt("ScraperResizeWidth") and Settings::getInt("ScraperResizeHeight").
-std::unique_ptr<ImageDownloadHandle> downloadImageAsync(const std::string& url, const std::string& saveAs);
-
-// Resolves all metadata assets that need to be downloaded.
-std::unique_ptr<MDResolveHandle> resolveMetaDataAssets(const ScraperSearchResult& result, const ScraperSearchParams& search);
-
-// You can pass 0 for maxWidth or maxHeight to automatically keep the aspect ratio.
-// Will overwrite the image at [path] with the new resized one.
-// Returns true if successful, false otherwise.
-bool resizeImage(const std::string& path, int maxWidth, int maxHeight);
 
 #endif

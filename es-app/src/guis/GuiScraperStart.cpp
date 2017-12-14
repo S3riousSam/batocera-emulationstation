@@ -8,6 +8,8 @@
 #include "components/OptionListComponent.h"
 #include "components/SwitchComponent.h"
 #include "components/TextComponent.h"
+#include "scrapers/Scraper.h"
+#include "SystemData.h"
 
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"

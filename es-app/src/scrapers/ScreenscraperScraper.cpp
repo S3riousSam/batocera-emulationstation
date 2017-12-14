@@ -1,9 +1,12 @@
 #if defined(MANUAL_SCRAPING)
 #include "scrapers/ScreenscraperScraper.h"
+#include "FileData.h"
 #include "Log.h"
 #include "MetaData.h"
+#include "PlatformId.h"
 #include "RecalboxConf.h"
 #include "Settings.h"
+#include "SystemData.h"
 #include "Util.h"
 #include "pugixml/pugixml.hpp"
 #include <boost/assign.hpp>

@@ -80,7 +80,7 @@ GuiMenu::GuiMenu(Window* window)
 #endif
 		// scrape from
 		auto scraperList = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SCRAPE FROM"), false);
-		for (const auto& it : Scraper::getScraperList())
+		for (const auto& it : Scraper::getNames())
 			scraperList->add(it, it, (it == Settings::getInstance()->getString("Scraper")));
 
 		s->addWithLabel(_("SCRAPE FROM"), scraperList);

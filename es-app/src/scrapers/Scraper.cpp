@@ -12,6 +12,7 @@
 //#include "TheArchiveScraper.h"
 #endif
 #include "ScreenscraperScraper.h"
+#include "SystemData.h"
 
 typedef void(*generate_scraper_requests_func)(
     const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results);
@@ -29,7 +30,7 @@ static const std::map<const char*, generate_scraper_requests_func> scraper_reque
 #endif
 };
 
-std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params)
+std::unique_ptr<ScraperSearchHandle> Scraper::startSearch(const ScraperSearchParams& params)
 {
 	const std::string& name = Settings::getInstance()->getString("Scraper");
 
@@ -41,12 +42,17 @@ std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParam
 	return handle;
 }
 
-std::vector<std::string> Scraper::getScraperList()
+std::vector<std::string> Scraper::getNames()
 {
 	std::vector<std::string> list;
 	for (auto item : scraper_request_funcs)
 		list.push_back(item.first);
 	return list;
+}
+
+std::unique_ptr<MDResolveHandle> Scraper::resolveMetaDataAssets(const ScraperSearchResult& result, const ScraperSearchParams& search)
+{
+    return std::unique_ptr<MDResolveHandle>(new MDResolveHandle(result, search));
 }
 
 // ScraperSearchHandle
@@ -121,12 +127,19 @@ void ScraperHttpRequest::update()
 	setError(mReq->getErrorMsg());
 }
 
-// metadata resolving stuff
-
-std::unique_ptr<MDResolveHandle> resolveMetaDataAssets(const ScraperSearchResult& result, const ScraperSearchParams& search)
+namespace
 {
-	return std::unique_ptr<MDResolveHandle>(new MDResolveHandle(result, search));
+	// Resizes according to Settings::getInt("ScraperResizeWidth") and Settings::getInt("ScraperResizeHeight").
+	std::unique_ptr<ImageDownloadHandle> downloadImageAsync(const std::string& url, const std::string& saveAs)
+	{
+		return std::unique_ptr<ImageDownloadHandle>(new ImageDownloadHandle(
+			url, saveAs, Settings::getInstance()->getInt("ScraperResizeWidth"), Settings::getInstance()->getInt("ScraperResizeHeight")));
+	}
 }
+
+// About the same as "~/.emulationstation/downloaded_images/[system_name]/[game_name].[url's extension]".
+// Will create the "downloaded_images" and "subdirectory" directories if they do not exist.
+std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& suffix, const std::string& url);
 
 MDResolveHandle::MDResolveHandle(const ScraperSearchResult& result, const ScraperSearchParams& search)
 	: mResult(result)
@@ -167,12 +180,6 @@ void MDResolveHandle::update()
 		setStatus(AsyncHandleStatus::Done);
 }
 
-std::unique_ptr<ImageDownloadHandle> downloadImageAsync(const std::string& url, const std::string& saveAs)
-{
-	return std::unique_ptr<ImageDownloadHandle>(new ImageDownloadHandle(
-		url, saveAs, Settings::getInstance()->getInt("ScraperResizeWidth"), Settings::getInstance()->getInt("ScraperResizeHeight")));
-}
-
 ImageDownloadHandle::ImageDownloadHandle(const std::string& url, const std::string& path, int maxWidth, int maxHeight)
 	: mSavePath(path)
 	, mMaxWidth(maxWidth)
@@ -180,6 +187,11 @@ ImageDownloadHandle::ImageDownloadHandle(const std::string& url, const std::stri
 	, mReq(new HttpReq(url))
 {
 }
+
+// Overwrites the image at [path] with the new resized one.
+// Passing 0 for maxWidth or maxHeight automatically keeps the aspect ratio.
+// Returns true if successful.
+bool resizeImage(const std::string& path, int maxWidth, int maxHeight);
 
 void ImageDownloadHandle::update()
 {
@@ -221,7 +233,6 @@ void ImageDownloadHandle::update()
 	setStatus(AsyncHandleStatus::Done);
 }
 
-// you can pass 0 for width or height to keep aspect ratio
 bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 {
 	// nothing to do
@@ -283,7 +294,7 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 
 std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& suffix, const std::string& url)
 {
-    const char* const IMAGES_OUTPUT_PATH = "/.emulationstation/downloaded_images/";
+	const char* const IMAGES_OUTPUT_PATH = "/.emulationstation/downloaded_images/";
 	const std::string& subdirectory = params.system->getName();
 	const std::string name = params.game->getPath().stem().generic_string() + "-" + suffix;
 

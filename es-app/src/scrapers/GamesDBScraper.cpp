@@ -1,8 +1,11 @@
 #if defined(MANUAL_SCRAPING)
 #include "scrapers/GamesDBScraper.h"
+#include "FileData.h"
 #include "Log.h"
 #include "MetaData.h"
+#include "PlatformId.h"
 #include "Settings.h"
+#include "SystemData.h"
 #include "Util.h"
 #include "pugixml/pugixml.hpp"
 

@@ -1,9 +1,11 @@
 #if defined(MANUAL_SCRAPING)
 #include "guis/GuiGameScraper.h"
+#include "FileData.h"
 #include "LocaleES.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "Settings.h"
+#include "SystemData.h"
 #include "components/ButtonComponent.h"
 #include "components/MenuComponent.h"
 #include "components/TextComponent.h"
