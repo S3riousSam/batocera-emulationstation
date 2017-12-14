@@ -1,5 +1,4 @@
 #pragma once
-
 #include "scrapers/Scraper.h"
 
 void screenscraper_generate_scraper_requests(
@@ -13,6 +12,6 @@ public:
 	{
 	}
 
-protected:
+private:
 	void process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results) override;
 };

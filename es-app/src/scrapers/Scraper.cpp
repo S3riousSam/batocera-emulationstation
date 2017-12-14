@@ -12,7 +12,10 @@
 #endif
 #include "ScreenscraperScraper.h"
 
-const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs =
+typedef void(*generate_scraper_requests_func)(
+    const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results);
+
+static const std::map<const char*, generate_scraper_requests_func> scraper_request_funcs =
 {
     { "TheGamesDB", &thegamesdb_generate_scraper_requests},
 #if defined(EXTENSION)
@@ -30,7 +33,10 @@ std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParam
 	const std::string& name = Settings::getInstance()->getString("Scraper");
 
 	std::unique_ptr<ScraperSearchHandle> handle(new ScraperSearchHandle());
-	scraper_request_funcs.at(name)(params, handle->mRequestQueue, handle->mResults);
+
+	// TODO: This is weak, if the value from the configuration contains an invalid value,
+	// (typo mistake on the scraper name) the program is likely going to crash here!
+	scraper_request_funcs.at(name.c_str())(params, handle->mRequestQueue, handle->mResults);
 	return handle;
 }
 
@@ -282,18 +288,19 @@ bool resizeImage(const std::string& path, int maxWidth, int maxHeight)
 
 std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& suffix, const std::string& url)
 {
+    const char* const IMAGES_OUTPUT_PATH = "/.emulationstation/downloaded_images/";
 	const std::string& subdirectory = params.system->getName();
 	const std::string name = params.game->getPath().stem().generic_string() + "-" + suffix;
 
 #if !defined(EXTENSION)
-	std::string path = getHomePath() + "/.emulationstation/downloaded_images/";
+	std::string path = getHomePath() + IMAGES_OUTPUT_PATH;
 #else
 	// default dir in rom directory
 	std::string path = params.system->getRootFolder()->getPath().generic_string() + "/downloaded_images/";
 	if (!boost::filesystem::exists(path) && !boost::filesystem::create_directory(path))
 	{
 		// Unable to create the directory in system rom dir, fallback on ~
-		path = getHomePath() + "/.emulationstation/downloaded_images/" + subdirectory + "/";
+		path = getHomePath() + IMAGES_OUTPUT_PATH + subdirectory + "/";
 	}
 #endif
 
