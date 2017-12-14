@@ -3,38 +3,37 @@
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
 #include "components/MenuComponent.h"
-
 #include <boost/thread.hpp>
 
 class GuiInstall : public GuiComponent
 {
 public:
-	GuiInstall(Window* window, std::string storageDevice, std::string architecture);
-
+	GuiInstall(Window* window, const std::string& storageDevice, const std::string& architecture);
 	virtual ~GuiInstall();
 
 	void render(const Eigen::Affine3f& parentTrans) override;
-
 	bool input(InputConfig* config, Input input) override;
-
-	std::vector<HelpPrompt> getHelpPrompts() override;
-
 	void update(int deltaTime) override;
 
 private:
 	BusyComponent mBusyAnim;
 	bool mLoading;
-	int mState;
+
+	enum class State
+	{
+		Done = -1,
+		Waiting,
+		Initial,
+		Success,
+		Error,
+	} mState;
+
 	std::pair<std::string, int> mResult;
 
 	std::string mstorageDevice;
 	std::string marchitecture;
 
 	boost::thread* mHandle;
-
-	void onInstallError(std::pair<std::string, int>);
-
-	void onInstallOk();
 
 	void threadInstall();
 };

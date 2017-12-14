@@ -15,10 +15,12 @@
 GuiAutoScrape::GuiAutoScrape(Window* window)
 	: GuiComponent(window)
 	, mBusyAnim(window)
+	, mState(State::Initial)
+	, mHandle(nullptr)
 {
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 	mLoading = true;
-	mState = 1;
+
 	mBusyAnim.setSize(mSize);
 }
 
@@ -30,6 +32,8 @@ GuiAutoScrape::~GuiAutoScrape()
 		parseGamelist(*it);
 		ViewController::get()->reloadGameListView(*it, false);
 	}
+
+	delete mHandle; // TEST
 }
 
 bool GuiAutoScrape::input(InputConfig* config, Input input)
@@ -55,48 +59,41 @@ void GuiAutoScrape::update(int deltaTime)
 	GuiComponent::update(deltaTime);
 	mBusyAnim.update(deltaTime);
 
-	Window* window = mWindow;
-
-	if (mState == 1)
+	if (mState == State::Initial)
 	{
 		mLoading = true;
 		mHandle = new boost::thread(boost::bind(&GuiAutoScrape::threadAutoScrape, this));
-		mState = 0;
+		mState = State::Waiting;
 	}
-	if (mState == 4)
+	if (mState == State::Success)
 	{
-		window->pushGui(new GuiMsgBox(window, _("FINNISHED"), _("OK"), [this] { mState = -1; }));
-		mState = 0;
+		mWindow->pushGui(new GuiMsgBox(mWindow, _("FINISHED"), _("OK"), [this] { mState = State::Done; }));
+		mState = State::Waiting;
 	}
-	if (mState == 5)
+	if (mState == State::Error)
 	{
-		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = -1; }));
-		mState = 0;
+		mWindow->pushGui(new GuiMsgBox(mWindow, mResult.first, _("OK"), [this] { mState = State::Done; }));
+		mState = State::Waiting;
 	}
-	if (mState == -1)
+	if (mState == State::Done)
 		delete this;
 }
 
 void GuiAutoScrape::threadAutoScrape()
 {
-	std::pair<std::string, int> scrapeStatus = SystemInterface::scrape(&mBusyAnim);
+	const std::pair<std::string, int> scrapeStatus = SystemInterface::scrape(&mBusyAnim);
 	if (scrapeStatus.second == 0)
-		this->onAutoScrapeOk();
+	{
+		mLoading = false;
+		mState = State::Success;
+	}
 	else
-		this->onAutoScrapeError(scrapeStatus);
+	{
+		mLoading = false;
+		mState = State::Error;
+		mResult = scrapeStatus;
+		mResult.first = _("AN ERROR OCCURED") + std::string(": ") + mResult.first;
+	}
 }
 
-void GuiAutoScrape::onAutoScrapeError(std::pair<std::string, int> result)
-{
-	mLoading = false;
-	mState = 5;
-	mResult = result;
-	mResult.first = _("AN ERROR OCCURED") + std::string(": ") + mResult.first;
-}
-
-void GuiAutoScrape::onAutoScrapeOk()
-{
-	mLoading = false;
-	mState = 4;
-}
 #endif

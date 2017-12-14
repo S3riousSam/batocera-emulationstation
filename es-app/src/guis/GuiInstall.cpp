@@ -10,30 +10,27 @@
 #include <boost/thread.hpp>
 #include <string>
 
-GuiInstall::GuiInstall(Window* window, std::string storageDevice, std::string architecture)
+GuiInstall::GuiInstall(Window* window, const std::string& storageDevice, const std::string& architecture)
 	: GuiComponent(window)
 	, mBusyAnim(window)
+	, mLoading(true)
+	, mState(State::Initial)
+	, mstorageDevice(storageDevice)
+	, marchitecture(architecture)
+	, mHandle(nullptr)
 {
 	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
-	mLoading = true;
-	mState = 1;
 	mBusyAnim.setSize(mSize);
-	mstorageDevice = storageDevice;
-	marchitecture = architecture;
 }
 
 GuiInstall::~GuiInstall()
 {
+	delete mHandle; // TEST
 }
 
 bool GuiInstall::input(InputConfig* config, Input input)
 {
 	return false;
-}
-
-std::vector<HelpPrompt> GuiInstall::getHelpPrompts()
-{
-	return std::vector<HelpPrompt>();
 }
 
 void GuiInstall::render(const Eigen::Affine3f& parentTrans)
@@ -55,55 +52,43 @@ void GuiInstall::update(int deltaTime)
 	mBusyAnim.update(deltaTime);
 
 	Window* window = mWindow;
-	if (mState == 1)
+	if (mState == State::Initial)
 	{
 		mLoading = true;
 		mHandle = new boost::thread(boost::bind(&GuiInstall::threadInstall, this));
-		mState = 0;
+		mState = State::Waiting;
 	}
 
-	if (mState == 2)
+	if (mState == State::Success)
 	{
-		window->pushGui(new GuiMsgBox(window, _("FINNISHED"), _("OK"), [this] { mState = -1; }));
-		mState = 0;
+		window->pushGui(new GuiMsgBox(window, _("FINISHED"), _("OK"), [this] { mState = State::Done; }));
+		mState = State::Waiting;
 	}
-	if (mState == 3)
+	if (mState == State::Error)
 	{
-		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = -1; }));
-		mState = 0;
+		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = State::Done; }));
+		mState = State::Waiting;
 	}
 
-	if (mState == -1)
-	{
+	if (mState == State::Done)
 		delete this;
-	}
 }
 
 void GuiInstall::threadInstall()
 {
-	std::pair<std::string, int> updateStatus = SystemInterface::installSystem(&mBusyAnim, mstorageDevice, marchitecture);
+	const std::pair<std::string, int> updateStatus = SystemInterface::installSystem(&mBusyAnim, mstorageDevice, marchitecture);
 	if (updateStatus.second == 0)
 	{
-		this->onInstallOk();
+		mLoading = false;
+		mState = State::Success;
 	}
 	else
 	{
-		this->onInstallError(updateStatus);
+		mLoading = false;
+		mState = State::Error;
+		mResult = updateStatus;
+		mResult.first = _("AN ERROR OCCURED") + std::string(": check the system/logs directory");
 	}
-}
-
-void GuiInstall::onInstallError(std::pair<std::string, int> result)
-{
-	mLoading = false;
-	mState = 3;
-	mResult = result;
-	mResult.first = _("AN ERROR OCCURED") + std::string(": check the system/logs directory");
-}
-
-void GuiInstall::onInstallOk()
-{
-	mLoading = false;
-	mState = 2;
 }
 
 #endif

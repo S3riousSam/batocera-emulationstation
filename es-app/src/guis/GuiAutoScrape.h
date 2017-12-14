@@ -18,12 +18,18 @@ public:
 private:
 	BusyComponent mBusyAnim;
 	bool mLoading;
-	int mState;
+
+	enum class State
+	{
+		Done = -1,
+		Waiting,
+		Initial,
+		Success,
+		Error,
+	} mState;
 	std::pair<std::string, int> mResult;
 	boost::thread* mHandle;
 
-	void onAutoScrapeError(std::pair<std::string, int>);
-	void onAutoScrapeOk();
 	void threadAutoScrape();
 };
 #endif
