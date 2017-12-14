@@ -42,11 +42,11 @@ private:
 	void buildVertices();
 	void updateColors();
 
-    struct Vertex
-    {
-        Eigen::Vector2f pos;
-        Eigen::Vector2f tex;
-    };
+	struct Vertex
+	{
+		Eigen::Vector2f pos;
+		Eigen::Vector2f tex;
+	};
 
 	Vertex* mVertices;  // TODO: use std::vector<Vectex*> instead
 	GLubyte* mColors;   // TODO: use std::vector<GLubyte*> instead

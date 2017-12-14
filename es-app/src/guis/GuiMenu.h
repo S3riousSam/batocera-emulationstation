@@ -25,7 +25,8 @@ private:
 #if defined(EXTENSION)
 public:
 	struct StrInputConfig;
-	std::vector<StrInputConfig*>
-		mLoadedInput; // used to keep information about loaded devices in case there are unplugged between device window load and save
+
+	// used to keep information about loaded devices in case there are unplugged between device window load and save
+	std::vector<StrInputConfig*> mLoadedInput;
 #endif
 };

@@ -9,13 +9,13 @@ Settings* Settings::sInstance = NULL;
 
 // these values are NOT saved to es_settings.xml
 // since they're set through command-line arguments, and not the in-program settings menu
-std::vector<const char*> settings_dont_save = boost::assign::list_of("Debug")("DebugGrid")("DebugText")("ParseGamelistOnly")("ShowExit")("Windowed")("VSync")("HideConsole")("IgnoreGamelist")
+std::vector<const char*> settings_dont_save =
+{
+	"Debug", "DebugGrid", "DebugText", "ParseGamelistOnly", "ShowExit", "Windowed", "VSync", "HideConsole", "IgnoreGamelist",
 #if defined(EXTENSION)
-		("UpdateCommand")("UpdateServer")("VersionFile")("SharePartition")("RecalboxSettingScript")("RecalboxConfigScript")("LastVersionFile")(
-			"VersionMessage")("MusicDirectory");
-#else
-	;
+	"UpdateCommand", "UpdateServer", "VersionFile", "SharePartition", "RecalboxSettingScript", "RecalboxConfigScript", "LastVersionFile", "VersionMessage", "MusicDirectory"
 #endif
+};
 
 Settings::Settings()
 {
@@ -105,15 +105,15 @@ void Settings::setDefaults()
 template<typename K, typename V>
 void saveMap(pugi::xml_node& node, std::map<K, V>& map, const char* type)
 {
-	for (auto iter = map.begin(); iter != map.end(); iter++)
+	for (const auto& iter : map)
 	{
 		// key is on the "don't save" list, so don't save it
-		if (std::find(settings_dont_save.begin(), settings_dont_save.end(), iter->first) != settings_dont_save.end())
+		if (std::find(settings_dont_save.begin(), settings_dont_save.end(), iter.first) != settings_dont_save.end())
 			continue;
 
 		pugi::xml_node parent_node = node.append_child(type);
-		parent_node.append_attribute("name").set_value(iter->first.c_str());
-		parent_node.append_attribute("value").set_value(iter->second);
+		parent_node.append_attribute("name").set_value(iter.first.c_str());
+		parent_node.append_attribute("value").set_value(iter.second);
 	}
 }
 
@@ -148,7 +148,7 @@ void Settings::loadFile()
 		return;
 
 	pugi::xml_document doc;
-	pugi::xml_parse_result result = doc.load_file(path.c_str());
+	const pugi::xml_parse_result result = doc.load_file(path.c_str());
 	if (!result)
 	{
 		LOG(LogError) << "Could not parse Settings file!\n   " << result.description();
@@ -183,22 +183,12 @@ void Settings::loadFile()
 // Print a warning message if the setting we're trying to get doesn't already exist in the map, then return the value in the map.
 #define SETTINGS_GETSET(type, mapName, getMethodName, setMethodName)       \
 	type Settings::getMethodName(const std::string& name)                  \
-	\
-{                                                                     \
+	{ \
 		if (mapName.find(name) == mapName.end())                           \
-		{                                                                  \
 			LOG(LogError) << "Tried to use unset setting " << name << "!"; \
-		}                                                                  \
 		return mapName[name];                                              \
-	\
-}                                                                     \
-	\
-void Settings::setMethodName(const std::string& name, type value)          \
-	\
-{                                                                     \
-		mapName[name] = value;                                             \
-	\
-}
+	} \
+	void Settings::setMethodName(const std::string& name, type value) { mapName[name] = value; }
 
 SETTINGS_GETSET(bool, mBoolMap, getBool, setBool);
 SETTINGS_GETSET(int, mIntMap, getInt, setInt);

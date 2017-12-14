@@ -8,13 +8,13 @@ ComponentGrid::ComponentGrid(Window* window, const Eigen::Vector2i& gridDimensio
 	: GuiComponent(window)
 	, mGridSize(gridDimensions)
 	, mCursor(0, 0)
+	, mColWidths(new float[gridDimensions.x()])
+	, mRowHeights(new float[gridDimensions.y()])
 {
 	assert(gridDimensions.x() > 0 && gridDimensions.y() > 0);
 
 	mCells.reserve(gridDimensions.x() * gridDimensions.y());
 
-	mColWidths = new float[gridDimensions.x()];
-	mRowHeights = new float[gridDimensions.y()];
 	for (int x = 0; x < gridDimensions.x(); x++)
 		mColWidths[x] = 0;
 	for (int y = 0; y < gridDimensions.y(); y++)
@@ -25,9 +25,11 @@ ComponentGrid::~ComponentGrid()
 {
 	delete[] mRowHeights;
 	delete[] mColWidths;
+	mRowHeights = nullptr; // to help debugging
+	mColWidths = nullptr; // to help debugging
 }
 
-float ComponentGrid::getColWidth(int col)
+float ComponentGrid::getColWidth(int col) const
 {
 	if (mColWidths[col] != 0)
 		return mColWidths[col] * mSize.x();
@@ -45,7 +47,7 @@ float ComponentGrid::getColWidth(int col)
 	return (freeWidthPerc * mSize.x()) / between;
 }
 
-float ComponentGrid::getRowHeight(int row)
+float ComponentGrid::getRowHeight(int row) const
 {
 	if (mRowHeights[row] != 0)
 		return mRowHeights[row] * mSize.y();
@@ -431,9 +433,7 @@ void ComponentGrid::setCursorTo(const std::shared_ptr<GuiComponent>& comp)
 
 std::vector<HelpPrompt> ComponentGrid::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts = (getCellAt(mCursor) != nullptr)
-		? getCellAt(mCursor)->component->getHelpPrompts()
-		: std::vector<HelpPrompt>();
+	std::vector<HelpPrompt> prompts = (getCellAt(mCursor) != nullptr) ? getCellAt(mCursor)->component->getHelpPrompts() : std::vector<HelpPrompt>();
 
 	bool canScrollVert = mGridSize.y() > 1;
 	bool canScrollHoriz = mGridSize.x() > 1;

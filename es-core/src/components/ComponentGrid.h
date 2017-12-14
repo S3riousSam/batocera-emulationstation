@@ -44,8 +44,8 @@ public:
 	void resetCursor();
 	bool cursorValid();
 
-	float getColWidth(int col);
-	float getRowHeight(int row);
+	float getColWidth(int col) const;
+	float getRowHeight(int row) const;
 
 	void setColWidthPerc(int col, float width, bool update = true); // if update is false, will not call an onSizeChanged() which triggers a
 																	// (potentially costly) repositioning + resizing of every element
