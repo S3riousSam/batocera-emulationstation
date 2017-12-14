@@ -1,5 +1,5 @@
+#if defined(EXTENSION)
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/MenuComponent.h"
 
@@ -22,3 +22,4 @@ private:
 	std::shared_ptr<OptionListComponent<std::string>> moptionsArchitecture;
 	std::shared_ptr<OptionListComponent<std::string>> moptionsValidation;
 };
+#endif

@@ -176,7 +176,7 @@ void ScraperSearchComponent::resizeMetadata()
 
 void ScraperSearchComponent::updateViewStyle()
 {
-	using namespace Eigen;
+	using Eigen::Vector2i;
 
 	// unlink description and result list and result name
 	mGrid.removeEntry(mResultName);
@@ -457,23 +457,19 @@ void ScraperSearchComponent::openInputScreen(ScraperSearchParams& params)
 		params.nameOverride = name;
 		search(params);
 	};
-#if defined(EXTENSION)
-	const bool openOSK = Settings::getInstance()->getBool("UseOSK");
-#endif
 	stop();
+
+	// Initial value is last search if there was one, otherwise the clean path name
+	const std::string initValue = params.nameOverride.empty() ? params.game->getCleanName() : params.nameOverride;
 #if defined(EXTENSION)
-	if (openOSK)
+	if (Settings::getInstance()->getBool("UseOSK"))
 	{
-		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, _("SEARCH FOR"),
-			// initial value is last search if there was one, otherwise the clean path name
-			params.nameOverride.empty() ? params.game->getCleanName() : params.nameOverride, searchForFunc, false, _("SEARCH")));
+		mWindow->pushGui(new GuiTextEditPopupKeyboard(mWindow, _("SEARCH FOR"), initValue, searchForFunc, false, _("SEARCH")));
 	}
 	else
 #endif
 	{
-		mWindow->pushGui(new GuiTextEditPopup(mWindow, _("SEARCH FOR"),
-			// initial value is last search if there was one, otherwise the clean path name
-			params.nameOverride.empty() ? params.game->getCleanName() : params.nameOverride, searchForFunc, false, _("SEARCH")));
+		mWindow->pushGui(new GuiTextEditPopup(mWindow, _("SEARCH FOR"), initValue, searchForFunc, false, _("SEARCH")));
 	}
 }
 

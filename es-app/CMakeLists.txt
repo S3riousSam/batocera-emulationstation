@@ -147,6 +147,10 @@ SOURCE_GROUP(Recalbox FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackup.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackupStart.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiBackupStart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInstall.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInstall.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInstallStart.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiInstallStart.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.h
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiLoading.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/guis/GuiMenuEx.cpp 

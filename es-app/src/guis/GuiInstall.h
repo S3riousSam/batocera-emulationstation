@@ -1,5 +1,5 @@
+#if defined(EXTENSION)
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
 #include "components/MenuComponent.h"
@@ -38,3 +38,4 @@ private:
 
 	void threadInstall();
 };
+#endif

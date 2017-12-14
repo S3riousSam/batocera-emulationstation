@@ -14,8 +14,6 @@ class AsyncHandle
 public:
 	virtual ~AsyncHandle() = default;
 
-	virtual void update() = 0;
-
 	// Update and return the latest status.
 	inline AsyncHandleStatus status()
 	{
@@ -57,4 +55,7 @@ protected:
 
 	std::string mError;
 	AsyncHandleStatus mStatus;
+
+private:
+	virtual void update() = 0;
 };

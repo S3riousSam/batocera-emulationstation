@@ -16,6 +16,8 @@
 #include <components/ComponentList.h>
 #include <guis/GuiMsgBox.h>
 #include <guis/GuiSettings.h>
+#else
+#include "LocaleES.h"
 #endif
 
 #define SELECTED_SCALE 1.5f

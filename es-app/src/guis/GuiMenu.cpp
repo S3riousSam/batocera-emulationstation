@@ -38,7 +38,7 @@ namespace GuiMenuEx
 	void AddMenuScrape(GuiSettings& gui, Window* window, std::function<void()> handler);
 } // namespace GuiMenuEx
 #else
-#define _(A) A
+#include "LocaleES.h"
 #endif
 
 #define BUTTON_BACK "a"
@@ -107,7 +107,7 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 	};
 #else
-		});
+	});
 #endif
 
 #if defined(EXTENSION)

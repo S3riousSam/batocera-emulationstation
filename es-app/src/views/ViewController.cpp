@@ -17,6 +17,8 @@
 #include "SystemInterface.h"
 #include "guis/GuiDetectDevice.h"
 #include <RecalboxConf.h>
+#else
+#include "LocaleES.h"
 #endif
 
 ViewController* ViewController::sInstance = NULL;

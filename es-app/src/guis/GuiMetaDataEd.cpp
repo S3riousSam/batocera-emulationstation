@@ -17,6 +17,8 @@
 #include <LibretroRatio.h>
 #include <RecalboxConf.h>
 #include <components/SwitchComponent.h>
+#else
+#include "LocaleES.h"
 #endif
 
 #define BUTTON_BACK "a"

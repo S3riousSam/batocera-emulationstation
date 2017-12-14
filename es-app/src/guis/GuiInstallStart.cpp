@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "guis/GuiInstallStart.h"
 
 #include "SystemInterface.h"
@@ -107,3 +108,4 @@ std::vector<HelpPrompt> GuiInstallStart::getHelpPrompts()
 	prompts.push_back(HelpPrompt("start", _("CLOSE")));
 	return prompts;
 }
+#endif

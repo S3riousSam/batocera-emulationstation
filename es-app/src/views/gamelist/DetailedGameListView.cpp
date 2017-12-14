@@ -6,6 +6,7 @@
 #include "Settings.h"
 #include "SystemData.h"
 #else
+#include "LocaleES.h"
 #include "Settings.h"
 #endif
 #include "Window.h"

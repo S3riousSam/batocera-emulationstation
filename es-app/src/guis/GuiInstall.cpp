@@ -1,3 +1,4 @@
+#if defined(EXTENSION)
 #include "guis/GuiInstall.h"
 #include "guis/GuiMsgBox.h"
 
@@ -104,3 +105,5 @@ void GuiInstall::onInstallOk()
 	mLoading = false;
 	mState = 2;
 }
+
+#endif

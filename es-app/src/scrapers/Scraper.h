@@ -11,7 +11,7 @@ struct ScraperSearchParams
 {
 	SystemData* system;
 	FileData* game;
-	std::string nameOverride;
+	std::string nameOverride; // TheGamesDBRequest-specific
 };
 
 struct ScraperSearchResult
@@ -55,21 +55,12 @@ struct ScraperSearchResult
 // Gathers results from (potentially multiple) ScraperRequests
 class ScraperRequest : public AsyncHandle // Abstract class
 {
-public:
-	virtual void update() = 0;
-
-protected:
-	ScraperRequest(std::vector<ScraperSearchResult>& resultsWrite);
-
-	std::vector<ScraperSearchResult>& mResults;
 };
 
 // Defines a single HTTP request to process for results
 class ScraperHttpRequest : public ScraperRequest // Abstract class
 {
 public:
-	void update() override;
-
 	static const size_t MAX_SCRAPER_RESULTS = 7ull;
 
 protected:
@@ -77,8 +68,10 @@ protected:
 
 private:
 	virtual void process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results) = 0;
+	void update() override;
 
 	std::unique_ptr<HttpReq> mReq;
+	std::vector<ScraperSearchResult>& mResults;
 };
 
 // Defines a request to get a list of results
@@ -87,15 +80,15 @@ class ScraperSearchHandle final : public AsyncHandle
 public:
 	ScraperSearchHandle();
 
-	void update();
-
-	inline const std::vector<ScraperSearchResult>& getResults() const
+	const std::vector<ScraperSearchResult>& getResults() const
 	{
 		assert(mStatus != AsyncHandleStatus::Progressing);
 		return mResults;
 	}
 
 private:
+	void update() override;
+
 	friend std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParams& params);
 
 	std::queue<std::unique_ptr<ScraperRequest>> mRequestQueue;
@@ -107,11 +100,8 @@ std::unique_ptr<ScraperSearchHandle> startScraperSearch(const ScraperSearchParam
 
 namespace Scraper
 {
-    // Returns a list of valid scraper names
-    std::vector<std::string> getScraperList();
+	std::vector<std::string> getScraperList(); // returns valid scraper names
 }
-
-// -------------------------------------------------------------------------
 
 // Meta data asset downloading stuff.
 class MDResolveHandle : public AsyncHandle
@@ -119,14 +109,15 @@ class MDResolveHandle : public AsyncHandle
 public:
 	MDResolveHandle(const ScraperSearchResult& result, const ScraperSearchParams& search);
 
-	void update() override;
-	inline const ScraperSearchResult& getResult() const
+	const ScraperSearchResult& getResult() const
 	{
 		assert(mStatus == AsyncHandleStatus::Done);
 		return mResult;
 	}
 
 private:
+	void update() override;
+
 	ScraperSearchResult mResult;
 
 	typedef std::pair<std::unique_ptr<AsyncHandle>, std::function<void()>> ResolvePair;
@@ -138,9 +129,9 @@ class ImageDownloadHandle : public AsyncHandle
 public:
 	ImageDownloadHandle(const std::string& url, const std::string& path, int maxWidth, int maxHeight);
 
+private:
 	void update() override;
 
-private:
 	std::unique_ptr<HttpReq> mReq;
 	std::string mSavePath;
 	int mMaxWidth;

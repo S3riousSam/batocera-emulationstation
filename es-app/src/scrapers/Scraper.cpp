@@ -24,7 +24,7 @@ static const std::map<const char*, generate_scraper_requests_func> scraper_reque
 #endif
     { "Screenscraper", &screenscraper_generate_scraper_requests}
 #else
-    { "TheArchive", &thearchive_generate_scraper_requests}
+    //{ "TheArchive", &thearchive_generate_scraper_requests}
 #endif
 };
 
@@ -94,16 +94,10 @@ void ScraperSearchHandle::update()
 	}
 }
 
-// ScraperRequest
-ScraperRequest::ScraperRequest(std::vector<ScraperSearchResult>& resultsWrite)
-	: mResults(resultsWrite)
-{
-}
-
 // ScraperHttpRequest
 ScraperHttpRequest::ScraperHttpRequest(std::vector<ScraperSearchResult>& resultsWrite, const std::string& url)
-	: ScraperRequest(resultsWrite)
-	, mReq(std::unique_ptr<HttpReq>(new HttpReq(url)))
+	: mReq(std::unique_ptr<HttpReq>(new HttpReq(url)))
+	, mResults(resultsWrite)
 {
 	setStatus(AsyncHandleStatus::Progressing);
 }
