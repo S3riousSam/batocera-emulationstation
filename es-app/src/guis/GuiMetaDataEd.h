@@ -1,10 +1,9 @@
+#if defined(MANUAL_SCRAPING)
 #pragma once
-
 #include "GuiComponent.h"
 #include "MetaData.h"
 #include "components/MenuComponent.h"
 #include "scrapers/Scraper.h"
-
 #include <functional>
 
 class GuiMetaDataEd : public GuiComponent
@@ -41,3 +40,4 @@ private:
 	std::function<void()> mSavedCallback;
 	std::function<void()> mDeleteFunc;
 };
+#endif

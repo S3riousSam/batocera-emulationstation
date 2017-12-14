@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "scrapers/ScreenscraperScraper.h"
 #include "Log.h"
 #include "MetaData.h"
@@ -189,3 +190,4 @@ void ScreenscraperRequest::process(const std::unique_ptr<HttpReq>& req, std::vec
 		game = game.next_sibling("Game");
 	}
 }
+#endif

@@ -7,6 +7,9 @@
 #include "guis/GuiMenu.h"
 #include "guis/GuiMetaDataEd.h"
 #include "views/ViewController.h"
+#if defined(EXTENSION)
+#include "SystemData.h"
+#endif
 
 bool IGameListView::input(InputConfig* config, Input input)
 {

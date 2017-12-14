@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "guis/GuiScraperStart.h"
 #include "guis/GuiMsgBox.h"
 #include "guis/GuiScraperMulti.h"
@@ -116,3 +117,4 @@ std::vector<HelpPrompt> GuiScraperStart::getHelpPrompts()
 	prompts.push_back(HelpPrompt("start", _("CLOSE")));
 	return prompts;
 }
+#endif

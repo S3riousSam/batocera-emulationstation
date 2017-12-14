@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "guis/GuiScraperMulti.h"
 #include "Gamelist.h"
 #include "LocaleES.h"
@@ -178,3 +179,4 @@ std::vector<HelpPrompt> GuiScraperMulti::getHelpPrompts()
 {
 	return mGrid.getHelpPrompts();
 }
+#endif

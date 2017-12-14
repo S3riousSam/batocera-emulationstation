@@ -177,6 +177,7 @@ include_directories(${COMMON_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/src)
 add_executable(emulationstation ${ES_SOURCES} ${ES_HEADERS})
 target_link_libraries(emulationstation ${COMMON_LIBRARIES} es-core)
 target_compile_options(emulationstation PUBLIC -DEXTENSION)
+target_compile_options(emulationstation PUBLIC -DMANUAL_SCRAPING)
 
 # special properties for Windows builds
 if(MSVC)

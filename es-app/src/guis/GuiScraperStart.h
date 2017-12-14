@@ -1,31 +1,29 @@
+#if defined(MANUAL_SCRAPING)
 #pragma once
-
 #include "GuiComponent.h"
 #include "SystemData.h"
 #include "components/MenuComponent.h"
 #include "scrapers/Scraper.h"
 #include <queue>
 
-typedef std::function<bool(SystemData*, FileData*)> GameFilterFunc;
-
 template<typename T>
 class OptionListComponent;
 
 class SwitchComponent;
 
-// The starting point for a multi-game scrape.
-// Allows the user to set various parameters (to set filters, to set which systems to scrape, to enable manual mode).
-// Generates a list of "searches" that will be carried out by GuiScraperLog.
+// Performs multi-game scraping (starting point) allowing the user to set various parameters
+// (filters, target systems, enabling manual mode).
 class GuiScraperStart : public GuiComponent
 {
 public:
 	GuiScraperStart(Window* window);
 
 	bool input(InputConfig* config, Input input) override;
-
-	virtual std::vector<HelpPrompt> getHelpPrompts() override;
+	std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
+	typedef std::function<bool(SystemData*, FileData*)> GameFilterFunc;
+
 	void pressedStart();
 	void start();
 	std::queue<ScraperSearchParams> getSearches(std::vector<SystemData*> systems, GameFilterFunc selector);
@@ -36,3 +34,4 @@ private:
 
 	MenuComponent mMenu;
 };
+#endif

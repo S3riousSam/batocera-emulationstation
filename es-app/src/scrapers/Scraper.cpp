@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "scrapers/Scraper.h"
 #include "Log.h"
 #include "Settings.h"
@@ -318,3 +319,5 @@ std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& 
 
 	return path + name + ext;
 }
+
+#endif

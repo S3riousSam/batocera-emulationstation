@@ -25,7 +25,9 @@ public:
 	virtual std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
+#if defined(MANUAL_SCRAPING)
 	void openMetaDataEd();
+#endif
 	void jumpToLetter();
 
 	MenuComponent mMenu;

@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "components/ScraperSearchComponent.h"
 #include "HttpReq.h"
 #include "LocaleES.h"
@@ -493,3 +494,4 @@ void ScraperSearchComponent::onFocusLost()
 {
 	mGrid.onFocusLost();
 }
+#endif

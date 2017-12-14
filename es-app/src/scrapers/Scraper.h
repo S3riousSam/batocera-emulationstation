@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #pragma once
 #include "AsyncHandle.h"
 #include "HttpReq.h"
@@ -152,3 +153,5 @@ std::unique_ptr<MDResolveHandle> resolveMetaDataAssets(const ScraperSearchResult
 // Will overwrite the image at [path] with the new resized one.
 // Returns true if successful, false otherwise.
 bool resizeImage(const std::string& path, int maxWidth, int maxHeight);
+
+#endif

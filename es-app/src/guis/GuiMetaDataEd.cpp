@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "guis/GuiMetaDataEd.h"
 #include "Log.h"
 #include "Renderer.h"
@@ -375,3 +376,4 @@ std::vector<HelpPrompt> GuiMetaDataEd::getHelpPrompts()
 	prompts.push_back(HelpPrompt("start", _("CLOSE")));
 	return prompts;
 }
+#endif

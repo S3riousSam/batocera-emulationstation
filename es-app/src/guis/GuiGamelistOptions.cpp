@@ -9,6 +9,7 @@
 #include "guis/GuiSettings.h"
 #include <RecalboxConf.h>
 #endif
+#include "SystemData.h"
 
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"
@@ -75,6 +76,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 
 	// edit game metadata
 	row.elements.clear();
+#if defined(MANUAL_SCRAPING)
 #if defined(EXTENSION)
 	if (RecalboxConf::get("system.es.menu") != "none" && RecalboxConf::get("system.es.menu") != "bartop")
 	{
@@ -83,6 +85,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openMetaDataEd, this));
 		mMenu.addRow(row);
 	}
+#endif
 #endif
 
 	// center the menu
@@ -111,6 +114,7 @@ GuiGamelistOptions::~GuiGamelistOptions()
 #endif
 }
 
+#if defined(MANUAL_SCRAPING)
 void GuiGamelistOptions::openMetaDataEd()
 {
 	// open metadata editor
@@ -128,6 +132,7 @@ void GuiGamelistOptions::openMetaDataEd()
 		},
 		file->getSystem()));
 }
+#endif
 
 void GuiGamelistOptions::jumpToLetter()
 {

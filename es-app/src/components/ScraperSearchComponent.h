@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #pragma once
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
@@ -118,3 +119,4 @@ private:
 
 	BusyComponent mBusyAnim;
 };
+#endif

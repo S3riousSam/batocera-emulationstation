@@ -1,5 +1,5 @@
+#if defined(MANUAL_SCRAPING)
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/NinePatchComponent.h"
 #include "components/ScraperSearchComponent.h"
@@ -32,3 +32,4 @@ private:
 
 	std::function<void()> mCancelFunc;
 };
+#endif

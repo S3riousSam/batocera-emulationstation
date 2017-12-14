@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #pragma once
 #include "scrapers/Scraper.h"
 
@@ -15,3 +16,4 @@ public:
 private:
 	void process(const std::unique_ptr<HttpReq>& req, std::vector<ScraperSearchResult>& results) override;
 };
+#endif

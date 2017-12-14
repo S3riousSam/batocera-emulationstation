@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "scrapers/GamesDBScraper.h"
 #include "Log.h"
 #include "MetaData.h"
@@ -171,3 +172,4 @@ void TheGamesDBRequest::process(const std::unique_ptr<HttpReq>& req, std::vector
 		game = game.next_sibling("Game");
 	}
 }
+#endif

@@ -7,7 +7,9 @@
 #include "components/TextComponent.h"
 #include "guis/GuiDetectDevice.h"
 #include "guis/GuiMsgBox.h"
+#if defined(MANUAL_SCRAPING)
 #include "guis/GuiScraperStart.h"
+#endif
 #include "guis/GuiSettings.h"
 #include "scrapers/GamesDBScraper.h"
 #include "views/ViewController.h"
@@ -61,7 +63,7 @@ GuiMenu::GuiMenu(Window* window)
 	// NETWORK >
 	// SCRAPER >
 	// QUIT >
-
+#if defined(MANUAL_SCRAPING)
 #if defined(EXTENSION)
 	std::function<void()> manualScrape = [this]
 #else // !defined(EXTENSION)
@@ -109,6 +111,7 @@ GuiMenu::GuiMenu(Window* window)
 #else
 	});
 #endif
+#endif // MANUAL_SCRAPING
 
 #if defined(EXTENSION)
 	std::function<void()> soundsettings = [this]
@@ -244,6 +247,7 @@ GuiMenu::GuiMenu(Window* window)
 
 	if (RecalboxConf::get("system.es.menu") != "bartop")
 	{
+#if defined(MANUAL_SCRAPING)
 		// manual or automatic?
 		addEntry(_("SCRAPER"), 0x777777FF, true, [this, manualScrape] {
 			auto s = new GuiSettings(mWindow, _("SCRAPER"));
@@ -251,6 +255,14 @@ GuiMenu::GuiMenu(Window* window)
 			GuiMenuEx::AddMenuScrape(*s, mWindow, manualScrape);
 			mWindow->pushGui(s);
 		});
+#else
+		// manual or automatic? ...automatic!
+		addEntry(_("SCRAPER"), 0x777777FF, true, [this] {
+			auto s = new GuiSettings(mWindow, _("SCRAPER"));
+			GuiMenuEx::AddAutoScrape(*s, mWindow);
+			mWindow->pushGui(s);
+		});
+#endif
 	}
 #endif
 

@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #include "guis/GuiGameScraper.h"
 #include "LocaleES.h"
 #include "Log.h"
@@ -128,3 +129,4 @@ void GuiGameScraper::close()
 {
 	mClose = true;
 }
+#endif

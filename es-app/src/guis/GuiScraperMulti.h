@@ -1,3 +1,4 @@
+#if defined(MANUAL_SCRAPING)
 #pragma once
 #include "GuiComponent.h"
 #include "components/ComponentGrid.h"
@@ -39,3 +40,4 @@ private:
 	std::shared_ptr<ScraperSearchComponent> mSearchComp;
 	std::shared_ptr<ComponentGrid> mButtonGrid;
 };
+#endif
