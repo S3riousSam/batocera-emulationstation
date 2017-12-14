@@ -47,7 +47,9 @@ namespace RecalBox
 
 namespace fs = boost::filesystem;
 
+#if defined(ENABLE_COMMAND_LINE_SCRAPER)
 bool scrape_cmdline = false;
+#endif
 
 bool parseArgs(int argc, char* argv[], unsigned int* width, unsigned int* height)
 {
@@ -97,10 +99,12 @@ bool parseArgs(int argc, char* argv[], unsigned int* width, unsigned int* height
 			Settings::getInstance()->setBool("VSync", vsync);
 			i++; // skip vsync value
 		}
+#if defined(ENABLE_COMMAND_LINE_SCRAPER)
 		else if (strcmp(argv[i], "--scrape") == 0)
 		{
 			scrape_cmdline = true;
 		}
+#endif
 		else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
 		{
 #ifdef WIN32
@@ -123,7 +127,9 @@ bool parseArgs(int argc, char* argv[], unsigned int* width, unsigned int* height
 						 "--draw-framerate		display the framerate\n"
 						 "--no-exit			don't show the exit option in the menu\n"
 						 "--debug				more logging, show console on Windows\n"
+#if defined(ENABLE_COMMAND_LINE_SCRAPER)
 						 "--scrape			scrape using command line interface\n"
+#endif
 						 "--windowed			not fullscreen, should be used with --resolution\n"
 						 "--vsync [1/on or 0/off]		turn vsync on or off (default is on)\n"
 						 "--help, -h			summon a sentient, angry tuba\n\n"
@@ -251,7 +257,9 @@ int main(int argc, char* argv[])
 	ViewController::init(&window);
 	window.pushGui(ViewController::get());
 
+#if defined(ENABLE_COMMAND_LINE_SCRAPER)
 	if (!scrape_cmdline)
+#endif
 	{
 #if defined(EXTENSION)
 		if (!window.init(width, height, false))
@@ -288,8 +296,12 @@ int main(int argc, char* argv[])
 		if (errorMsg == NULL)
 		{
 			LOG(LogError) << "Unknown error occurred while parsing system config file.";
+#if defined(ENABLE_COMMAND_LINE_SCRAPER)
 			if (!scrape_cmdline)
+#endif
+			{
 				Renderer::deinit();
+			}
 			return 1;
 		}
 
@@ -304,11 +316,8 @@ int main(int argc, char* argv[])
 	RecalBox::performExtra(window);
 #endif
 #if defined(ENABLE_COMMAND_LINE_SCRAPER)
-	// run the command line scraper then quit
-	if (scrape_cmdline)
-	{
+	if (scrape_cmdline) // run the command line scraper then quit
 		return run_scraper_cmdline();
-	}
 #endif
 
 	// dont generate joystick events while we're loading (hopefully fixes "automatically started emulator" bug)
