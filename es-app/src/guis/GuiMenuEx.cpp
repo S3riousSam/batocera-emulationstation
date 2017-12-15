@@ -531,12 +531,10 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 					// Start update
 					{
 						ComponentListRow updateRow;
-						std::function<void()> openGui = [window] { window->pushGui(new GuiUpdate(window)); };
-						updateRow.makeAcceptInputHandler(openGui);
+						updateRow.makeAcceptInputHandler([window] { window->pushGui(new GuiUpdate(window)); });
 						auto update = std::make_shared<TextComponent>(window, _("START UPDATE"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-						auto bracket = makeArrow(window);
 						updateRow.addElement(update, true);
-						updateRow.addElement(bracket, false);
+						updateRow.addElement(makeArrow(window), false); // bracket
 						updateGui->addRow(updateRow);
 					}
 					updateGui->addSaveFunc([updates_enabled] {
@@ -548,21 +546,18 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				};
 				row.makeAcceptInputHandler(openGuiD);
 				auto update = std::make_shared<TextComponent>(window, _("UPDATES"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-				auto bracket = makeArrow(window);
 				row.addElement(update, true);
-				row.addElement(bracket, false);
+				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
 			}
 
 			// backup
 			{
 				ComponentListRow row;
-				auto openBackupNow = [window] { window->pushGui(new GuiBackupStart(window)); };
-				row.makeAcceptInputHandler(openBackupNow);
+				row.makeAcceptInputHandler([window] { window->pushGui(new GuiBackupStart(window)); });
 				auto backupSettings = std::make_shared<TextComponent>(window, _("BACKUP USER DATA"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-				auto bracket = makeArrow(window);
 				row.addElement(backupSettings, true);
-				row.addElement(bracket, false);
+				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
 			}
 
@@ -590,9 +585,8 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				};
 				row.makeAcceptInputHandler(openGui);
 				auto kodiSettings = std::make_shared<TextComponent>(window, _("KODI SETTINGS"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-				auto bracket = makeArrow(window);
 				row.addElement(kodiSettings, true);
-				row.addElement(bracket, false);
+				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
 			}
 
@@ -601,9 +595,8 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				ComponentListRow row;
 				row.makeAcceptInputHandler([window] { window->pushGui(new GuiInstallStart(window)); });
 				auto component = std::make_shared<TextComponent>(window, _("INSTALL ON A NEW DISK"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-				auto bracket = makeArrow(window);
 				row.addElement(component, true);
-				row.addElement(bracket, false);
+				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
 			}
 
@@ -642,9 +635,8 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				};
 				row.makeAcceptInputHandler(openGui);
 				auto securitySettings = std::make_shared<TextComponent>(window, _("SECURITY"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
-				auto bracket = makeArrow(window);
 				row.addElement(securitySettings, true);
-				row.addElement(bracket, false);
+				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
 			}
 
