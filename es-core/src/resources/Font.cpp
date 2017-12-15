@@ -40,6 +40,17 @@ struct Font::FontFace
 	FT_Face face;
 };
 
+struct Font::Glyph
+{
+	FontTexture* texture;
+
+	Eigen::Vector2f texPos;
+	Eigen::Vector2f texSize; // in texels!
+
+	Eigen::Vector2f advance;
+	Eigen::Vector2f bearing;
+};
+
 int Font::getSize() const
 {
 	return mSize;
@@ -229,19 +240,17 @@ size_t Font::getTotalMemUsage()
 Font::Font(int size, const std::string& path)
 	: mSize(size)
 	, mPath(path)
+	, mMaxGlyphHeight{}
 {
 	assert(mSize > 0);
 
-	mMaxGlyphHeight = 0;
-
-	if (!sLibrary)
+	if (sLibrary != nullptr)
 		initLibrary();
 
-	// always initialize ASCII characters
-	for (UnicodeChar i = 32; i < 128; i++)
+	for (UnicodeChar i = 32; i < 128; i++) // init ASCII characters
 		getGlyph(i);
 
-	clearFaceCache();
+	//mFaceCache.clear(); // TEST: Why would this be needed?
 }
 
 Font::~Font()
@@ -263,7 +272,7 @@ std::shared_ptr<Font> Font::get(int size, const std::string& path)
 {
 	const std::string canonicalPath = getCanonicalPath(path);
 
-	std::pair<std::string, int> def(canonicalPath.empty() ? getDefaultPath() : canonicalPath, size);
+	const std::pair<std::string, int> def(canonicalPath.empty() ? getDefaultPath() : canonicalPath, size);
 	auto foundFont = sFontMap.find(def);
 	if (foundFont != sFontMap.end())
 	{
@@ -436,7 +445,7 @@ std::vector<std::string> getFallbackFontPaths()
 #endif
 }
 
-FT_Face Font::getFaceForChar(UnicodeChar id)
+FT_Face Font::getFaceForChar(UnicodeChar id) const
 {
 	static const std::vector<std::string> fallbackFonts = getFallbackFontPaths();
 
@@ -463,11 +472,6 @@ FT_Face Font::getFaceForChar(UnicodeChar id)
 	return mFaceCache.begin()->second->face;
 }
 
-void Font::clearFaceCache()
-{
-	mFaceCache.clear();
-}
-
 Font::Glyph* Font::getGlyph(UnicodeChar id)
 {
 	// is it already loaded?
@@ -477,7 +481,7 @@ Font::Glyph* Font::getGlyph(UnicodeChar id)
 
 	// nope, need to make a glyph
 	FT_Face face = getFaceForChar(id);
-	if (!face)
+	if (face == nullptr)
 	{
 		LOG(LogError) << "Could not find appropriate font face for character " << id << " for font " << mPath;
 		return NULL;
@@ -491,7 +495,7 @@ Font::Glyph* Font::getGlyph(UnicodeChar id)
 		return NULL;
 	}
 
-	Eigen::Vector2i glyphSize(g->bitmap.width, g->bitmap.rows);
+	const Eigen::Vector2i glyphSize(g->bitmap.width, g->bitmap.rows);
 
 	FontTexture* tex = NULL;
 	Eigen::Vector2i cursor;
@@ -526,6 +530,11 @@ Font::Glyph* Font::getGlyph(UnicodeChar id)
 
 	// done
 	return &glyph;
+}
+
+const Font::Glyph* Font::getGlyph(UnicodeChar id) const
+{
+	return const_cast<Font&>(*this).getGlyph(id);
 }
 
 // completely recreate the texture data for all textures based on mGlyphs information
@@ -599,7 +608,7 @@ void Font::renderTextCache(TextCache* cache)
 	}
 }
 
-Eigen::Vector2f Font::sizeText(std::string text, float lineSpacing)
+Eigen::Vector2f Font::sizeText(const std::string& text, float lineSpacing)
 {
 	float lineWidth = 0.0f;
 	float highestWidth = 0.0f;
@@ -623,7 +632,7 @@ Eigen::Vector2f Font::sizeText(std::string text, float lineSpacing)
 		}
 
 		Glyph* glyph = getGlyph(character);
-		if (glyph)
+		if (glyph != nullptr)
 			lineWidth += glyph->advance.x();
 	}
 
@@ -640,8 +649,8 @@ float Font::getHeight(float lineSpacing) const
 
 float Font::getLetterHeight()
 {
-	Glyph* glyph = getGlyph((UnicodeChar)'S');
-	assert(glyph);
+	const Glyph* glyph = getGlyph(static_cast<UnicodeChar>('S'));
+	assert(glyph != nullptr);
 	return glyph->texSize.y() * glyph->texture->textureSize.y();
 }
 
@@ -650,7 +659,6 @@ float Font::getLetterHeight()
 std::string Font::wrapText(std::string text, float xLen)
 {
 	std::string out;
-
 	std::string line, word, temp;
 	size_t space;
 
@@ -675,29 +683,26 @@ std::string Font::wrapText(std::string text, float xLen)
 			line = temp;
 			continue;
 		}
-		else
+		else // the next word won't fit, so break here
 		{
-			// the next word won't fit, so break here
 			out += line + '\n';
 			line = word;
 		}
 	}
 
-	// whatever's left should fit
-	out += line;
+	out += line; // whatever is left should fit
 
 	return out;
 }
 
-Eigen::Vector2f Font::sizeWrappedText(std::string text, float xLen, float lineSpacing)
+Eigen::Vector2f Font::sizeWrappedText(const std::string& text, float xLen, float lineSpacing)
 {
-	text = wrapText(text, xLen);
-	return sizeText(text, lineSpacing);
+	return sizeText(wrapText(text, xLen), lineSpacing);
 }
 
-Eigen::Vector2f Font::getWrappedTextCursorOffset(std::string text, float xLen, size_t stop, float lineSpacing)
+Eigen::Vector2f Font::getWrappedTextCursorOffset(const std::string& text, float xLen, size_t stop, float lineSpacing)
 {
-	std::string wrappedText = wrapText(text, xLen);
+	const std::string wrappedText = wrapText(text, xLen);
 
 	float lineWidth = 0.0f;
 	float y = 0.0f;
@@ -770,8 +775,8 @@ TextCache* Font::buildTextCache(
 {
 	float x = offset[0] + (xLen != 0 ? getNewlineStartOffset(text, 0, xLen, alignment) : 0);
 
-	float yTop = getGlyph((UnicodeChar)'S')->bearing.y();
-	float yBot = getHeight(lineSpacing);
+	const float yTop = getGlyph((UnicodeChar)'S')->bearing.y();
+	const float yBot = getHeight(lineSpacing);
 	float y = offset[1] + (yBot + yTop) / 2.0f;
 
 	// vertices by texture
@@ -779,7 +784,7 @@ TextCache* Font::buildTextCache(
 
 	size_t cursor = 0;
 	UnicodeChar character;
-	Glyph* glyph;
+
 	while (cursor < text.length())
 	{
 		character = readUnicodeChar(text, cursor); // also advances cursor
@@ -795,8 +800,8 @@ TextCache* Font::buildTextCache(
 			continue;
 		}
 
-		glyph = getGlyph(character);
-		if (glyph == NULL)
+		const Glyph* glyph = getGlyph(character);
+		if (glyph == nullptr)
 			continue;
 
 		std::vector<TextCache::Vertex>& verts = vertMap[glyph->texture];
@@ -853,7 +858,7 @@ TextCache* Font::buildTextCache(
 		Renderer::buildGLColorArray(vertList.colors.data(), color, it->second.size());
 	}
 
-	clearFaceCache();
+	mFaceCache.clear();
 
 	return cache;
 }

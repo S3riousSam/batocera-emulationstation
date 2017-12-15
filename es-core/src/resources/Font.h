@@ -39,18 +39,20 @@ public:
 
 	static std::shared_ptr<Font> get(int size, const std::string& path = getDefaultPath());
 
-	Eigen::Vector2f sizeText(
-		std::string text, float lineSpacing = 1.5f); // Returns the expected size of a string when rendered.  Extra spacing is applied to the Y axis.
+	Eigen::Vector2f sizeText(const std::string& text, float lineSpacing = 1.5f); // Returns the expected size of a string when rendered.  Extra spacing is applied to the Y axis.
 	TextCache* buildTextCache(const std::string& text, float offsetX, float offsetY, unsigned int color);
 	TextCache* buildTextCache(
 		const std::string& text, Eigen::Vector2f offset, unsigned int color, float xLen, Alignment alignment = ALIGN_LEFT, float lineSpacing = 1.5f);
 	void renderTextCache(TextCache* cache);
 
-	std::string wrapText(std::string text, float xLen); // Inserts newlines into text to make it wrap properly.
-	Eigen::Vector2f sizeWrappedText(
-		std::string text, float xLen, float lineSpacing = 1.5f); // Returns the expected size of a string after wrapping is applied.
-	Eigen::Vector2f getWrappedTextCursorOffset(std::string text, float xLen, size_t cursor,
-		float lineSpacing = 1.5f); // Returns the position of of the cursor after moving "cursor" characters.
+	// Inserts newlines into text to make it wrap properly.
+	std::string wrapText(std::string text, float xLen);
+
+	// Returns the expected size of a string after wrapping is applied.
+	Eigen::Vector2f sizeWrappedText(const std::string& text, float xLen, float lineSpacing = 1.5f);
+
+	// Returns the position of of the cursor after moving "cursor" characters.
+	Eigen::Vector2f getWrappedTextCursorOffset(const std::string& text, float xLen, size_t cursor, float lineSpacing = 1.5f);
 
 	float getHeight(float lineSpacing = 1.5f) const;
 	float getLetterHeight();
@@ -59,12 +61,12 @@ public:
 	void reload(std::shared_ptr<ResourceManager>& rm) override;
 
 	int getSize() const;
-	inline const std::string& getPath() const
+	const std::string& getPath() const
 	{
 		return mPath;
 	}
 
-	inline static const char* getDefaultPath()
+	static const char* getDefaultPath()
 	{
 		return FONT_PATH_REGULAR;
 	}
@@ -78,8 +80,7 @@ public:
 	static size_t getNextCursor(const std::string& str, size_t cursor);
 	static size_t getPrevCursor(const std::string& str, size_t cursor);
 	static size_t moveCursor(const std::string& str, size_t cursor, int moveAmt); // negative moveAmt = move backwards, positive = move forwards
-	static UnicodeChar readUnicodeChar(
-		const std::string& str, size_t& cursor); // reads unicode character at cursor AND moves cursor to the next valid unicode char
+	static UnicodeChar readUnicodeChar(const std::string& str, size_t& cursor); // reads unicode character at cursor AND moves cursor to the next valid unicode char
 
 private:
 	static std::map<std::pair<std::string, int>, std::weak_ptr<Font>> sFontMap;
@@ -95,24 +96,14 @@ private:
 	void getTextureForNewGlyph(const Eigen::Vector2i& glyphSize, FontTexture*& tex_out, Eigen::Vector2i& cursor_out);
 
 	struct FontFace;
-	std::map<unsigned int, std::unique_ptr<FontFace>> mFaceCache;
-	FT_Face getFaceForChar(UnicodeChar id);
-	void clearFaceCache();
+	mutable std::map<unsigned int, std::unique_ptr<FontFace>> mFaceCache;
+	FT_Face getFaceForChar(UnicodeChar id) const;
 
-	struct Glyph
-	{
-		FontTexture* texture;
-
-		Eigen::Vector2f texPos;
-		Eigen::Vector2f texSize; // in texels!
-
-		Eigen::Vector2f advance;
-		Eigen::Vector2f bearing;
-	};
-
+	struct Glyph;
 	std::map<UnicodeChar, Glyph> mGlyphMap;
 
 	Glyph* getGlyph(UnicodeChar id);
+	const Glyph* getGlyph(UnicodeChar id) const;
 
 	int mMaxGlyphHeight;
 
