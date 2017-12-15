@@ -5,9 +5,6 @@
 #include "Util.h"
 #include "Window.h"
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 DateTimeComponent::DateTimeComponent(Window* window, DisplayMode dispMode)
 	: GuiComponent(window)
 	, mEditing(false)

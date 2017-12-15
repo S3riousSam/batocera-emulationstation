@@ -10,9 +10,6 @@
 #include "resources/Font.h"
 #include <sstream>
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 // Used to display a list of options.
 // Can select one or multiple options.
 

@@ -23,8 +23,6 @@
 #endif
 #include <boost/filesystem.hpp>
 
-#define BUTTON_BACK "a"
-
 using namespace Eigen;
 
 GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector<MetaDataDecl>& mdd, ScraperSearchParams scraperParams,

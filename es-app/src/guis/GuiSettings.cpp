@@ -3,8 +3,6 @@
 #include "Settings.h"
 #include "Window.h"
 #include "views/ViewController.h"
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
 
 GuiSettings::GuiSettings(Window* window, const char* title)
 	: GuiComponent(window)

@@ -4,9 +4,6 @@
 #include "Window.h"
 #include "resources/SVGResource.h"
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 RatingComponent::RatingComponent(Window* window)
 	: GuiComponent(window)
 {

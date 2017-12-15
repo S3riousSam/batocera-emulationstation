@@ -6,8 +6,6 @@
 #include "ThemeData.h"
 #include "Window.h"
 #include "views/ViewController.h"
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
 
 BasicGameListView::BasicGameListView(Window* window, FileData* root)
 	: ISimpleGameListView(window, root)

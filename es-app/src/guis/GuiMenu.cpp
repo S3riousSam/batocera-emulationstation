@@ -43,9 +43,6 @@ namespace GuiMenuEx
 #include "LocaleES.h"
 #endif
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 GuiMenu::GuiMenu(Window* window)
 	: GuiComponent(window)
 	, mMenu(window, _("MAIN MENU"))

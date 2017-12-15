@@ -12,6 +12,9 @@ class Font;
 
 typedef std::pair<std::string, std::string> HelpPrompt;
 
+#define BUTTON_BACK "a"
+#define BUTTON_LAUNCH "b"
+
 class GuiComponent
 {
 public:

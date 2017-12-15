@@ -11,9 +11,6 @@
 #include "scrapers/Scraper.h"
 #include "SystemData.h"
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 GuiScraperStart::GuiScraperStart(Window* window)
 	: GuiComponent(window)
 	, mMenu(window, _("SCRAPE NOW"))

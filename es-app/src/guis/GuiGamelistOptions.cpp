@@ -11,19 +11,10 @@
 #endif
 #include "SystemData.h"
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
-#if defined(EXTENSION)
-	: GuiComponent(window)
-	, mSystem(system)
-	, mMenu(window, _("OPTIONS").c_str())
-#else
 	: GuiComponent(window)
 	, mSystem(system)
 	, mMenu(window, _("OPTIONS"))
-#endif
 {
 	addChild(&mMenu);
 

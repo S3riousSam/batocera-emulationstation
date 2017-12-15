@@ -6,14 +6,13 @@
 #include "Window.h"
 #include "resources/Font.h"
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
-#define TEXT_PADDING_HORIZ 10
-#define TEXT_PADDING_VERT 2
-
-#define CURSOR_REPEAT_START_DELAY 500
-#define CURSOR_REPEAT_SPEED 28 // lower is faster
+namespace
+{
+	const int TEXT_PADDING_HORIZ = 10;
+	const int TEXT_PADDING_VERT = 2;
+	const int CURSOR_REPEAT_START_DELAY = 500;
+	const int CURSOR_REPEAT_SPEED = 28; // lower is faster
+}
 
 TextEditComponent::TextEditComponent(Window* window)
 	: GuiComponent(window)

@@ -12,9 +12,6 @@
 #include "guis/GuiTextEditPopup.h"
 #include "scrapers/Scraper.h"
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 GuiGameScraper::GuiGameScraper(Window* window, ScraperSearchParams params, std::function<void(const ScraperSearchResult&)> doneFunc)
 	: GuiComponent(window)
 	, mGrid(window, Eigen::Vector2i(1, 7))

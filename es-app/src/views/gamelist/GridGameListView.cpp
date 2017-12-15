@@ -7,9 +7,6 @@
 #include "Window.h"
 #include "views/ViewController.h"
 
-#define BUTTON_BACK "a"
-#define BUTTON_LAUNCH "b"
-
 GridGameListView::GridGameListView(Window* window, FileData* root)
 	: ISimpleGameListView(window, root)
 	, mGrid(window)
