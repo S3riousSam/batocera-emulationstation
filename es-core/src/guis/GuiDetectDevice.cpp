@@ -109,11 +109,11 @@ bool GuiDetectDevice::input(InputConfig* config, Input input)
 
 void GuiDetectDevice::update(int deltaTime)
 {
-	if (mHoldingConfig)
+	if (mHoldingConfig != nullptr)
 	{
 		mHoldTime -= deltaTime;
 		const float t = (float)mHoldTime / HOLD_TIME;
-		unsigned int c = (unsigned char)(t * 255);
+		const unsigned int c = (unsigned char)(t * 255);
 		mDeviceHeld->setColor((c << 24) | (c << 16) | (c << 8) | 0xFF);
 		if (mHoldTime <= 0)
 		{

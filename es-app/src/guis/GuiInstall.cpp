@@ -19,7 +19,7 @@ GuiInstall::GuiInstall(Window* window, const std::string& storageDevice, const s
 	, marchitecture(architecture)
 	, mHandle(nullptr)
 {
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	setSize(Renderer::getScreenSize());
 	mBusyAnim.setSize(mSize);
 }
 

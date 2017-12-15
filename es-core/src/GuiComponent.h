@@ -2,7 +2,6 @@
 #include "HelpStyle.h"
 #include "InputConfig.h"
 #include <Eigen/Dense>
-#include <memory>
 
 class Window;
 class Animation;
@@ -18,6 +17,7 @@ typedef std::pair<std::string, std::string> HelpPrompt;
 class GuiComponent
 {
 public:
+    GuiComponent(Window& window);
 	GuiComponent(Window* window);
 	virtual ~GuiComponent();
 

@@ -29,6 +29,11 @@ namespace Renderer
 		return display_height;
 	}
 
+	Eigen::Vector2f getScreenSize()
+	{
+		return Eigen::Vector2f(static_cast<float>(getScreenWidth()), static_cast<float>(getScreenHeight()));
+	}
+
 	SDL_Window* sdlWindow = NULL;
 	SDL_GLContext sdlContext = NULL;
 

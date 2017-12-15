@@ -12,7 +12,7 @@ GuiSettings::GuiSettings(Window* window, const char* title)
 
 	mMenu.addButton(_("BACK"), "go back", [this] { delete this; });
 
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	setSize(Renderer::getScreenSize());
 	mMenu.setPosition((mSize.x() - mMenu.getSize().x()) / 2, Renderer::getScreenHeight() * 0.1f);
 }
 

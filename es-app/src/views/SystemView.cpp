@@ -32,7 +32,7 @@ SystemView::SystemView(Window* window)
 	mExtrasCamOffset = 0;
 	mExtrasFadeOpacity = 0.0f;
 
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	setSize(Renderer::getScreenSize());
 
 	mSystemInfo.setSize(mSize.x(), mSystemInfo.getSize().y() * 1.333f);
 	mSystemInfo.setPosition(0, (mSize.y() + BAND_HEIGHT) / 2);
@@ -304,7 +304,7 @@ void SystemView::onCursorChanged(const CursorState& state)
 	Animation* anim;
 	if (Settings::getInstance()->getString("TransitionStyle") == "fade")
 	{
-		float startExtrasFade = mExtrasFadeOpacity;
+		const float startExtrasFade = mExtrasFadeOpacity;
 		anim = new LambdaAnimation(
 			[startExtrasFade, startPos, endPos, posMax, this](float t) {
 				t -= 1;

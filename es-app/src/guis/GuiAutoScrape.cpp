@@ -18,7 +18,7 @@ GuiAutoScrape::GuiAutoScrape(Window* window)
 	, mState(State::Initial)
 	, mHandle(nullptr)
 {
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	setSize(Renderer::getScreenSize());
 	mLoading = true;
 
 	mBusyAnim.setSize(mSize);

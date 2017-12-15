@@ -19,6 +19,7 @@ namespace Renderer
 
 	unsigned int getScreenWidth();
 	unsigned int getScreenHeight();
+	Eigen::Vector2f getScreenSize();
 
 	void buildGLColorArray(GLubyte* ptr, unsigned int color, unsigned int vertCount);
 

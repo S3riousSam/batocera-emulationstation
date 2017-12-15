@@ -13,7 +13,7 @@ GuiBackup::GuiBackup(Window* window, std::string storageDevice)
 	: GuiComponent(window)
 	, mBusyAnim(window)
 {
-	setSize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	setSize(Renderer::getScreenSize());
 	mLoading = true;
 	mState = 1;
 	mBusyAnim.setSize(mSize);

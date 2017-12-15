@@ -16,7 +16,7 @@ GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc)
 	, mFunc2(NULL)
 	, mRunning(true)
 {
-	setSize(static_cast<float>(Renderer::getScreenWidth()), static_cast<float>(Renderer::getScreenHeight()));
+	setSize(Renderer::getScreenSize());
 	mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
 	mBusyAnim.setSize(mSize);
 }
@@ -28,7 +28,7 @@ GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc, cons
 	, mFunc2(mFunc2)
 	, mRunning(true)
 {
-	setSize(static_cast<float>(Renderer::getScreenWidth()), static_cast<float>(Renderer::getScreenHeight()));
+	setSize(Renderer::getScreenSize());
 	mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
 	mBusyAnim.setSize(mSize);
 }

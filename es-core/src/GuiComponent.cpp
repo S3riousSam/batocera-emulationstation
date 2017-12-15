@@ -5,8 +5,8 @@
 #include "Window.h"
 #include "animations/AnimationController.h"
 
-GuiComponent::GuiComponent(Window* window)
-	: mWindow(window)
+GuiComponent::GuiComponent(Window& window)
+	: mWindow(&window)
 	, mParent(NULL)
 	, mOpacity(255)
 	, mPosition(Eigen::Vector3f::Zero())
@@ -16,6 +16,11 @@ GuiComponent::GuiComponent(Window* window)
 {
 	for (unsigned char i = 0; i < MAX_ANIMATIONS; i++)
 		mAnimationMap[i] = NULL;
+}
+
+GuiComponent::GuiComponent(Window* window) : GuiComponent(*window) // delegating ctr
+{
+	assert(window != nullptr);
 }
 
 GuiComponent::~GuiComponent()
@@ -176,10 +181,8 @@ unsigned char GuiComponent::getOpacity() const
 void GuiComponent::setOpacity(unsigned char opacity)
 {
 	mOpacity = opacity;
-	for (auto it = mChildren.begin(); it != mChildren.end(); it++)
-	{
-		(*it)->setOpacity(opacity);
-	}
+	for (auto& it : mChildren)
+		it->setOpacity(opacity);
 }
 
 const Eigen::Affine3f& GuiComponent::getTransform()
@@ -195,15 +198,13 @@ void GuiComponent::setValue(const std::string& value)
 
 std::string GuiComponent::getValue() const
 {
-	return "";
+    return std::string();
 }
 
 void GuiComponent::textInput(const char* text)
 {
-	for (auto iter = mChildren.begin(); iter != mChildren.end(); iter++)
-	{
-		(*iter)->textInput(text);
-	}
+	for (auto& it : mChildren)
+		it->textInput(text);
 }
 
 void GuiComponent::setAnimation(Animation* anim, int delay, std::function<void()> finishedCallback, bool reverse, unsigned char slot)
@@ -213,7 +214,7 @@ void GuiComponent::setAnimation(Animation* anim, int delay, std::function<void()
 	AnimationController* oldAnim = mAnimationMap[slot];
 	mAnimationMap[slot] = new AnimationController(anim, delay, finishedCallback, reverse);
 
-	if (oldAnim)
+	if (oldAnim != nullptr)
 		delete oldAnim;
 }
 
@@ -273,8 +274,7 @@ bool GuiComponent::advanceAnimation(unsigned char slot, unsigned int time)
 	AnimationController* anim = mAnimationMap[slot];
 	if (anim)
 	{
-		bool done = anim->update(time);
-		if (done)
+		if (anim->update(time)) // done?
 		{
 			mAnimationMap[slot] = NULL;
 			delete anim;
@@ -318,17 +318,16 @@ int GuiComponent::getAnimationTime(unsigned char slot) const
 
 void GuiComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties)
 {
-	Eigen::Vector2f scale =
-		getParent() ? getParent()->getSize() : Eigen::Vector2f((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	const Eigen::Vector2f scale = (getParent() != nullptr) ? getParent()->getSize() : Renderer::getScreenSize();
 
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "");
-	if (!elem)
+	if (elem == nullptr)
 		return;
 
 	using namespace ThemeFlags;
 	if (properties & POSITION && elem->has("pos"))
 	{
-		Eigen::Vector2f denormalized = elem->get<Eigen::Vector2f>("pos").cwiseProduct(scale);
+		const Eigen::Vector2f denormalized = elem->get<Eigen::Vector2f>("pos").cwiseProduct(scale);
 		setPosition(Eigen::Vector3f(denormalized.x(), denormalized.y(), 0));
 	}
 
