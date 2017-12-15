@@ -3,16 +3,17 @@
 #include GLHEADER
 #include <ft2build.h>
 #include <string>
-#include FT_FREETYPE_H
 #include "ThemeData.h"
 #include "resources/ResourceManager.h"
 #include <Eigen/Dense>
 
+typedef struct FT_FaceRec_*  FT_Face;
+
 class TextCache;
 
-#define FONT_SIZE_SMALL ((unsigned int)(0.035f * Renderer::getScreenHeight()))
-#define FONT_SIZE_MEDIUM ((unsigned int)(0.045f * Renderer::getScreenHeight()))
-#define FONT_SIZE_LARGE ((unsigned int)(0.085f * Renderer::getScreenHeight()))
+#define FONT_SIZE_SMALL (static_cast<unsigned int>(0.035f * Renderer::getScreenHeight()))
+#define FONT_SIZE_MEDIUM (static_cast<unsigned int>(0.045f * Renderer::getScreenHeight()))
+#define FONT_SIZE_LARGE (static_cast<unsigned int>(0.085f * Renderer::getScreenHeight()))
 
 #define FONT_PATH_LIGHT ":/ubuntu_condensed.ttf"
 #define FONT_PATH_REGULAR ":/ubuntu_condensed.ttf"
@@ -26,17 +27,17 @@ enum Alignment
 	ALIGN_RIGHT
 };
 
-// A TrueType Font renderer that uses FreeType and OpenGL.
+// Renders TrueType font using FreeType and OpenGL.
 // The library is automatically initialized when it's needed.
 class Font : public IReloadable
 {
 public:
+	virtual ~Font();
+
 	static void initLibrary();
-    static void uinitLibrary();
+	static void uinitLibrary();
 
 	static std::shared_ptr<Font> get(int size, const std::string& path = getDefaultPath());
-
-	virtual ~Font();
 
 	Eigen::Vector2f sizeText(
 		std::string text, float lineSpacing = 1.5f); // Returns the expected size of a string when rendered.  Extra spacing is applied to the Y axis.
@@ -81,44 +82,19 @@ public:
 		const std::string& str, size_t& cursor); // reads unicode character at cursor AND moves cursor to the next valid unicode char
 
 private:
-	static FT_Library sLibrary;
 	static std::map<std::pair<std::string, int>, std::weak_ptr<Font>> sFontMap;
 
 	Font(int size, const std::string& path);
 
-	struct FontTexture
-	{
-		GLuint textureId;
-		Eigen::Vector2i textureSize;
-
-		Eigen::Vector2i writePos;
-		int rowHeight;
-
-		FontTexture();
-		~FontTexture();
-		bool findEmpty(const Eigen::Vector2i& size, Eigen::Vector2i& cursor_out);
-
-		// you must call initTexture() after creating a FontTexture to get a textureId
-		void initTexture(); // initializes the OpenGL texture according to this FontTexture's settings, updating textureId
-		void deinitTexture(); // deinitializes the OpenGL texture if any exists, is automatically called in the destructor
-	};
-
-	struct FontFace
-	{
-		const ResourceData data;
-		FT_Face face;
-
-		FontFace(ResourceData&& d, int size);
-		virtual ~FontFace();
-	};
-
 	void rebuildTextures();
 	void unloadTextures();
 
+	struct FontTexture;
 	std::vector<FontTexture> mTextures;
 
 	void getTextureForNewGlyph(const Eigen::Vector2i& glyphSize, FontTexture*& tex_out, Eigen::Vector2i& cursor_out);
 
+	struct FontFace;
 	std::map<unsigned int, std::unique_ptr<FontFace>> mFaceCache;
 	FT_Face getFaceForChar(UnicodeChar id);
 	void clearFaceCache();

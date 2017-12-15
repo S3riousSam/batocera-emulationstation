@@ -2,12 +2,43 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
+#include FT_FREETYPE_H
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <iostream>
 #include <vector>
 
-FT_Library Font::sLibrary = NULL;
+namespace
+{
+	static FT_Library sLibrary;
+}
+
+struct Font::FontTexture
+{
+	FontTexture();
+	~FontTexture();
+
+	bool findEmpty(const Eigen::Vector2i& size, Eigen::Vector2i& cursor_out);
+
+	// you must call initTexture() after creating a FontTexture to get a textureId
+	void initTexture(); // initializes the OpenGL texture according to this FontTexture's settings, updating textureId
+	void deinitTexture(); // deinitializes the OpenGL texture if any exists, is automatically called in the destructor
+
+	GLuint textureId;
+	Eigen::Vector2i textureSize;
+
+	Eigen::Vector2i writePos;
+	int rowHeight;
+};
+
+struct Font::FontFace
+{
+	FontFace(ResourceData&& d, int size);
+	virtual ~FontFace();
+
+	const ResourceData data;
+	FT_Face face;
+};
 
 int Font::getSize() const
 {
