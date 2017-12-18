@@ -1,11 +1,10 @@
 #pragma once
 #include "platform.h"
-#include GLHEADER
-#include <ft2build.h>
-#include <string>
 #include "ThemeData.h"
 #include "resources/ResourceManager.h" // IReloadable
+#include GLHEADER
 #include <Eigen/Dense>
+#include <string>
 
 typedef struct FT_FaceRec_*  FT_Face;
 

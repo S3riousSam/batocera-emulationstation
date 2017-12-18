@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
+#include <ft2build.h>
 #include FT_FREETYPE_H
 //#include <algorithm>
 //#include <iostream>
