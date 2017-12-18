@@ -17,14 +17,14 @@
 typedef void(*generate_scraper_requests_func)(
     const ScraperSearchParams& params, std::queue<std::unique_ptr<ScraperRequest>>& requests, std::vector<ScraperSearchResult>& results);
 
-static const std::map<const char*, generate_scraper_requests_func> scraper_request_funcs =
+static const std::map<std::string, generate_scraper_requests_func> scraper_request_funcs =
 {
-    { "TheGamesDB", &thegamesdb_generate_scraper_requests},
+    { "TheGamesDB", thegamesdb_generate_scraper_requests},
 #if defined(EXTENSION)
 #if defined(ENABLE_MAMEDB_SCRAPER)
     { "Mamedb", &mamedb_generate_scraper_requests},
 #endif
-    { "Screenscraper", &screenscraper_generate_scraper_requests}
+    { "Screenscraper", screenscraper_generate_scraper_requests}
 #else
     //{ "TheArchive", &thearchive_generate_scraper_requests}
 #endif
@@ -38,7 +38,7 @@ std::unique_ptr<ScraperSearchHandle> Scraper::startSearch(const ScraperSearchPar
 
 	// TODO: This is weak, if the value from the configuration contains an invalid value,
 	// (typo mistake on the scraper name) the program is likely going to crash here!
-	scraper_request_funcs.at(name.c_str())(params, handle->mRequestQueue, handle->mResults);
+	scraper_request_funcs.at(name)(params, handle->mRequestQueue, handle->mResults);
 	return handle;
 }
 
