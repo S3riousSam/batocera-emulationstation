@@ -10,7 +10,17 @@
 
 namespace
 {
-	static FT_Library sLibrary;
+	static FT_Library sLibrary = nullptr;
+
+	void initLibrary()
+	{
+		assert(sLibrary == nullptr);
+		if (FT_Init_FreeType(&sLibrary) != 0) // TODO: Memory leak (never calling FT_Done_Face(&sLibrary))!??
+		{
+			sLibrary = nullptr;
+			LOG(LogError) << "Error initializing FreeType!";
+		}
+	}
 }
 
 struct Font::FontTexture
@@ -176,43 +186,38 @@ UnicodeChar Font::readUnicodeChar(const std::string& str, size_t& cursor)
 
 Font::FontFace::FontFace(ResourceData&& d, int size)
 	: data(d)
+	, face(nullptr)
 {
-	int err = FT_New_Memory_Face(sLibrary, data.ptr.get(), data.length, 0, &face);
-	assert(!err);
+	assert(sLibrary != nullptr);
+	const int err = FT_New_Memory_Face(sLibrary, data.ptr.get(), data.length, 0, &face);
+	assert(err == 0);
 
 	FT_Set_Pixel_Sizes(face, 0, size);
 }
 
 Font::FontFace::~FontFace()
 {
-	if (face)
-		FT_Done_Face(face);
-}
-
-void Font::initLibrary()
-{
-	assert(sLibrary == NULL);
-	if (FT_Init_FreeType(&sLibrary)) // TODO: Memory leak (never calling FT_Done_Face(&sLibrary))!??
+	if (face != nullptr)
 	{
-		sLibrary = NULL;
-		LOG(LogError) << "Error initializing FreeType!";
+		const int err = FT_Done_Face(face);
+		assert(err == 0);
 	}
 }
 
 void Font::uinitLibrary()
 {
-    assert(sLibrary != NULL);
+    assert(sLibrary != nullptr);
     FT_Done_FreeType(sLibrary);
 }
 
 size_t Font::getMemUsage() const
 {
 	size_t memUsage = 0;
-	for (auto it = mTextures.begin(); it != mTextures.end(); it++)
-		memUsage += it->textureSize.x() * it->textureSize.y() * 4;
+	for (const auto& it : mTextures)
+		memUsage += it.textureSize.x() * it.textureSize.y() * 4;
 
-	for (auto it = mFaceCache.begin(); it != mFaceCache.end(); it++)
-		memUsage += it->second->data.length;
+	for (const auto& it : mFaceCache)
+		memUsage += it.second->data.length;
 
 	return memUsage;
 }
@@ -244,13 +249,13 @@ Font::Font(int size, const std::string& path)
 {
 	assert(mSize > 0);
 
-	if (sLibrary != nullptr)
+	if (sLibrary == nullptr)
 		initLibrary();
 
 	for (UnicodeChar i = 32; i < 128; i++) // init ASCII characters
 		getGlyph(i);
 
-	//mFaceCache.clear(); // TEST: Why would this be needed?
+	mFaceCache.clear(); // Required
 }
 
 Font::~Font()
@@ -288,10 +293,8 @@ std::shared_ptr<Font> Font::get(int size, const std::string& path)
 
 void Font::unloadTextures()
 {
-	for (auto it = mTextures.begin(); it != mTextures.end(); it++)
-	{
-		it->deinitTexture();
-	}
+	for (auto& it : mTextures)
+		it.deinitTexture();
 }
 
 Font::FontTexture::FontTexture()
