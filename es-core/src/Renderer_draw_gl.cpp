@@ -12,18 +12,21 @@ namespace Renderer
 {
 	std::stack<Eigen::Vector4i> clipStack;
 
-	void setColor4bArray(GLubyte* array, unsigned int color)
-	{
-		array[0] = static_cast<GLubyte>((color & 0xff000000) >> 24);
-		array[1] = static_cast<GLubyte>((color & 0x00ff0000) >> 16);
-		array[2] = static_cast<GLubyte>((color & 0x0000ff00) >> 8);
-		array[3] = static_cast<GLubyte>((color & 0x000000ff));
-	}
-
 	void buildGLColorArray(GLubyte* ptr, unsigned int color, unsigned int vertCount)
 	{
+		struct Local
+		{
+			static void setColor4bArray(GLubyte* array, unsigned int color)
+			{
+				array[0] = static_cast<GLubyte>((color & 0xff000000) >> 24);
+				array[1] = static_cast<GLubyte>((color & 0x00ff0000) >> 16);
+				array[2] = static_cast<GLubyte>((color & 0x0000ff00) >> 8);
+				array[3] = static_cast<GLubyte>((color & 0x000000ff));
+			}
+		};
+
 		unsigned int colorGl;
-		setColor4bArray((GLubyte*)&colorGl, color);
+		Local::setColor4bArray((GLubyte*)&colorGl, color);
 		for (unsigned int i = 0; i < vertCount; i++)
 		{
 			((GLuint*)ptr)[i] = colorGl;
@@ -83,7 +86,7 @@ namespace Renderer
 		}
 		else
 		{
-			Eigen::Vector4i top = clipStack.top();
+			const Eigen::Vector4i top = clipStack.top();
 			glScissor(top[0], top[1], top[2], top[3]);
 		}
 	}

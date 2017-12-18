@@ -3,10 +3,9 @@
 #include "Renderer.h"
 #include "Util.h"
 #include FT_FREETYPE_H
-#include <algorithm>
-#include <boost/filesystem.hpp>
-#include <iostream>
-#include <vector>
+//#include <algorithm>
+//#include <iostream>
+//#include <vector>
 
 namespace
 {
@@ -21,6 +20,11 @@ namespace
 			LOG(LogError) << "Error initializing FreeType!";
 		}
 	}
+
+    float font_round(float v)
+    {
+        return round(v);
+    }
 }
 
 struct Font::FontTexture
@@ -278,7 +282,7 @@ std::shared_ptr<Font> Font::get(int size, const std::string& path)
 	const std::string canonicalPath = getCanonicalPath(path);
 
 	const std::pair<std::string, int> def(canonicalPath.empty() ? getDefaultPath() : canonicalPath, size);
-	auto foundFont = sFontMap.find(def);
+	const auto foundFont = sFontMap.find(def);
 	if (foundFont != sFontMap.end())
 	{
 		if (!foundFont->second.expired())
@@ -368,24 +372,20 @@ void Font::FontTexture::deinitTexture()
 
 void Font::getTextureForNewGlyph(const Eigen::Vector2i& glyphSize, FontTexture*& tex_out, Eigen::Vector2i& cursor_out)
 {
+	// check if the most recent texture has space
 	if (mTextures.size())
 	{
-		// check if the most recent texture has space
 		tex_out = &mTextures.back();
-
-		// will this one work?
-		if (tex_out->findEmpty(glyphSize, cursor_out))
+		if (tex_out->findEmpty(glyphSize, cursor_out)) // will this one work?
 			return; // yes
 	}
 
-	// current textures are full,
-	// make a new one
+	// current textures are full, so make a new one
 	mTextures.push_back(FontTexture());
 	tex_out = &mTextures.back();
 	tex_out->initTexture();
 
-	bool ok = tex_out->findEmpty(glyphSize, cursor_out);
-	if (!ok)
+	if (!tex_out->findEmpty(glyphSize, cursor_out))
 	{
 		LOG(LogError) << "Glyph too big to fit on a new texture (glyph size > " << tex_out->textureSize.x() << ", " << tex_out->textureSize.y() << ")!";
 		tex_out = NULL;
@@ -394,58 +394,49 @@ void Font::getTextureForNewGlyph(const Eigen::Vector2i& glyphSize, FontTexture*&
 
 std::vector<std::string> getFallbackFontPaths()
 {
-#ifdef WIN32
-	// Windows
+#ifdef WIN32 // Windows
 
 	// get this system's equivalent of "C:\Windows" (might be on a different drive or in a different folder)
 	// so we can check the Fonts subdirectory for fallback fonts
 	TCHAR winDir[MAX_PATH];
 	GetWindowsDirectory(winDir, MAX_PATH);
-	std::string fontDir = winDir;
-	fontDir += "\\Fonts\\";
+	const std::string fontDir = std::string(winDir) + "\\Fonts\\";
 
-	const char* fontNames[] = {
+	const std::vector<const char*> fontNames = {
 		"meiryo.ttc", // japanese
 		"simhei.ttf", // chinese
 		"arial.ttf" // latin
 	};
 
-	// prepend to font file names
 	std::vector<std::string> fontPaths;
-	fontPaths.reserve(sizeof(fontNames) / sizeof(fontNames[0]));
-
-	for (unsigned int i = 0; i < sizeof(fontNames) / sizeof(fontNames[0]); i++)
+	fontPaths.reserve(fontNames.size());
+	for (const auto& it : fontNames)
 	{
-		std::string path = fontDir + fontNames[i];
+		const std::string path = fontDir + it;
 		if (ResourceManager::getInstance()->fileExists(path))
 			fontPaths.push_back(path);
 	}
 
-	fontPaths.shrink_to_fit();
-	return fontPaths;
-
-#else
-	// Linux
+#else // (Linux)
 
 	// TODO
-	const char* paths[] =
-	{
+	const std::vector<const char*> fontNames = {
 		"/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf", // japanese, chinese, present on Debian
 		":/fontawesome_webfont.ttf",
 		"/usr/share/fonts/truetype/fontawesome-webfont.ttf",
 	};
 
 	std::vector<std::string> fontPaths;
-	for (unsigned int i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
+	fontPaths.reserve(fontNames.size());
+	for (const auto& it : fontNames)
 	{
-		if (ResourceManager::getInstance()->fileExists(paths[i]))
-			fontPaths.push_back(paths[i]);
+		if (ResourceManager::getInstance()->fileExists(it))
+			fontPaths.push_back(it);
 	}
 
+#endif
 	fontPaths.shrink_to_fit();
 	return fontPaths;
-
-#endif
 }
 
 FT_Face Font::getFaceForChar(UnicodeChar id) const
@@ -477,8 +468,7 @@ FT_Face Font::getFaceForChar(UnicodeChar id) const
 
 Font::Glyph* Font::getGlyph(UnicodeChar id)
 {
-	// is it already loaded?
-	auto it = mGlyphMap.find(id);
+	auto it = mGlyphMap.find(id); // is it already loaded?
 	if (it != mGlyphMap.end())
 		return &it->second;
 
@@ -490,26 +480,26 @@ Font::Glyph* Font::getGlyph(UnicodeChar id)
 		return NULL;
 	}
 
-	FT_GlyphSlot g = face->glyph;
+	const FT_GlyphSlot g = face->glyph;
 
 	if (FT_Load_Char(face, id, FT_LOAD_RENDER))
 	{
 		LOG(LogError) << "Could not find glyph for character " << id << " for font " << mPath << ", size " << mSize << "!";
-		return NULL;
+		return nullptr;
 	}
 
 	const Eigen::Vector2i glyphSize(g->bitmap.width, g->bitmap.rows);
 
-	FontTexture* tex = NULL;
+	FontTexture* tex = nullptr;
 	Eigen::Vector2i cursor;
 	getTextureForNewGlyph(glyphSize, tex, cursor);
 
 	// getTextureForNewGlyph can fail if the glyph is bigger than the max texture size (absurdly large font size)
-	if (tex == NULL)
+	if (tex == nullptr)
 	{
 		LOG(LogError) << "Could not create glyph for character " << id << " for font " << mPath << ", size " << mSize
 					  << " (no suitable texture found)!";
-		return NULL;
+		return nullptr;
 	}
 
 	// create glyph
@@ -531,7 +521,6 @@ Font::Glyph* Font::getGlyph(UnicodeChar id)
 	if (glyphSize.y() > mMaxGlyphHeight)
 		mMaxGlyphHeight = glyphSize.y();
 
-	// done
 	return &glyph;
 }
 
@@ -544,26 +533,26 @@ const Font::Glyph* Font::getGlyph(UnicodeChar id) const
 void Font::rebuildTextures()
 {
 	// recreate OpenGL textures
-	for (auto it = mTextures.begin(); it != mTextures.end(); it++)
+	for (auto& it : mTextures)
 	{
-		it->deinitTexture();
-		it->initTexture();
+		it.deinitTexture();
+		it.initTexture();
 	}
 
 	// reupload the texture data
-	for (auto it = mGlyphMap.begin(); it != mGlyphMap.end(); it++)
+	for (const auto& it : mGlyphMap)
 	{
-		FT_Face face = getFaceForChar(it->first);
-		FT_GlyphSlot glyphSlot = face->glyph;
+		const FT_Face face = getFaceForChar(it.first);
+		const FT_GlyphSlot glyphSlot = face->glyph;
 
 		// load the glyph bitmap through FT
-		FT_Load_Char(face, it->first, FT_LOAD_RENDER);
+		FT_Load_Char(face, it.first, FT_LOAD_RENDER);
 
-		FontTexture* tex = it->second.texture;
+		const FontTexture* tex = it.second.texture;
 
 		// find the position/size
-		Eigen::Vector2i cursor(it->second.texPos.x() * tex->textureSize.x(), it->second.texPos.y() * tex->textureSize.y());
-		Eigen::Vector2i glyphSize(it->second.texSize.x() * tex->textureSize.x(), it->second.texSize.y() * tex->textureSize.y());
+		const Eigen::Vector2i cursor(it.second.texPos.x() * tex->textureSize.x(), it.second.texPos.y() * tex->textureSize.y());
+		const Eigen::Vector2i glyphSize(it.second.texSize.x() * tex->textureSize.x(), it.second.texSize.y() * tex->textureSize.y());
 
 		// upload to texture
 		glBindTexture(GL_TEXTURE_2D, tex->textureId);
@@ -584,8 +573,6 @@ void Font::renderTextCache(TextCache* cache)
 	for (auto it = cache->vertexLists.begin(); it != cache->vertexLists.end(); it++)
 	{
 		assert(*it->textureIdPtr != 0);
-
-		auto vertexList = *it;
 
 		glBindTexture(GL_TEXTURE_2D, *it->textureIdPtr);
 		glEnable(GL_TEXTURE_2D);
@@ -662,23 +649,20 @@ float Font::getLetterHeight()
 std::string Font::wrapText(std::string text, float xLen)
 {
 	std::string out;
-	std::string line, word, temp;
-	size_t space;
-
-	Eigen::Vector2f textSize;
+	std::string line;
 
 	while (text.length() > 0) // while there's text or we still have text to render
 	{
-		space = text.find_first_of(" \t\n");
+		size_t space = text.find_first_of(" \t\n");
 		if (space == std::string::npos)
 			space = text.length() - 1;
 
-		word = text.substr(0, space + 1);
+		const std::string word = text.substr(0, space + 1);
 		text.erase(0, space + 1);
 
-		temp = line + word;
+		const std::string temp = line + word;
 
-		textSize = sizeText(temp);
+		const Eigen::Vector2f textSize = sizeText(temp);
 
 		// if the word will fit on the line, add it to our line, and continue
 		if (textSize.x() <= xLen)
@@ -736,7 +720,7 @@ Eigen::Vector2f Font::getWrappedTextCursorOffset(const std::string& text, float 
 		}
 
 		Glyph* glyph = getGlyph(character);
-		if (glyph)
+		if (glyph != nullptr)
 			lineWidth += glyph->advance.x();
 	}
 
@@ -768,11 +752,6 @@ float Font::getNewlineStartOffset(const std::string& text, const unsigned int& c
 	}
 }
 
-inline float font_round(float v)
-{
-	return round(v);
-}
-
 TextCache* Font::buildTextCache(
 	const std::string& text, Eigen::Vector2f offset, unsigned int color, float xLen, Alignment alignment, float lineSpacing)
 {
@@ -786,17 +765,15 @@ TextCache* Font::buildTextCache(
 	std::map<FontTexture*, std::vector<TextCache::Vertex>> vertMap;
 
 	size_t cursor = 0;
-	UnicodeChar character;
+	
 
 	while (cursor < text.length())
 	{
-		character = readUnicodeChar(text, cursor); // also advances cursor
-
-		// invalid character
-		if (character == 0)
+		const UnicodeChar character = readUnicodeChar(text, cursor); // also advances cursor
+		if (character == 0) // invalid character?
 			continue;
 
-		if (character == (UnicodeChar)'\n')
+		if (character == static_cast<UnicodeChar>('\n'))
 		{
 			y += getHeight(lineSpacing);
 			x = offset[0] + (xLen != 0 ? getNewlineStartOffset(text, cursor /* cursor is already advanced */, xLen, alignment) : 0);
@@ -849,16 +826,15 @@ TextCache* Font::buildTextCache(
 	cache->vertexLists.resize(vertMap.size());
 	cache->metrics = {sizeText(text, lineSpacing)};
 
-	unsigned int i = 0;
-	for (auto it = vertMap.begin(); it != vertMap.end(); it++)
+	for (const auto& it : vertMap)
 	{
-		TextCache::VertexList& vertList = cache->vertexLists.at(i);
+		TextCache::VertexList& vertList = cache->vertexLists.at(0ull);
 
-		vertList.textureIdPtr = &it->first->textureId;
-		vertList.verts = it->second;
+		vertList.textureIdPtr = &it.first->textureId;
+		vertList.verts = it.second;
 
-		vertList.colors.resize(4 * it->second.size());
-		Renderer::buildGLColorArray(vertList.colors.data(), color, it->second.size());
+		vertList.colors.resize(4 * it.second.size());
+		Renderer::buildGLColorArray(vertList.colors.data(), color, it.second.size());
 	}
 
 	mFaceCache.clear();
@@ -873,24 +849,23 @@ TextCache* Font::buildTextCache(const std::string& text, float offsetX, float of
 
 void TextCache::setColor(unsigned int color)
 {
-	for (auto it = vertexLists.begin(); it != vertexLists.end(); it++)
-		Renderer::buildGLColorArray(it->colors.data(), color, it->verts.size());
+	for (auto& it : vertexLists)
+		Renderer::buildGLColorArray(it.colors.data(), color, it.verts.size());
 }
 
 std::shared_ptr<Font> Font::getFromTheme(const ThemeData::ThemeElement* elem, unsigned int properties, const std::shared_ptr<Font>& orig)
 {
-	using namespace ThemeFlags;
-	if (!(properties & FONT_PATH) && !(properties & FONT_SIZE))
+	if (!(properties & ThemeFlags::FONT_PATH) && !(properties & ThemeFlags::FONT_SIZE))
 		return orig;
 
 	std::shared_ptr<Font> font;
 	int size = (orig ? orig->mSize : FONT_SIZE_MEDIUM);
 	std::string path = (orig ? orig->mPath : getDefaultPath());
 
-	float sh = (float)Renderer::getScreenHeight();
-	if (properties & FONT_SIZE && elem->has("fontSize"))
-		size = (int)(sh * elem->get<float>("fontSize"));
-	if (properties & FONT_PATH && elem->has("fontPath"))
+	const float sh = static_cast<float>(Renderer::getScreenHeight());
+	if (properties & ThemeFlags::FONT_SIZE && elem->has("fontSize"))
+		size = static_cast<int>(sh * elem->get<float>("fontSize"));
+	if (properties & ThemeFlags::FONT_PATH && elem->has("fontPath"))
 		path = elem->get<std::string>("fontPath");
 
 	return get(size, path);

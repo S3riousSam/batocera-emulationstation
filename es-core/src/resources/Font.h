@@ -4,7 +4,7 @@
 #include <ft2build.h>
 #include <string>
 #include "ThemeData.h"
-#include "resources/ResourceManager.h"
+#include "resources/ResourceManager.h" // IReloadable
 #include <Eigen/Dense>
 
 typedef struct FT_FaceRec_*  FT_Face;
@@ -72,7 +72,6 @@ public:
 
 	static std::shared_ptr<Font> getFromTheme(const ThemeData::ThemeElement* elem, unsigned int properties, const std::shared_ptr<Font>& orig);
 
-	size_t getMemUsage() const; // returns an approximation of VRAM used by this font's texture (in bytes)
 	static size_t getTotalMemUsage(); // returns an approximation of total VRAM used by font textures (in bytes)
 
 	// utf8 stuff
@@ -82,6 +81,8 @@ public:
 	static UnicodeChar readUnicodeChar(const std::string& str, size_t& cursor); // reads unicode character at cursor AND moves cursor to the next valid unicode char
 
 private:
+	size_t getMemUsage() const; // returns an approximation of VRAM used by this font's texture (in bytes)
+
 	static std::map<std::pair<std::string, int>, std::weak_ptr<Font>> sFontMap;
 
 	Font(int size, const std::string& path);
