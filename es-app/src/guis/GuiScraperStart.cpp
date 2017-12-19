@@ -14,7 +14,7 @@
 GuiScraperStart::GuiScraperStart(Window* window)
 	: GuiComponent(window)
 	, mMenu(window, _("SCRAPE NOW"))
-	, mApproveResults(std::make_shared<SwitchComponent>(window))
+	, mApproveResults(std::make_shared<SwitchComponent>(window, true))
 {
 	addChild(&mMenu);
 
@@ -33,7 +33,7 @@ GuiScraperStart::GuiScraperStart(Window* window)
 	}
 	mMenu.addWithLabel(_("SYSTEMS"), mSystems);
 
-	mApproveResults->setState(true);
+	//mApproveResults->setState(true);
 	mMenu.addWithLabel(_("USER DECIDES ON CONFLICTS"), mApproveResults);
 
 	mMenu.addButton(_("START"), "start", std::bind(&GuiScraperStart::start, this));

@@ -1,10 +1,8 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/ImageComponent.h"
 
-// A very simple "on/off" switch.
-// Should hopefully be switched to use images instead of text in the future.
+// Defines a very simple "on/off" switch.
 class SwitchComponent : public GuiComponent
 {
 public:
@@ -19,10 +17,10 @@ public:
 	std::string getValue() const override;
 	bool changed();
 
-	virtual std::vector<HelpPrompt> getHelpPrompts() override;
+	std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
-	void onStateChanged();
+	void updateState();
 
 	ImageComponent mImage;
 	bool mState;

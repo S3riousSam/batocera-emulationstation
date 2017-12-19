@@ -9,6 +9,7 @@ SwitchComponent::SwitchComponent(Window* window, bool state)
 	: GuiComponent(window)
 	, mImage(window)
 	, mState(state)
+	, mInitialState(state)
 {
 	mImage.setImage(mState ? ":/on.svg" : ":/off.svg");
 	mImage.setResize(0, Font::get(FONT_SIZE_MEDIUM)->getLetterHeight());
@@ -22,10 +23,10 @@ void SwitchComponent::onSizeChanged()
 
 bool SwitchComponent::input(InputConfig* config, Input input)
 {
-	if (config->isMappedTo("b", input) && input.value)
+	if (config->isMappedTo(BUTTON_LAUNCH, input) && input.value)
 	{
 		mState = !mState;
-		onStateChanged();
+		updateState();
 		return true;
 	}
 
@@ -34,10 +35,8 @@ bool SwitchComponent::input(InputConfig* config, Input input)
 
 void SwitchComponent::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
-
+	const Eigen::Affine3f trans = parentTrans * getTransform();
 	mImage.render(trans);
-
 	renderChildren(trans);
 }
 
@@ -49,20 +48,17 @@ bool SwitchComponent::getState() const
 void SwitchComponent::setState(bool state)
 {
 	mState = state;
-	mInitialState = mState;
-	onStateChanged();
+	updateState();
 }
 
-void SwitchComponent::onStateChanged()
+void SwitchComponent::updateState()
 {
 	mImage.setImage(mState ? ":/on.svg" : ":/off.svg");
 }
 
 std::vector<HelpPrompt> SwitchComponent::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-	prompts.push_back(HelpPrompt("b", _("CHANGE")));
-	return prompts;
+	return {HelpPrompt(BUTTON_LAUNCH, _("CHANGE"))};
 }
 
 std::string SwitchComponent::getValue() const

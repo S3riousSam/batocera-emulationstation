@@ -54,13 +54,11 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 
 	mMenu.addWithLabel(_("SORT GAMES BY"), mListSort);
 #if defined(EXTENSION)
-	auto favorite_only = std::make_shared<SwitchComponent>(mWindow);
-	favorite_only->setState(Settings::getInstance()->getBool("FavoritesOnly"));
+	auto favorite_only = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("FavoritesOnly"));
 	mMenu.addWithLabel(_("FAVORITES ONLY"), favorite_only);
 	addSaveFunc([favorite_only] { Settings::getInstance()->setBool("FavoritesOnly", favorite_only->getState()); });
 
-	auto show_hidden = std::make_shared<SwitchComponent>(mWindow);
-	show_hidden->setState(Settings::getInstance()->getBool("ShowHidden"));
+	auto show_hidden = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("ShowHidden"));
 	mMenu.addWithLabel(_("SHOW HIDDEN"), show_hidden);
 	addSaveFunc([show_hidden] { Settings::getInstance()->setBool("ShowHidden", show_hidden->getState()); });
 #endif

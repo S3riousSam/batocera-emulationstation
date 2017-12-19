@@ -63,9 +63,7 @@ namespace GuiMenuEx
 
 	void AddSoundSettings(GuiSettings& gui, Window* window, std::shared_ptr<SliderComponent>& volume)
 	{
-		// disable sounds
-		auto sounds_enabled = std::make_shared<SwitchComponent>(window);
-		sounds_enabled->setState(!(RecalboxConf::get("audio.bgmusic") == "0"));
+		auto sounds_enabled = std::make_shared<SwitchComponent>(window, !(RecalboxConf::get("audio.bgmusic") == "0"));
 		gui.addWithLabel(_("FRONTEND MUSIC"), sounds_enabled);
 
 		// audio device
@@ -159,9 +157,7 @@ namespace GuiMenuEx
 			}
 		});
 
-		// overscan
-		auto overscan_enabled = std::make_shared<SwitchComponent>(window);
-		overscan_enabled->setState(Settings::getInstance()->getBool("Overscan"));
+		auto overscan_enabled = std::make_shared<SwitchComponent>(window, Settings::getInstance()->getBool("Overscan"));
 		gui.addWithLabel(_("OVERSCAN"), overscan_enabled);
 		gui.addSaveFunc([overscan_enabled] {
 			if (Settings::getInstance()->getBool("Overscan") != overscan_enabled->getState())
@@ -236,17 +232,14 @@ namespace GuiMenuEx
 		// Screen ratio choice
 		auto ratio_choice = GuiMenuEx::createRatioOptionList(mWindow, systemData->getName());
 		systemConfiguration->addWithLabel(_("GAME RATIO"), ratio_choice);
-		// smoothing
-		auto smoothing_enabled = std::make_shared<SwitchComponent>(mWindow);
-		smoothing_enabled->setState(RecalboxConf::get(systemData->getName() + ".smooth", RecalboxConf::get("global.smooth")) == "1");
+
+		auto smoothing_enabled = std::make_shared<SwitchComponent>(mWindow, RecalboxConf::get(systemData->getName() + ".smooth", RecalboxConf::get("global.smooth")) == "1");
 		systemConfiguration->addWithLabel(_("SMOOTH GAMES"), smoothing_enabled);
-		// rewind
-		auto rewind_enabled = std::make_shared<SwitchComponent>(mWindow);
-		rewind_enabled->setState(RecalboxConf::get(systemData->getName() + ".rewind", RecalboxConf::get("global.rewind")) == "1");
+
+		auto rewind_enabled = std::make_shared<SwitchComponent>(mWindow, RecalboxConf::get(systemData->getName() + ".rewind", RecalboxConf::get("global.rewind")) == "1");
 		systemConfiguration->addWithLabel(_("REWIND"), rewind_enabled);
-		// autosave
-		auto autosave_enabled = std::make_shared<SwitchComponent>(mWindow);
-		autosave_enabled->setState(RecalboxConf::get(systemData->getName() + ".autosave", RecalboxConf::get("global.autosave")) == "1");
+
+		auto autosave_enabled = std::make_shared<SwitchComponent>(mWindow, RecalboxConf::get(systemData->getName() + ".autosave", RecalboxConf::get("global.autosave")) == "1");
 		systemConfiguration->addWithLabel(_("AUTO SAVE/LOAD"), autosave_enabled);
 
 		systemConfiguration->addSaveFunc([systemData, smoothing_enabled, rewind_enabled, ratio_choice, emu_choice, core_choice, autosave_enabled] {
@@ -523,9 +516,8 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				ComponentListRow row;
 				std::function<void()> openGuiD = [window] {
 					GuiSettings* updateGui = new GuiSettings(window, _("UPDATES").c_str());
-					// Enable updates
-					auto updates_enabled = std::make_shared<SwitchComponent>(window);
-					updates_enabled->setState(RecalboxConf::get("updates.enabled") == "1");
+
+					auto updates_enabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("updates.enabled") == "1");
 					updateGui->addWithLabel(_("AUTO UPDATES"), updates_enabled);
 
 					// Start update
@@ -566,14 +558,11 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				ComponentListRow row;
 				std::function<void()> openGui = [window] {
 					GuiSettings* kodiGui = new GuiSettings(window, _("KODI SETTINGS").c_str());
-					auto kodiEnabled = std::make_shared<SwitchComponent>(window);
-					kodiEnabled->setState(RecalboxConf::get("kodi.enabled") == "1");
+					auto kodiEnabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("kodi.enabled") == "1");
 					kodiGui->addWithLabel(_("ENABLE KODI"), kodiEnabled);
-					auto kodiAtStart = std::make_shared<SwitchComponent>(window);
-					kodiAtStart->setState(RecalboxConf::get("kodi.atstartup") == "1");
+					auto kodiAtStart = std::make_shared<SwitchComponent>(window, RecalboxConf::get("kodi.atstartup") == "1");
 					kodiGui->addWithLabel(_("KODI AT START"), kodiAtStart);
-					auto kodiX = std::make_shared<SwitchComponent>(window);
-					kodiX->setState(RecalboxConf::get("kodi.xbutton") == "1");
+					auto kodiX = std::make_shared<SwitchComponent>(window, RecalboxConf::get("kodi.xbutton") == "1");
 					kodiGui->addWithLabel(_("START KODI WITH X"), kodiX);
 					kodiGui->addSaveFunc([kodiEnabled, kodiAtStart, kodiX] {
 						RecalboxConf::set("kodi.enabled", kodiEnabled->getState() ? "1" : "0");
@@ -605,8 +594,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				ComponentListRow row;
 				std::function<void()> openGui = [window] {
 					GuiSettings* securityGui = new GuiSettings(window, _("SECURITY").c_str());
-					auto securityEnabled = std::make_shared<SwitchComponent>(window);
-					securityEnabled->setState(RecalboxConf::get("system.security.enabled") == "1");
+					auto securityEnabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("system.security.enabled") == "1");
 					securityGui->addWithLabel(_("ENFORCE SECURITY"), securityEnabled);
 
 					auto rootpassword =
@@ -684,23 +672,16 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				RecalboxConf::saveRecalboxConf();
 			});
 		}
-		// smoothing
-		auto smoothing_enabled = std::make_shared<SwitchComponent>(window);
-		smoothing_enabled->setState(RecalboxConf::get("global.smooth") == "1");
+		auto smoothing_enabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("global.smooth") == "1");
 		s->addWithLabel(_("SMOOTH GAMES"), smoothing_enabled);
 
-		// rewind
-		auto rewind_enabled = std::make_shared<SwitchComponent>(window);
-		rewind_enabled->setState(RecalboxConf::get("global.rewind") == "1");
+		auto rewind_enabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("global.rewind") == "1");
 		s->addWithLabel(_("REWIND"), rewind_enabled);
 
-		// autosave/load
-		auto autosave_enabled = std::make_shared<SwitchComponent>(window);
-		autosave_enabled->setState(RecalboxConf::get("global.autosave") == "1");
+		auto autosave_enabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("global.autosave") == "1");
 		s->addWithLabel(_("AUTO SAVE/LOAD"), autosave_enabled);
 
 		// Shaders preset
-
 		auto shaders_choices = std::make_shared<OptionListComponent<std::string>>(window, _("SHADERS SET"), false);
 		const std::string currentShader = RecalboxConf::get("global.shaderset", "none");
 		shaders_choices->add(_("NONE"), "none", currentShader == "none");
@@ -708,8 +689,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 		shaders_choices->add(_("RETRO"), "retro", currentShader == "retro");
 		s->addWithLabel(_("SHADERS SET"), shaders_choices);
 		// Integer scale
-		auto integerscale_enabled = std::make_shared<SwitchComponent>(window);
-		integerscale_enabled->setState(RecalboxConf::get("global.integerscale") == "1");
+		auto integerscale_enabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("global.integerscale") == "1");
 		s->addWithLabel(_("INTEGER SCALE (PIXEL PERFECT)"), integerscale_enabled);
 		s->addSaveFunc([integerscale_enabled] {
 			RecalboxConf::set("global.integerscale", integerscale_enabled->getState() ? "1" : "0");
@@ -726,17 +706,13 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				ComponentListRow row;
 				std::function<void()> openGui = [window] {
 					GuiSettings* retroachievements = new GuiSettings(window, _("RETROACHIEVEMENTS SETTINGS").c_str());
-					// retroachievements_enable
-					const auto retroachievements_enabled = std::make_shared<SwitchComponent>(window);
-					retroachievements_enabled->setState(RecalboxConf::get("global.retroachievements") == "1");
+
+					const auto retroachievements_enabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("global.retroachievements") == "1");
 					retroachievements->addWithLabel(_("RETROACHIEVEMENTS"), retroachievements_enabled);
 
-					// retroachievements_hardcore_mode
-					const auto retroachievements_hardcore_enabled = std::make_shared<SwitchComponent>(window);
-					retroachievements_hardcore_enabled->setState(RecalboxConf::get("global.retroachievements.hardcore") == "1");
+					const auto retroachievements_hardcore_enabled = std::make_shared<SwitchComponent>(window, RecalboxConf::get("global.retroachievements.hardcore") == "1");
 					retroachievements->addWithLabel(_("HARDCORE MODE"), retroachievements_hardcore_enabled);
 
-					// retroachievements, username, password
 					GuiMenuEx::createInputTextRow(window, retroachievements, _("USERNAME"), "global.retroachievements.username", false);
 					GuiMenuEx::createInputTextRow(window, retroachievements, _("PASSWORD"), "global.retroachievements.password", true);
 
@@ -1134,9 +1110,8 @@ void GuiMenuEx::AddMenuNetwork(GuiMenu& menu, Window* window)
 			GuiMenuEx::createInputTextRow(window, s, _("HOSTNAME"), "system.hostname", false);
 
 			// Wifi enable
-			auto enable_wifi = std::make_shared<SwitchComponent>(window);
 			const bool baseEnabled = (RecalboxConf::get("wifi.enabled") == "1");
-			enable_wifi->setState(baseEnabled);
+			auto enable_wifi = std::make_shared<SwitchComponent>(window, baseEnabled);
 			s->addWithLabel(_("ENABLE WIFI"), enable_wifi);
 
 			// window, title, settingstring,

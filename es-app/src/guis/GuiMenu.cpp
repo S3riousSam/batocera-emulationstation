@@ -75,7 +75,6 @@ GuiMenu::GuiMenu(Window* window)
 #else
 		auto s = new GuiSettings(mWindow, _("SCRAPER"));
 #endif
-		// scrape from
 		auto scraperList = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SCRAPE FROM"), false);
 		for (const auto& it : Scraper::getNames())
 			scraperList->add(it, it, (it == Settings::getInstance()->getString("Scraper")));
@@ -83,9 +82,7 @@ GuiMenu::GuiMenu(Window* window)
 		s->addWithLabel(_("SCRAPE FROM"), scraperList);
 		s->addSaveFunc([scraperList] { Settings::getInstance()->setString("Scraper", scraperList->getSelected()); });
 
-		// scrape ratings
-		auto scrapeRatings = std::make_shared<SwitchComponent>(mWindow);
-		scrapeRatings->setState(Settings::getInstance()->getBool("ScrapeRatings"));
+		auto scrapeRatings = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("ScrapeRatings"));
 		s->addWithLabel(_("SCRAPE RATINGS"), scrapeRatings);
 		s->addSaveFunc([scrapeRatings] { Settings::getInstance()->setBool("ScrapeRatings", scrapeRatings->getState()); });
 
@@ -126,9 +123,8 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 		GuiMenuEx::AddSoundSettings(*s, mWindow, volume);
 #else
-		// disable sounds
-		auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow);
-		sounds_enabled->setState(Settings::getInstance()->getBool("EnableSounds"));
+		// enable sounds
+		auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("EnableSounds"));
 		s->addWithLabel(_("ENABLE SOUNDS"), sounds_enabled);
 		s->addSaveFunc([sounds_enabled] { Settings::getInstance()->setBool("EnableSounds", sounds_enabled->getState()); });
 #endif
@@ -170,27 +166,23 @@ GuiMenu::GuiMenu(Window* window)
 				[screensaver_behavior] { Settings::getInstance()->setString("ScreenSaverBehavior", screensaver_behavior->getSelected()); });
 
 			// framerate
-			auto framerate = std::make_shared<SwitchComponent>(mWindow);
-			framerate->setState(Settings::getInstance()->getBool("DrawFramerate"));
+			auto framerate = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("DrawFramerate"));
 			s->addWithLabel(_("SHOW FRAMERATE"), framerate);
 			s->addSaveFunc([framerate] { Settings::getInstance()->setBool("DrawFramerate", framerate->getState()); });
 
 			// show help
-			auto show_help = std::make_shared<SwitchComponent>(mWindow);
-			show_help->setState(Settings::getInstance()->getBool("ShowHelpPrompts"));
+			auto show_help = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("ShowHelpPrompts"));
 			s->addWithLabel(_("ON-SCREEN HELP"), show_help);
 			s->addSaveFunc([show_help] { Settings::getInstance()->setBool("ShowHelpPrompts", show_help->getState()); });
 
 			// quick system select (left/right in game list view)
-			auto quick_sys_select = std::make_shared<SwitchComponent>(mWindow);
-			quick_sys_select->setState(Settings::getInstance()->getBool("QuickSystemSelect"));
+			auto quick_sys_select = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("QuickSystemSelect"));
 			s->addWithLabel(_("QUICK SYSTEM SELECT"), quick_sys_select);
 			s->addSaveFunc([quick_sys_select] { Settings::getInstance()->setBool("QuickSystemSelect", quick_sys_select->getState()); });
 
 #if defined(EXTENSION)
 			// Enable OSK (On-Screen-Keyboard)
-			auto osk_enable = std::make_shared<SwitchComponent>(mWindow);
-			osk_enable->setState(Settings::getInstance()->getBool("UseOSK"));
+			auto osk_enable = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("UseOSK"));
 			s->addWithLabel(_("ON SCREEN KEYBOARD"), osk_enable);
 			s->addSaveFunc([osk_enable] { Settings::getInstance()->setBool("UseOSK", osk_enable->getState()); });
 #endif

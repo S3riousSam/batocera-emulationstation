@@ -108,8 +108,7 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 #if defined(EXTENSION)
 		case MD_BOOL:
 		{
-			auto switchComp = std::make_shared<SwitchComponent>(mWindow);
-			switchComp->setState(mMetaData->get(iter->key) == "true");
+			auto switchComp = std::make_shared<SwitchComponent>(mWindow, mMetaData->get(iter->key) == "true");
 			ed = switchComp;
 			row.addElement(ed, false);
 			break;
