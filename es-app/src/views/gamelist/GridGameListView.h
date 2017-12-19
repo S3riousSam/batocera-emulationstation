@@ -1,16 +1,13 @@
+#if defined(GRID_GAME_LIST_VIEW)
 #pragma once
-
 #include "components/ImageComponent.h"
 #include "components/ImageGridComponent.h"
 #include "views/gamelist/ISimpleGameListView.h"
-#include <stack>
 
 class GridGameListView : public ISimpleGameListView
 {
 public:
 	GridGameListView(Window* window, FileData* root);
-
-	// virtual void onThemeChanged(const std::shared_ptr<ThemeData>& theme) override;
 
 	virtual FileData* getCursor() override;
 	virtual void setCursor(FileData*) override;
@@ -30,3 +27,4 @@ protected:
 
 	ImageGridComponent<FileData*> mGrid;
 };
+#endif

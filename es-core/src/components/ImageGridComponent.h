@@ -1,5 +1,5 @@
 #pragma once
-
+#if defined(GRID_GAME_LIST_VIEW)
 #include "GuiComponent.h"
 #include "Log.h"
 #include "components/IList.h"
@@ -157,7 +157,7 @@ void ImageGridComponent<T>::update(int deltaTime)
 template<typename T>
 void ImageGridComponent<T>::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = getTransform() * parentTrans;
+	const Eigen::Affine3f trans = getTransform() * parentTrans;
 
 	if (mEntriesDirty)
 	{
@@ -263,3 +263,4 @@ void ImageGridComponent<T>::updateImages()
 		i++;
 	}
 }
+#endif

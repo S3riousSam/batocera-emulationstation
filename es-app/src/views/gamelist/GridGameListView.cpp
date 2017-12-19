@@ -1,3 +1,4 @@
+#if defined(GRID_GAME_LIST_VIEW)
 #include "views/gamelist/GridGameListView.h"
 #include "LocaleES.h"
 #if defined(EXTENSION)
@@ -74,3 +75,4 @@ std::vector<HelpPrompt> GridGameListView::getHelpPrompts()
 	prompts.push_back(HelpPrompt(BUTTON_BACK, _("BACK")));
 	return prompts;
 }
+#endif

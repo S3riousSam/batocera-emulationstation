@@ -10,7 +10,7 @@
 #include "guis/GuiMsgBox.h"
 #include "views/gamelist/BasicGameListView.h"
 #include "views/gamelist/DetailedGameListView.h"
-#include "views/gamelist/GridGameListView.h"
+#include "views/gamelist/GridGameListView.h" // GRID_GAME_LIST_VIEW
 #if defined(EXTENSION)
 #include "AudioManager.h"
 #include "LocaleES.h"
@@ -326,8 +326,9 @@ std::shared_ptr<IGameListView> ViewController::getGameListView(SystemData* syste
 	else
 		view = std::shared_ptr<IGameListView>(new BasicGameListView(mWindow, system->getRootFolder()));
 
-	// uncomment for experimental "image grid" view
+#if defined(GRID_GAME_LIST_VIEW) // uncomment for experimental "image grid" view
 	// view = std::shared_ptr<IGameListView>(new GridGameListView(mWindow, system->getRootFolder()));
+#endif
 
 	view->setTheme(system->getTheme());
 
