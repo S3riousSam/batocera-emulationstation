@@ -2,8 +2,11 @@
 #pragma once
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
-#include "components/MenuComponent.h"
-#include <boost/thread.hpp>
+
+namespace boost
+{
+	class thread;
+}
 
 class GuiAutoScrape : public GuiComponent
 {

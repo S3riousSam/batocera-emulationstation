@@ -21,8 +21,7 @@ BasicGameListView::BasicGameListView(Window* window, FileData* root)
 void BasicGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& theme)
 {
 	ISimpleGameListView::onThemeChanged(theme);
-	using namespace ThemeFlags;
-	mList.applyTheme(theme, getName(), "gamelist", ALL);
+	mList.applyTheme(theme, getName(), "gamelist", ThemeFlags::ALL);
 }
 
 void BasicGameListView::onFileChanged(FileData* file, FileChangeType change)
@@ -78,13 +77,9 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 			if (it->getType() != FOLDER && it->metadata.get("favorite").compare("true") == 0)
 			{
 				if (it->metadata.get("hidden").compare("true") != 0)
-				{
 					mList.add("\uF006 " + it->getName(), it, (it->getType() == FOLDER)); // FIXME Folder as favorite ?
-				}
 				else
-				{
 					mList.add("\uF006 \uF070 " + it->getName(), it, (it->getType() == FOLDER));
-				}
 			}
 		}
 	}
@@ -92,31 +87,25 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	// Do not show double names in favorite system.
 	if (!systemData->isFavorite())
 	{
-		for (auto it = files.begin(); it != files.end(); it++)
+		for (const auto& it : files)
 		{
 			if (favoritesOnly)
 			{
-				if ((*it)->getType() == GAME)
+				if (it->getType() == GAME)
 				{
-					if ((*it)->metadata.get("favorite").compare("true") == 0)
+					if (it->metadata.get("favorite").compare("true") == 0)
 					{
 						if (!showHidden)
 						{
-							if ((*it)->metadata.get("hidden").compare("true") != 0)
-							{
-								mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
-							}
+							if (it->metadata.get("hidden").compare("true") != 0)
+								mList.add(it->getName(), it, (it->getType() == FOLDER));
 						}
 						else
 						{
-							if ((*it)->metadata.get("hidden").compare("true") == 0)
-							{
-								mList.add("\uF070 " + (*it)->getName(), *it, ((*it)->getType() == FOLDER));
-							}
+							if (it->metadata.get("hidden").compare("true") == 0)
+								mList.add("\uF070 " + it->getName(), it, (it->getType() == FOLDER));
 							else
-							{
-								mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
-							}
+								mList.add(it->getName(), it, (it->getType() == FOLDER));
 						}
 					}
 				}
@@ -125,38 +114,30 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 			{
 				if (!showHidden)
 				{
-					if ((*it)->metadata.get("hidden").compare("true") != 0)
+					if (it->metadata.get("hidden").compare("true") != 0)
 					{
-						if ((*it)->getType() != FOLDER && (*it)->metadata.get("favorite").compare("true") == 0)
-						{
-							mList.add("\uF006 " + (*it)->getName(), *it, ((*it)->getType() == FOLDER));
-						}
+						if (it->getType() != FOLDER && it->metadata.get("favorite").compare("true") == 0)
+							mList.add("\uF006 " + it->getName(), it, (it->getType() == FOLDER));
 						else
-						{
-							mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
-						}
+							mList.add(it->getName(), it, (it->getType() == FOLDER));
 					}
 				}
 				else
 				{
-					if ((*it)->getType() != FOLDER && (*it)->metadata.get("favorite").compare("true") == 0)
+					if (it->getType() != FOLDER && it->metadata.get("favorite").compare("true") == 0)
 					{
-						if ((*it)->metadata.get("hidden").compare("true") != 0)
-						{
-							mList.add("\uF006 " + (*it)->getName(), *it, ((*it)->getType() == FOLDER));
-						}
+						if (it->metadata.get("hidden").compare("true") != 0)
+							mList.add("\uF006 " + it->getName(), it, (it->getType() == FOLDER));
 						else
-						{
-							mList.add("\uF006 \uF070 " + (*it)->getName(), *it, ((*it)->getType() == FOLDER));
-						}
+							mList.add("\uF006 \uF070 " + it->getName(), it, (it->getType() == FOLDER));
 					}
-					else if ((*it)->metadata.get("hidden").compare("true") == 0)
+					else if (it->metadata.get("hidden").compare("true") == 0)
 					{
-						mList.add("\uF070 " + (*it)->getName(), *it, ((*it)->getType() == FOLDER));
+						mList.add("\uF070 " + it->getName(), it, (it->getType() == FOLDER));
 					}
 					else
 					{
-						mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
+						mList.add(it->getName(), it, (it->getType() == FOLDER));
 					}
 				}
 			}
@@ -165,17 +146,13 @@ void BasicGameListView::populateList(const std::vector<FileData*>& files)
 	if (files.size() == 0)
 	{
 		while (!mCursorStack.empty())
-		{
 			mCursorStack.pop();
-		}
 	}
 #else
 	mHeaderText.setText(files.at(0)->getSystem()->getFullName());
 
-	for (auto it = files.begin(); it != files.end(); it++)
-	{
-		mList.add((*it)->getName(), *it, ((*it)->getType() == FOLDER));
-	}
+	for (const auto& it : files)
+		mList.add(it->getName(), it, (it->getType() == FOLDER));
 #endif
 }
 #if defined(WIN32) || defined(_WIN32)

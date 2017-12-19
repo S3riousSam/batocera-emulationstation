@@ -1,18 +1,11 @@
 #pragma once
-
 #include "views/gamelist/IGameListView.h"
-
 #include "components/ImageComponent.h"
 #include "components/TextComponent.h"
 
 class ISimpleGameListView : public IGameListView
 {
 public:
-	ISimpleGameListView(Window* window, FileData* root);
-	virtual ~ISimpleGameListView()
-	{
-	}
-
 	// Called when a new file is added, a file is removed, a file's metadata changes, or a file's children are sorted.
 	// NOTE: FILE_SORTED is only reported for the topmost FileData, where the sort started.
 	//       Since sorts are recursive, that FileData's children probably changed too.
@@ -37,6 +30,7 @@ public:
 	}
 
 protected:
+	ISimpleGameListView(Window* window, FileData* root);
 	virtual void launch(FileData* game) = 0;
 
 	TextComponent mHeaderText;

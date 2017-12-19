@@ -2,7 +2,6 @@
 #include "guis/GuiAutoScrape.h"
 #include "guis/GuiMsgBox.h"
 #include "LocaleES.h"
-#include "Log.h"
 #include "Gamelist.h"
 #include "SystemData.h"
 #include "views/ViewController.h"
@@ -27,10 +26,10 @@ GuiAutoScrape::GuiAutoScrape(Window* window)
 GuiAutoScrape::~GuiAutoScrape()
 {
 	// view type probably changed (basic -> detailed)
-	for (auto it = SystemData::sSystemVector.begin(); it != SystemData::sSystemVector.end(); it++)
+	for (auto it : SystemData::sSystemVector)
 	{
-		parseGamelist(*it);
-		ViewController::get()->reloadGameListView(*it, false);
+		parseGamelist(it);
+		ViewController::get()->reloadGameListView(it, false);
 	}
 
 	delete mHandle; // TEST
@@ -43,7 +42,7 @@ bool GuiAutoScrape::input(InputConfig* config, Input input)
 
 void GuiAutoScrape::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
+	const Eigen::Affine3f trans = parentTrans * getTransform();
 
 	renderChildren(trans);
 
@@ -81,7 +80,7 @@ void GuiAutoScrape::update(int deltaTime)
 
 void GuiAutoScrape::threadAutoScrape()
 {
-	const std::pair<std::string, int> scrapeStatus = SystemInterface::scrape(&mBusyAnim);
+	const std::pair<std::string, int> scrapeStatus = SystemInterface::scrape(mBusyAnim);
 	if (scrapeStatus.second == 0)
 	{
 		mLoading = false;

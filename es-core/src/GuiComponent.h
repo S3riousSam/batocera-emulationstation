@@ -17,22 +17,23 @@ typedef std::pair<std::string, std::string> HelpPrompt;
 class GuiComponent
 {
 public:
-    GuiComponent(Window& window);
+	GuiComponent(Window& window);
 	GuiComponent(Window* window);
 	virtual ~GuiComponent();
 
 	virtual void textInput(const char* text);
 
-	// Called when input is received.
-	// Return true if the input is consumed, false if it should continue to be passed to other children.
+	/// Handles input events.
+	/// @return The method returns true if the input is consumed, false if it should be passed to other children.
 	virtual bool input(InputConfig* config, Input input);
 
-	// Called when time passes.  Default implementation calls updateSelf(deltaTime) and updateChildren(deltaTime) - so you should probably call
-	// GuiComponent::update(deltaTime) at some point (or at least updateSelf so animations work).
+	/// Handles time passing. The default implementation calls updateSelf(deltaTime)
+	/// and updateChildren(deltaTime). Inheriting classes should probably call
+	/// GuiComponent::update(deltaTime) at some point (or at least updateSelf so animations work).
 	virtual void update(int deltaTime);
 
-	// Called when it's time to render.  By default, just calls renderChildren(parentTrans * getTransform()).
-	// You probably want to override this like so:
+	// Handles rendering requests.  The default implementation calls renderChildren(parentTrans * getTransform()).
+	// Inheriting classes probably wants to override this like so:
 	// 1. Calculate the new transform that your control will draw at with Eigen::Affine3f t = parentTrans * getTransform().
 	// 2. Set the renderer to use that new transform as the model matrix - Renderer::setMatrix(t);
 	// 3. Draw your component.
@@ -62,13 +63,16 @@ public:
 	bool isAnimationPlaying(unsigned char slot) const;
 	bool isAnimationReversed(unsigned char slot) const;
 	int getAnimationTime(unsigned char slot) const;
-	void setAnimation(
-		Animation* animation, int delay = 0, std::function<void()> finishedCallback = nullptr, bool reverse = false, unsigned char slot = 0);
+	void setAnimation(Animation* animation, int delay = 0, std::function<void()> finishedCallback = nullptr, bool reverse = false, unsigned char slot = 0);
 	bool stopAnimation(unsigned char slot);
-	bool cancelAnimation(unsigned char slot); // Like stopAnimation, but doesn't call finishedCallback - only removes the animation, leaving things in
-											  // their current state.  Returns true if successful (an animation was in this slot).
-	bool finishAnimation(unsigned char slot); // Calls update(1.f) and finishedCallback, then deletes the animation - basically skips to the end.
-											  // Returns true if successful (an animation was in this slot).
+
+	// Like stopAnimation, but doesn't call finishedCallback - only removes the animation, leaving things in
+	// their current state.  Returns true if successful (an animation was in this slot).
+	bool cancelAnimation(unsigned char slot);
+	// Calls update(1.f) and finishedCallback, then deletes the animation - basically skips to the end.
+	// Returns true if successful (an animation was in this slot).
+	bool finishAnimation(unsigned char slot);
+
 	bool advanceAnimation(unsigned char slot, unsigned int time); // Returns true if successful (an animation was in this slot).
 	void stopAllAnimations();
 	void cancelAllAnimations();

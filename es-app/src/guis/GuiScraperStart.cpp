@@ -101,9 +101,8 @@ bool GuiScraperStart::input(InputConfig* config, Input input)
 	if (config->isMappedTo("start", input) && input.value != 0)
 	{
 		// close everything
-		Window* window = mWindow;
-		while (window->peekGui() && window->peekGui() != ViewController::get()) // Why the loop here?
-			delete window->peekGui();
+		while (mWindow->peekGui() && mWindow->peekGui() != ViewController::get()) // Why the loop here?
+			delete mWindow->peekGui();
 	}
 
 	return false;

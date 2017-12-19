@@ -15,7 +15,7 @@ GuiComponent::GuiComponent(Window& window)
 	, mIsProcessing(false)
 {
 	for (unsigned char i = 0; i < MAX_ANIMATIONS; i++)
-		mAnimationMap[i] = NULL;
+		mAnimationMap[i] = nullptr;
 }
 
 GuiComponent::GuiComponent(Window* window) : GuiComponent(*window) // delegating ctr
@@ -33,7 +33,7 @@ GuiComponent::~GuiComponent()
 		mParent->removeChild(this);
 
 	for (unsigned int i = 0; i < getChildCount(); i++)
-		getChild(i)->setParent(NULL);
+		getChild(i)->setParent(nullptr);
 }
 
 bool GuiComponent::input(InputConfig* config, Input input)
