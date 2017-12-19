@@ -17,16 +17,17 @@ public:
 
 	void render(const Eigen::Affine3f& parentTrans) override;
 	bool input(InputConfig* config, Input input) override;
-	std::vector<HelpPrompt> getHelpPrompts() override;
 	void update(int deltaTime) override;
 
 private:
+	void threadLoading();
+
 	BusyComponent mBusyAnim;
 	boost::thread* mHandle;
 	bool mRunning;
 	const std::function<void*()>& mFunc1;
 	const std::function<void(void*)>& mFunc2;
-	void threadLoading();
+
 	void* mResult;
 };
 #endif

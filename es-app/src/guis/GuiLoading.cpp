@@ -1,24 +1,17 @@
 #if defined(EXTENSION) // Created by matthieu on 03/08/15.
 #include "GuiLoading.h"
-#include "guis/GuiMsgBox.h"
-#include "Log.h"
-#include "SystemInterface.h"
 #include "Renderer.h"
-#include "Settings.h"
 #include "Window.h"
 #include <boost/thread.hpp>
-#include <string>
 
 GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc)
 	: GuiComponent(window)
 	, mBusyAnim(window)
 	, mFunc1(mFunc)
-	, mFunc2(NULL)
+	, mFunc2(nullptr)
 	, mRunning(true)
 {
-	setSize(Renderer::getScreenSize());
-	mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
-	mBusyAnim.setSize(mSize);
+	GuiLoading(window, mFunc, nullptr);
 }
 
 GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc, const std::function<void(void*)>& mFunc2)
@@ -44,11 +37,6 @@ bool GuiLoading::input(InputConfig* config, Input input)
 	return false;
 }
 
-std::vector<HelpPrompt> GuiLoading::getHelpPrompts()
-{
-	return std::vector<HelpPrompt>();
-}
-
 void GuiLoading::render(const Eigen::Affine3f& parentTrans)
 {
 	const Eigen::Affine3f trans = parentTrans * getTransform();
@@ -69,7 +57,7 @@ void GuiLoading::update(int deltaTime)
 
 	if (!mRunning)
 	{
-		if (mFunc2 != NULL)
+		if (mFunc2 != nullptr)
 			mFunc2(mResult);
 		delete this;
 	}

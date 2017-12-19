@@ -41,10 +41,10 @@ namespace SystemInterface
 #endif
 	std::string getVersionMessage();
 
-	std::pair<std::string, int> updateSystem(BusyComponent* ui);
-	std::pair<std::string, int> backupSystem(BusyComponent* ui, const std::string& device);
-	std::pair<std::string, int> installSystem(BusyComponent* ui, const std::string& device, const std::string& architecture);
-	std::pair<std::string, int> scrape(BusyComponent* ui);
+	std::pair<std::string, int> updateSystem(BusyComponent& ui);
+	std::pair<std::string, int> backupSystem(BusyComponent& ui, const std::string& device);
+	std::pair<std::string, int> installSystem(BusyComponent& ui, const std::string& device, const std::string& architecture);
+	std::pair<std::string, int> scrape(BusyComponent& ui);
 
 	bool ping();
 

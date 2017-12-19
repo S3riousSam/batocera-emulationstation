@@ -3,7 +3,11 @@
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
 #include "components/MenuComponent.h"
-#include <boost/thread.hpp>
+
+namespace boost
+{
+	class thread;
+}
 
 class GuiInstall : public GuiComponent
 {
@@ -27,11 +31,10 @@ private:
 		Success,
 		Error,
 	} mState;
-
 	std::pair<std::string, int> mResult;
 
-	std::string mstorageDevice;
-	std::string marchitecture;
+	const std::string mstorageDevice;
+	const std::string marchitecture;
 
 	boost::thread* mHandle;
 

@@ -3,35 +3,39 @@
 #include "GuiComponent.h"
 #include "components/BusyComponent.h"
 #include "components/MenuComponent.h"
-#include <boost/thread.hpp>
+
+namespace boost
+{
+	class thread;
+}
 
 class GuiBackup : public GuiComponent
 {
 public:
-	GuiBackup(Window* window, std::string storageDevice);
+	GuiBackup(Window* window, const std::string& storageDevice);
 	virtual ~GuiBackup();
 
 	void render(const Eigen::Affine3f& parentTrans) override;
-
 	bool input(InputConfig* config, Input input) override;
-
-	std::vector<HelpPrompt> getHelpPrompts() override;
-
 	void update(int deltaTime) override;
 
 private:
 	BusyComponent mBusyAnim;
 	bool mLoading;
-	int mState;
+
+	enum class State
+	{
+		Done = -1,
+		Waiting,
+		Initial,
+		Success,
+		Error,
+	} mState;
 	std::pair<std::string, int> mResult;
 
-	std::string mstorageDevice;
+	const std::string mstorageDevice;
 
 	boost::thread* mHandle;
-
-	void onBackupError(std::pair<std::string, int>);
-
-	void onBackupOk();
 
 	void threadBackup();
 };

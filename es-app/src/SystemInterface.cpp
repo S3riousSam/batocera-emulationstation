@@ -255,24 +255,24 @@ std::pair<std::string, int> executeCommand(
 	return std::pair<std::string, int>(std::string(line), exitCode);
 }
 
-std::pair<std::string, int> SystemInterface::updateSystem(BusyComponent* ui)
+std::pair<std::string, int> SystemInterface::updateSystem(BusyComponent& ui)
 {
-	return executeCommand(*ui, GetConfigValue("UpdateCommand"));
+	return executeCommand(ui, GetConfigValue("UpdateCommand"));
 }
 
-std::pair<std::string, int> SystemInterface::backupSystem(BusyComponent* ui, const std::string& device)
+std::pair<std::string, int> SystemInterface::backupSystem(BusyComponent& ui, const std::string& device)
 {
-	return executeCommand(*ui, std::string("/recalbox/scripts/recalbox-sync.sh sync ") + device);
+	return executeCommand(ui, std::string("/recalbox/scripts/recalbox-sync.sh sync ") + device);
 }
 
-std::pair<std::string, int> SystemInterface::installSystem(BusyComponent* ui, const std::string& device, const std::string& architecture)
+std::pair<std::string, int> SystemInterface::installSystem(BusyComponent& ui, const std::string& device, const std::string& architecture)
 {
-	return executeCommand(*ui, std::string("/recalbox/scripts/recalbox-sync.sh sync ") + device + " " + architecture);
+	return executeCommand(ui, std::string("/recalbox/scripts/recalbox-sync.sh sync ") + device + " " + architecture);
 }
 
-std::pair<std::string, int> SystemInterface::scrape(BusyComponent* ui)
+std::pair<std::string, int> SystemInterface::scrape(BusyComponent& ui)
 {
-	return executeCommand(*ui, "/recalbox/scripts/recalbox-scraper.sh", [](const std::string& line) { return boost::starts_with(line, "GAME: "); });
+	return executeCommand(ui, "/recalbox/scripts/recalbox-scraper.sh", [](const std::string& line) { return boost::starts_with(line, "GAME: "); });
 }
 
 bool SystemInterface::ping()

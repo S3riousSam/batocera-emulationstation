@@ -1,12 +1,8 @@
 #if defined(EXTENSION)
 #include "guis/GuiInstall.h"
 #include "guis/GuiMsgBox.h"
-
 #include "LocaleES.h"
-#include "Log.h"
 #include "SystemInterface.h"
-#include "Settings.h"
-#include "Window.h"
 #include <boost/thread.hpp>
 #include <string>
 
@@ -35,7 +31,7 @@ bool GuiInstall::input(InputConfig* config, Input input)
 
 void GuiInstall::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
+	const Eigen::Affine3f trans = parentTrans * getTransform();
 
 	renderChildren(trans);
 
@@ -51,22 +47,20 @@ void GuiInstall::update(int deltaTime)
 	GuiComponent::update(deltaTime);
 	mBusyAnim.update(deltaTime);
 
-	Window* window = mWindow;
 	if (mState == State::Initial)
 	{
 		mLoading = true;
 		mHandle = new boost::thread(boost::bind(&GuiInstall::threadInstall, this));
 		mState = State::Waiting;
 	}
-
 	if (mState == State::Success)
 	{
-		window->pushGui(new GuiMsgBox(window, _("FINISHED"), _("OK"), [this] { mState = State::Done; }));
+		mWindow->pushGui(new GuiMsgBox(mWindow, _("FINISHED"), _("OK"), [this] { mState = State::Done; }));
 		mState = State::Waiting;
 	}
 	if (mState == State::Error)
 	{
-		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = State::Done; }));
+		mWindow->pushGui(new GuiMsgBox(mWindow, mResult.first, _("OK"), [this] { mState = State::Done; }));
 		mState = State::Waiting;
 	}
 
@@ -76,7 +70,7 @@ void GuiInstall::update(int deltaTime)
 
 void GuiInstall::threadInstall()
 {
-	const std::pair<std::string, int> updateStatus = SystemInterface::installSystem(&mBusyAnim, mstorageDevice, marchitecture);
+	const std::pair<std::string, int> updateStatus = SystemInterface::installSystem(mBusyAnim, mstorageDevice, marchitecture);
 	if (updateStatus.second == 0)
 	{
 		mLoading = false;

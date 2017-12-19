@@ -2,26 +2,25 @@
 #include "guis/GuiBackup.h"
 #include "guis/GuiMsgBox.h"
 #include "LocaleES.h"
-#include "Log.h"
 #include "SystemInterface.h"
-#include "Settings.h"
-#include "Window.h"
 #include <boost/thread.hpp>
 #include <string>
 
-GuiBackup::GuiBackup(Window* window, std::string storageDevice)
+GuiBackup::GuiBackup(Window* window, const std::string& storageDevice)
 	: GuiComponent(window)
 	, mBusyAnim(window)
+	, mLoading(true)
+	, mState(State::Initial)
+	, mstorageDevice(storageDevice)
+	, mHandle(nullptr)
 {
 	setSize(Renderer::getScreenSize());
-	mLoading = true;
-	mState = 1;
 	mBusyAnim.setSize(mSize);
-	mstorageDevice = storageDevice;
 }
 
 GuiBackup::~GuiBackup()
 {
+	delete mHandle; // TEST
 }
 
 bool GuiBackup::input(InputConfig* config, Input input)
@@ -29,14 +28,9 @@ bool GuiBackup::input(InputConfig* config, Input input)
 	return false;
 }
 
-std::vector<HelpPrompt> GuiBackup::getHelpPrompts()
-{
-	return std::vector<HelpPrompt>();
-}
-
 void GuiBackup::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
+	const Eigen::Affine3f trans = parentTrans * getTransform();
 
 	renderChildren(trans);
 
@@ -52,55 +46,42 @@ void GuiBackup::update(int deltaTime)
 	GuiComponent::update(deltaTime);
 	mBusyAnim.update(deltaTime);
 
-	Window* window = mWindow;
-	if (mState == 1)
+	if (mState == State::Initial)
 	{
 		mLoading = true;
 		mHandle = new boost::thread(boost::bind(&GuiBackup::threadBackup, this));
-		mState = 0;
+		mState = State::Waiting;
+	}
+	if (mState == State::Success)
+	{
+		mWindow->pushGui(new GuiMsgBox(mWindow, _("FINISHED"), _("OK"), [this] { mState = State::Done; }));
+		mState = State::Waiting;
+	}
+	if (mState == State::Error)
+	{
+		mWindow->pushGui(new GuiMsgBox(mWindow, mResult.first, _("OK"), [this] { mState = State::Done; }));
+		mState = State::Waiting;
 	}
 
-	if (mState == 2)
-	{
-		window->pushGui(new GuiMsgBox(window, _("FINNISHED"), _("OK"), [this] { mState = -1; }));
-		mState = 0;
-	}
-	if (mState == 3)
-	{
-		window->pushGui(new GuiMsgBox(window, mResult.first, _("OK"), [this] { mState = -1; }));
-		mState = 0;
-	}
-
-	if (mState == -1)
-	{
+	if (mState == State::Done)
 		delete this;
-	}
 }
 
 void GuiBackup::threadBackup()
 {
-	std::pair<std::string, int> updateStatus = SystemInterface::backupSystem(&mBusyAnim, mstorageDevice);
+	const std::pair<std::string, int> updateStatus = SystemInterface::backupSystem(mBusyAnim, mstorageDevice);
 	if (updateStatus.second == 0)
 	{
-		this->onBackupOk();
+		mLoading = false;
+		mState = State::Success;
 	}
 	else
 	{
-		this->onBackupError(updateStatus);
+		mLoading = false;
+		mState = State::Error;
+		mResult = updateStatus;
+		mResult.first = _("AN ERROR OCCURED") + std::string(": check the system/logs directory");
 	}
 }
 
-void GuiBackup::onBackupError(std::pair<std::string, int> result)
-{
-	mLoading = false;
-	mState = 3;
-	mResult = result;
-	mResult.first = _("AN ERROR OCCURED") + std::string(": check the system/logs directory");
-}
-
-void GuiBackup::onBackupOk()
-{
-	mLoading = false;
-	mState = 2;
-}
 #endif

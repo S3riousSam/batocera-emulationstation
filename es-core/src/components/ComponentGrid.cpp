@@ -360,7 +360,7 @@ void ComponentGrid::update(int deltaTime)
 	GridEntry* cursorEntry = getCellAt(mCursor);
 	for (auto& it : mCells)
 	{
-		if (it.updateType == GridFlags::UPDATE_ALWAYS || (it.updateType == GridFlags::UPDATE_WHEN_SELECTED && cursorEntry == &it))
+		if (it.updateType == GridFlags::UpdateType::Always || (it.updateType == GridFlags::UpdateType::WhenSelected && cursorEntry == &it))
 			it.component->update(deltaTime);
 	}
 }
@@ -429,6 +429,12 @@ void ComponentGrid::setCursorTo(const std::shared_ptr<GuiComponent>& comp)
 	}
 
 	assert(false); // Component not found!
+}
+
+std::shared_ptr<GuiComponent> ComponentGrid::getSelectedComponent() const
+{
+	const GridEntry* e = getCellAt(mCursor);
+	return (e != nullptr) ? e->component : nullptr;
 }
 
 std::vector<HelpPrompt> ComponentGrid::getHelpPrompts()

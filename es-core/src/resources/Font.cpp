@@ -22,10 +22,10 @@ namespace
 		}
 	}
 
-    float font_round(float v)
-    {
-        return round(v);
-    }
+	float font_round(float v)
+	{
+		return round(v);
+	}
 }
 
 struct Font::FontTexture

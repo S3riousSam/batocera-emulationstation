@@ -126,11 +126,11 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 		GuiMenuEx::AddSoundSettings(*s, mWindow, volume);
 #else
-			// disable sounds
-			auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow);
-			sounds_enabled->setState(Settings::getInstance()->getBool("EnableSounds"));
-			s->addWithLabel(_("ENABLE SOUNDS"), sounds_enabled);
-			s->addSaveFunc([sounds_enabled] { Settings::getInstance()->setBool("EnableSounds", sounds_enabled->getState()); });
+		// disable sounds
+		auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow);
+		sounds_enabled->setState(Settings::getInstance()->getBool("EnableSounds"));
+		s->addWithLabel(_("ENABLE SOUNDS"), sounds_enabled);
+		s->addSaveFunc([sounds_enabled] { Settings::getInstance()->setBool("EnableSounds", sounds_enabled->getState()); });
 #endif
 		mWindow->pushGui(s);
 #if defined(EXTENSION)
@@ -196,16 +196,14 @@ GuiMenu::GuiMenu(Window* window)
 #endif
 			// transition style
 			auto transition_style = std::make_shared<OptionListComponent<std::string>>(mWindow, _("TRANSITION STYLE"), false);
-			std::vector<std::string> transitions;
-			transitions.push_back("fade");
-			transitions.push_back("slide");
-			for (auto it = transitions.begin(); it != transitions.end(); it++)
-				transition_style->add(*it, *it, Settings::getInstance()->getString("TransitionStyle") == *it);
+			const std::vector<std::string> transitions = {"fade", "slide"};
+			for (const auto& it : transitions)
+				transition_style->add(it, it, Settings::getInstance()->getString("TransitionStyle") == it);
 			s->addWithLabel(_("TRANSITION STYLE"), transition_style);
 			s->addSaveFunc([transition_style] { Settings::getInstance()->setString("TransitionStyle", transition_style->getSelected()); });
 
 			// theme set
-			auto themeSets = ThemeData::getThemeSets();
+			const auto themeSets = ThemeData::getThemeSets();
 
 			if (!themeSets.empty())
 			{
@@ -354,17 +352,14 @@ void GuiMenu::onSizeChanged()
 
 void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, const std::function<void()>& func)
 {
-	std::shared_ptr<Font> font = Font::get(FONT_SIZE_MEDIUM);
+	const std::shared_ptr<Font> font = Font::get(FONT_SIZE_MEDIUM);
 
 	// populate the list
 	ComponentListRow row;
 	row.addElement(std::make_shared<TextComponent>(mWindow, name, font, color), true);
 
 	if (add_arrow)
-	{
-		std::shared_ptr<ImageComponent> bracket = makeArrow(mWindow);
-		row.addElement(bracket, false);
-	}
+		row.addElement(makeArrow(mWindow), false);
 
 	row.makeAcceptInputHandler(func);
 
@@ -373,20 +368,16 @@ void GuiMenu::addEntry(const char* name, unsigned int color, bool add_arrow, con
 
 void GuiMenu::addEntry(const std::string& name, unsigned int color, bool add_arrow, const std::function<void()>& func)
 {
-	// return addEntry(name, color, add_arrow, func); // 'GuiMenu::addEntry': recursive on all control paths, function will cause runtime stack
-	// overflow
+	// return addEntry(name, color, add_arrow, func); // recursive on all control paths... would cause runtime stack overflow
 
-	std::shared_ptr<Font> font = Font::get(FONT_SIZE_MEDIUM);
+	const std::shared_ptr<Font> font = Font::get(FONT_SIZE_MEDIUM);
 
 	// populate the list
 	ComponentListRow row;
 	row.addElement(std::make_shared<TextComponent>(mWindow, name.c_str(), font, color), true);
 
 	if (add_arrow)
-	{
-		std::shared_ptr<ImageComponent> bracket = makeArrow(mWindow);
-		row.addElement(bracket, false);
-	}
+		row.addElement(makeArrow(mWindow), false);
 
 	row.makeAcceptInputHandler(func);
 
@@ -409,9 +400,9 @@ bool GuiMenu::input(InputConfig* config, Input input)
 
 std::vector<HelpPrompt> GuiMenu::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-	prompts.push_back(HelpPrompt("up/down", _("CHOOSE")));
-	prompts.push_back(HelpPrompt(BUTTON_LAUNCH, _("SELECT")));
-	prompts.push_back(HelpPrompt("start", _("CLOSE")));
-	return prompts;
+	return {
+		HelpPrompt("up/down", _("CHOOSE")),
+		HelpPrompt(BUTTON_LAUNCH, _("SELECT")),
+		HelpPrompt("start", _("CLOSE")),
+	};
 }
