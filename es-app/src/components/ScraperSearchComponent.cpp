@@ -34,7 +34,7 @@ ScraperSearchComponent::ScraperSearchComponent(Window* window, SearchType type)
 		GridFlags::BORDER_TOP | GridFlags::BORDER_BOTTOM);
 
 	// selected result name
-	mResultName = std::make_shared<TextComponent>(mWindow, "RESULT NAME", Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+	mResultName = std::make_shared<TextComponent>(mWindow, "RESULT NAME", Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 
 	// selected result thumbnail
 	mResultThumbnail = std::make_shared<ImageComponent>(mWindow);
@@ -42,14 +42,14 @@ ScraperSearchComponent::ScraperSearchComponent(Window* window, SearchType type)
 
 	// selected result desc + container
 	mDescContainer = std::make_shared<ScrollableContainer>(mWindow);
-	mResultDesc = std::make_shared<TextComponent>(mWindow, "RESULT DESC", Font::get(FONT_SIZE_SMALL), 0x777777FF);
+	mResultDesc = std::make_shared<TextComponent>(mWindow, "RESULT DESC", Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
 	mDescContainer->addChild(mResultDesc.get());
 	mDescContainer->setAutoScroll(true);
 
 	// metadata
 	const auto font = Font::get(FONT_SIZE_SMALL); // this gets replaced in onSizeChanged() so its just a placeholder
-	const unsigned int COLOR_TEXT = 0x777777FF;
-	const unsigned int COLOR_LABEL = 0x666666FF;
+	const unsigned int COLOR_TEXT = COLOR_GRAY3;
+	const unsigned int COLOR_LABEL = COLOR_GRAYX;
 	mMD_Rating = std::make_shared<RatingComponent>(mWindow);
 	mMD_ReleaseDate = std::make_shared<DateTimeComponent>(mWindow);
 	mMD_ReleaseDate->setColor(COLOR_TEXT);
@@ -244,11 +244,11 @@ void ScraperSearchComponent::onSearchDone(const std::vector<ScraperSearchResult>
 	const int end = results.size() > ScraperHttpRequest::MAX_SCRAPER_RESULTS ? ScraperHttpRequest::MAX_SCRAPER_RESULTS : results.size(); // at max display 5
 
 	const auto font = Font::get(FONT_SIZE_MEDIUM);
-	const unsigned int COLOR = 0x777777FF;
+
 	if (end == 0)
 	{
 		ComponentListRow row;
-		row.addElement(std::make_shared<TextComponent>(mWindow, _("NO GAMES FOUND - SKIP"), font, COLOR), true);
+		row.addElement(std::make_shared<TextComponent>(mWindow, _("NO GAMES FOUND - SKIP"), font, COLOR_GRAY3), true);
 
 		if (mSkipCallback)
 			row.makeAcceptInputHandler(mSkipCallback);
@@ -262,7 +262,7 @@ void ScraperSearchComponent::onSearchDone(const std::vector<ScraperSearchResult>
 		for (int i = 0; i < end; i++)
 		{
 			row.elements.clear();
-			row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(results.at(i).mdl.get("name")), font, COLOR), true);
+			row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(results.at(i).mdl.get("name")), font, COLOR_GRAY3), true);
 			row.makeAcceptInputHandler([this, i] { returnResult(mScraperResults.at(i)); });
 			mResultList->addRow(row);
 		}

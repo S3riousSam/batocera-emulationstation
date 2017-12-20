@@ -162,7 +162,7 @@ bool SystemView::input(InputConfig* config, Input input)
 					},
 					_("NO"), nullptr));
 			});
-			row.addElement(std::make_shared<TextComponent>(window, _("RESTART SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+			row.addElement(std::make_shared<TextComponent>(window, _("RESTART SYSTEM"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 			s->addRow(row);
 
 			row.elements.clear();
@@ -176,7 +176,7 @@ bool SystemView::input(InputConfig* config, Input input)
 					},
 					_("NO"), nullptr));
 			});
-			row.addElement(std::make_shared<TextComponent>(window, _("SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+			row.addElement(std::make_shared<TextComponent>(window, _("SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 			s->addRow(row);
 
 			row.elements.clear();
@@ -190,7 +190,7 @@ bool SystemView::input(InputConfig* config, Input input)
 					},
 					_("NO"), nullptr));
 			});
-			row.addElement(std::make_shared<TextComponent>(window, _("FAST SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+			row.addElement(std::make_shared<TextComponent>(window, _("FAST SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 			s->addRow(row);
 			mWindow->pushGui(s);
 		}

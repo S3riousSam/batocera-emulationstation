@@ -44,16 +44,16 @@ GuiDetectDevice::GuiDetectDevice(Window* window, bool firstRun, const std::funct
 	}
 	else
 		deviceInfo << _("NO GAMEPADS DETECTED");
-	mDeviceInfo = std::make_shared<TextComponent>(mWindow, deviceInfo.str(), Font::get(FONT_SIZE_SMALL), 0x999999FF, ALIGN_CENTER);
+	mDeviceInfo = std::make_shared<TextComponent>(mWindow, deviceInfo.str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY2, ALIGN_CENTER);
 	mGrid.setEntry(mDeviceInfo, Vector2i(0, 1), false, true);
 
 	// message
 	mMsg1 = std::make_shared<TextComponent>(
-		mWindow, _("HOLD A BUTTON ON YOUR DEVICE TO CONFIGURE IT."), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
+		mWindow, _("HOLD A BUTTON ON YOUR DEVICE TO CONFIGURE IT."), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3, ALIGN_CENTER);
 	mGrid.setEntry(mMsg1, Vector2i(0, 2), false, true);
 
 	const std::string msg2str = firstRun ? _("PRESS F4 TO QUIT AT ANY TIME.") : _("PRESS ESC OR THE HOTKEY TO CANCEL.");
-	mMsg2 = std::make_shared<TextComponent>(mWindow, msg2str.c_str(), Font::get(FONT_SIZE_SMALL), 0x777777FF, ALIGN_CENTER);
+	mMsg2 = std::make_shared<TextComponent>(mWindow, msg2str.c_str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3, ALIGN_CENTER);
 	mGrid.setEntry(mMsg2, Vector2i(0, 3), false, true);
 
 	// currently held device

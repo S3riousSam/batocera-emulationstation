@@ -33,7 +33,7 @@ public:
 		bool invert_when_selected = true, const std::function<void()>& acceptCallback = nullptr)
 	{
 		ComponentListRow row;
-		row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(label), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(label), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 		row.addElement(comp, false, invert_when_selected);
 		if (acceptCallback)
 			row.makeAcceptInputHandler(acceptCallback);

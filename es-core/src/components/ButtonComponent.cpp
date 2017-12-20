@@ -11,7 +11,7 @@ ButtonComponent::ButtonComponent(Window* window, const std::string& text, const 
 	, mFocused(false)
 	, mEnabled(true)
 	, mTextColorFocused(0xFFFFFFFF)
-	, mTextColorUnfocused(0x777777FF)
+	, mTextColorUnfocused(COLOR_GRAY3)
 {
 	setPressedFunc(func);
 	setText(text, helpText);

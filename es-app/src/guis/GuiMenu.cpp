@@ -65,7 +65,7 @@ GuiMenu::GuiMenu(Window* window)
 	std::function<void()> manualScrape = [this]
 #else // !defined(EXTENSION)
 	auto openScrapeNow = [this] { mWindow->pushGui(new GuiScraperStart(mWindow)); };
-	addEntry(_("SCRAPER"), 0x777777FF, true,
+	addEntry(_("SCRAPER"), COLOR_GRAY3, true,
 		[this, openScrapeNow]
 #endif
 	{
@@ -93,7 +93,7 @@ GuiMenu::GuiMenu(Window* window)
 			openScrapeNow();
 		});
 
-		auto scrape_now = std::make_shared<TextComponent>(mWindow, _("SCRAPE NOW"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		auto scrape_now = std::make_shared<TextComponent>(mWindow, _("SCRAPE NOW"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 		auto bracket = makeArrow(mWindow);
 		row.addElement(scrape_now, true);
 		row.addElement(bracket, false);
@@ -110,7 +110,7 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 	std::function<void()> soundsettings = [this]
 #else
-	addEntry(_("SOUND SETTINGS"), 0x777777FF, true,
+	addEntry(_("SOUND SETTINGS"), COLOR_GRAY3, true,
 		[this]
 #endif
 	{
@@ -141,7 +141,7 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 	if (RecalboxConf::get("system.es.menu") != "bartop")
 #endif
-		addEntry(_("UI SETTINGS"), 0x777777FF, true, [this] {
+		addEntry(_("UI SETTINGS"), COLOR_GRAY3, true, [this] {
 			auto s = new GuiSettings(mWindow, _("UI SETTINGS"));
 
 #if defined(EXTENSION)
@@ -225,10 +225,10 @@ GuiMenu::GuiMenu(Window* window)
 		});
 
 #if !defined(EXTENSION)
-	addEntry("INPUT SETTINGS", 0x777777FF, true, [this] { mWindow->pushGui(new GuiDetectDevice(mWindow, false, nullptr)); });
+	addEntry("INPUT SETTINGS", COLOR_GRAY3, true, [this] { mWindow->pushGui(new GuiDetectDevice(mWindow, false, nullptr)); });
 #endif
 #if defined(EXTENSION)
-	addEntry(_("SOUND SETTINGS"), 0x777777FF, true, soundsettings);
+	addEntry(_("SOUND SETTINGS"), COLOR_GRAY3, true, soundsettings);
 
 	GuiMenuEx::AddMenuNetwork(*this, mWindow);
 
@@ -236,7 +236,7 @@ GuiMenu::GuiMenu(Window* window)
 	{
 #if defined(MANUAL_SCRAPING)
 		// manual or automatic?
-		addEntry(_("SCRAPER"), 0x777777FF, true, [this, manualScrape] {
+		addEntry(_("SCRAPER"), COLOR_GRAY3, true, [this, manualScrape] {
 			auto s = new GuiSettings(mWindow, _("SCRAPER"));
 			GuiMenuEx::AddAutoScrape(*s, mWindow);
 			GuiMenuEx::AddMenuScrape(*s, mWindow, manualScrape);
@@ -244,7 +244,7 @@ GuiMenu::GuiMenu(Window* window)
 		});
 #else
 		// manual or automatic? ...automatic!
-		addEntry(_("SCRAPER"), 0x777777FF, true, [this] {
+		addEntry(_("SCRAPER"), COLOR_GRAY3, true, [this] {
 			auto s = new GuiSettings(mWindow, _("SCRAPER"));
 			GuiMenuEx::AddAutoScrape(*s, mWindow);
 			mWindow->pushGui(s);
@@ -253,7 +253,7 @@ GuiMenu::GuiMenu(Window* window)
 	}
 #endif
 
-	addEntry(_("QUIT"), 0x777777FF, true, [this] {
+	addEntry(_("QUIT"), COLOR_GRAY3, true, [this] {
 		auto s = new GuiSettings(mWindow, _("QUIT"));
 #if defined(EXTENSION) // TODO: Duplicate Code!
 		Window* window = mWindow;
@@ -267,7 +267,7 @@ GuiMenu::GuiMenu(Window* window)
 				},
 				_("NO"), nullptr));
 		});
-		row.addElement(std::make_shared<TextComponent>(window, _("RESTART SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.addElement(std::make_shared<TextComponent>(window, _("RESTART SYSTEM"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 		s->addRow(row);
 
 		row.elements.clear();
@@ -279,7 +279,7 @@ GuiMenu::GuiMenu(Window* window)
 				},
 				_("NO"), nullptr));
 		});
-		row.addElement(std::make_shared<TextComponent>(window, _("SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.addElement(std::make_shared<TextComponent>(window, _("SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 		s->addRow(row);
 
 #if defined(EXTENSION)
@@ -294,7 +294,7 @@ GuiMenu::GuiMenu(Window* window)
 				},
 				_("NO"), nullptr));
 		});
-		row.addElement(std::make_shared<TextComponent>(window, _("FAST SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.addElement(std::make_shared<TextComponent>(window, _("FAST SHUTDOWN SYSTEM"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 		s->addRow(row);
 #else
 		if(Settings::getInstance()->getBool("ShowExit"))
@@ -308,7 +308,7 @@ GuiMenu::GuiMenu(Window* window)
 					SDL_PushEvent(&ev);
 				}, _("NO"), nullptr));
 			});
-			row.addElement(std::make_shared<TextComponent>(window, _("QUIT EMULATIONSTATION"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+			row.addElement(std::make_shared<TextComponent>(window, _("QUIT EMULATIONSTATION"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 			s->addRow(row);
 		}
 #endif
@@ -318,7 +318,7 @@ GuiMenu::GuiMenu(Window* window)
 	});
 
 	mVersion.setFont(Font::get(FONT_SIZE_SMALL));
-	mVersion.setColor(0xC6C6C6FF);
+	mVersion.setColor(COLOR_GRAY1);
 	mVersion.setText("EMULATIONSTATION V" + strToUpper(PROGRAM_VERSION_STRING));
 	mVersion.setAlignment(ALIGN_CENTER);
 

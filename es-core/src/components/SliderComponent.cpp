@@ -86,7 +86,7 @@ void SliderComponent::render(const Eigen::Affine3f& parentTrans)
 
 	// render line
 	const float lineWidth = 2;
-	Renderer::drawRect(mKnob.getSize().x() / 2, mSize.y() / 2 - lineWidth / 2, width, lineWidth, 0x777777FF);
+	Renderer::drawRect(mKnob.getSize().x() / 2, mSize.y() / 2 - lineWidth / 2, width, lineWidth, COLOR_GRAY3);
 
 	// render knob
 	mKnob.render(trans);
@@ -139,7 +139,7 @@ void SliderComponent::onValueChanged()
 		const std::string max = ss.str();
 
 		Eigen::Vector2f textSize = mFont->sizeText(max);
-		mValueCache = std::shared_ptr<TextCache>(mFont->buildTextCache(val, mSize.x() - textSize.x(), (mSize.y() - textSize.y()) / 2, 0x777777FF));
+		mValueCache = std::shared_ptr<TextCache>(mFont->buildTextCache(val, mSize.x() - textSize.x(), (mSize.y() - textSize.y()) / 2, COLOR_GRAY3));
 		mValueCache->metrics.size[0] = textSize.x(); // fudge the width
 	}
 

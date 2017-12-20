@@ -111,7 +111,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 		// icon
 		auto icon = std::make_shared<ImageComponent>(mWindow);
 		icon->setImage(g_INPUTS[i].icon);
-		icon->setColorShift(0x777777FF);
+		icon->setColorShift(COLOR_GRAY3);
 		icon->setResize(0, Font::get(FONT_SIZE_MEDIUM)->getLetterHeight() * 1.25f);
 		row.addElement(icon, false);
 
@@ -120,11 +120,10 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 		spacer->setSize(16, 0);
 		row.addElement(spacer, false);
 
-		auto text = std::make_shared<TextComponent>(mWindow, g_INPUTS[i].label, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		auto text = std::make_shared<TextComponent>(mWindow, g_INPUTS[i].label, Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 		row.addElement(text, true);
 
-		auto mapping =
-			std::make_shared<TextComponent>(mWindow, _("-NOT DEFINED-"), Font::get(FONT_SIZE_MEDIUM, FONT_PATH_LIGHT), 0x999999FF, ALIGN_RIGHT);
+		auto mapping = std::make_shared<TextComponent>(mWindow, _("-NOT DEFINED-"), Font::get(FONT_SIZE_MEDIUM, FONT_PATH_LIGHT), COLOR_GRAY2, ALIGN_RIGHT);
 		setNotDefined(mapping); // overrides text and color set above
 		row.addElement(mapping, true);
 		mMappings.push_back(mapping);
@@ -137,7 +136,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 			// if we're not configuring, start configuring when A is pressed
 			if (!mConfiguringRow)
 			{
-				if (config->isMappedTo("a", input) && input.value)
+				if (config->isMappedTo(BUTTON_BACK, input) && input.value)
 				{
 					mList->stopScrolling();
 					mConfiguringRow = true;
@@ -195,13 +194,13 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 		setPress(mMappings.front());
 
 	// buttons
-	std::vector<std::shared_ptr<ButtonComponent>> buttons;
-	buttons.push_back(std::make_shared<ButtonComponent>(mWindow, _("OK"), _("OK"), [this, okCallback] {
+	const std::vector<std::shared_ptr<ButtonComponent>> buttons = {
+		std::make_shared<ButtonComponent>(mWindow, _("OK"), _("OK"), [this, okCallback] {
 		InputManager::getInstance()->writeDeviceConfig(mTargetConfig); // save
 		if (okCallback)
 			okCallback();
 		delete this;
-	}));
+	})};
 	mButtonGrid = makeButtonGrid(mWindow, buttons);
 	mGrid.setEntry(mButtonGrid, Vector2i(0, 6), true, false);
 
@@ -229,9 +228,9 @@ void GuiInputConfig::update(int deltaTime)
 {
 	if (mConfiguringRow && mHoldingInput && g_INPUTS[mHeldInputId].skippable)
 	{
-		int prevSec = mHeldTime / 1000;
+		const int prevSec = mHeldTime / 1000;
 		mHeldTime += deltaTime;
-		int curSec = mHeldTime / 1000;
+		const int curSec = mHeldTime / 1000;
 
 		if (mHeldTime >= HOLD_TO_SKIP_MS)
 		{
@@ -257,7 +256,7 @@ void GuiInputConfig::update(int deltaTime)
 				ss << "HOLD FOR " << HOLD_TO_SKIP_MS / 1000 - curSec << "S TO SKIP";
 				text->setText(ss.str());
 #endif
-				text->setColor(0x777777FF);
+				text->setColor(COLOR_GRAY3);
 			}
 		}
 	}
@@ -276,66 +275,39 @@ void GuiInputConfig::rowDone()
 			mConfiguringRow = false;
 			mGrid.moveCursor(Vector2i(0, 1));
 		}
-		else
+		else // or another one
 		{
-			// on another one
 			setPress(mMappings.at(mList->getCursorId()));
 		}
 	}
-	else
+	else // only configuring one row, so stop
 	{
-		// only configuring one row, so stop
 		mConfiguringRow = false;
 	}
 }
 
-#if defined(RECALBOX_EX)
-struct ColorSef
-{
-	ColorSef(BYTE gray, BYTE opacity = 0xFF)
-		: r(gray)
-		, g(gray)
-		, b(gray)
-		, opacity(opacity)
-	{
-	}
-
-	BYTE r, g, b, opacity;
-
-	operator unsigned int() const
-	{
-		return (r << 24) & (g << 16) & (b << 8) & (opacity);
-	}
-} static const ColorGRAY1(0xC6), ColorGRAY2(0x99), ColorGRAY3(0x77), ColorGRAY4(0x65);
-
-#define COLOR_GRAY1 0xC6C6C6FF // Light
-#define COLOR_GRAY2 0x999999FF
-#define COLOR_GRAY3 0x777777FF
-#define COLOR_GRAY4 0x656565FF // Darker
-#endif
-
 void GuiInputConfig::setPress(const std::shared_ptr<TextComponent>& text)
 {
 	text->setText(_("PRESS ANYTHING"));
-	text->setColor(0x656565FF);
+	text->setColor(COLOR_GRAY4);
 }
 
 void GuiInputConfig::setNotDefined(const std::shared_ptr<TextComponent>& text)
 {
 	text->setText(_("-NOT DEFINED-"));
-	text->setColor(0x999999FF);
+	text->setColor(COLOR_GRAY2);
 }
 
 void GuiInputConfig::setAssignedTo(const std::shared_ptr<TextComponent>& text, Input input)
 {
 	text->setText(strToUpper(input.string()));
-	text->setColor(0x777777FF);
+	text->setColor(COLOR_GRAY3);
 }
 
 void GuiInputConfig::error(const std::shared_ptr<TextComponent>& text, const std::string& msg)
 {
 	text->setText(_("ALREADY TAKEN"));
-	text->setColor(0x656565FF);
+	text->setColor(COLOR_GRAY4);
 }
 
 bool GuiInputConfig::assign(Input input, int inputId, int inputIndex)

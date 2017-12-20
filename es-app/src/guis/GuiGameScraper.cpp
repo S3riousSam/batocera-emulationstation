@@ -25,7 +25,7 @@ GuiGameScraper::GuiGameScraper(Window* window, ScraperSearchParams params, std::
 	// row 0 is a spacer
 
 	mGameName = std::make_shared<TextComponent>(
-		mWindow, strToUpper(mSearchParams.game->getPath().filename().generic_string()), Font::get(FONT_SIZE_MEDIUM), 0x777777FF, ALIGN_CENTER);
+		mWindow, strToUpper(mSearchParams.game->getPath().filename().generic_string()), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3, ALIGN_CENTER);
 	mGrid.setEntry(mGameName, Eigen::Vector2i(0, 1), false, true);
 
 	// row 2 is a spacer

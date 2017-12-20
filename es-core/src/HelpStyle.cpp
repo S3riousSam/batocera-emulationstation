@@ -5,8 +5,8 @@
 
 HelpStyle::HelpStyle()
     : position(Eigen::Vector2f(Renderer::getScreenWidth() * 0.012f, Renderer::getScreenHeight() * 0.9515f))
-    , iconColor(0x777777FF)
-    , textColor(0x777777FF)
+    , iconColor(COLOR_GRAY3)
+    , textColor(COLOR_GRAY3)
     , font((FONT_SIZE_SMALL != 0) ? Font::get(FONT_SIZE_SMALL) : nullptr)
 {
 }

@@ -14,6 +14,33 @@ typedef std::pair<std::string, std::string> HelpPrompt;
 #define BUTTON_BACK "a"
 #define BUTTON_LAUNCH "b"
 
+#if defined(EXTENSION)
+struct ColorSef
+{
+    typedef unsigned char BYTE;
+    ColorSef(BYTE gray, BYTE opacity = 0xFF)
+        : r(gray)
+        , g(gray)
+        , b(gray)
+        , opacity(opacity)
+    {
+    }
+
+    BYTE r, g, b, opacity;
+
+    operator unsigned int() const
+    {
+        return (r << 24) & (g << 16) & (b << 8) & (opacity);
+    }
+} static const ColorGRAY1(0xC6), ColorGRAY2(0x99), ColorGRAY3(0x77), ColorGRAY4(0x65);
+
+#define COLOR_GRAY1 0xC6C6C6FF // Light
+#define COLOR_GRAY2 0x999999FF
+#define COLOR_GRAY3 0x777777FF
+#define COLOR_GRAYX 0x666666FF
+#define COLOR_GRAY4 0x656565FF // Darker
+#endif
+
 class GuiComponent
 {
 public:

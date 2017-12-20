@@ -23,12 +23,12 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 	if (curChar < 'A' || curChar > 'Z')
 		curChar = 'A';
 
-	mJumpToLetterList = std::make_shared<LetterList>(mWindow, _("JUMP TO LETTER"), false);
+	mJumpToLetterList = std::make_shared<OptionListComponent<char>>(mWindow, _("JUMP TO LETTER"), false);
 	for (char c = 'A'; c <= 'Z'; c++)
 		mJumpToLetterList->add(std::string(1, c), c, c == curChar);
 
 	ComponentListRow row;
-	row.addElement(std::make_shared<TextComponent>(mWindow, _("JUMP TO LETTER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.addElement(std::make_shared<TextComponent>(mWindow, _("JUMP TO LETTER"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 	row.addElement(mJumpToLetterList, false);
 	row.input_handler = [&](InputConfig* config, Input input) {
 		if (config->isMappedTo(BUTTON_LAUNCH, input) && input.value)
@@ -45,7 +45,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 	mMenu.addRow(row);
 
 	// sort list by
-	mListSort = std::make_shared<SortList>(mWindow, _("SORT GAMES BY"), false);
+	mListSort = std::make_shared<OptionListComponent<const FileData::SortType*>>(mWindow, _("SORT GAMES BY"), false);
 	for (size_t i = 0; i < FileSorts::SortTypes.size(); i++)
 	{
 		const FileData::SortType& sort = FileSorts::SortTypes.at(i);
@@ -69,7 +69,7 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system)
 #if defined(EXTENSION)
 	if (RecalboxConf::get("system.es.menu") != "none" && RecalboxConf::get("system.es.menu") != "bartop")
 	{
-		row.addElement(std::make_shared<TextComponent>(mWindow, _("EDIT THIS GAME'S METADATA"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+		row.addElement(std::make_shared<TextComponent>(mWindow, _("EDIT THIS GAME'S METADATA"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 		row.addElement(makeArrow(mWindow), false);
 		row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openMetaDataEd, this));
 		mMenu.addRow(row);
@@ -125,7 +125,7 @@ void GuiGamelistOptions::openMetaDataEd()
 
 void GuiGamelistOptions::jumpToLetter()
 {
-	char letter = mJumpToLetterList->getSelected();
+	const char letter = mJumpToLetterList->getSelected();
 	IGameListView* gamelist = getGamelist();
 
 	// this is a really shitty way to get a list of files
@@ -143,7 +143,7 @@ void GuiGamelistOptions::jumpToLetter()
 		if (files.at(mid)->getName().empty())
 			continue;
 
-		char checkLetter = static_cast<char>(toupper(files.at(mid)->getName()[0]));
+		const char checkLetter = static_cast<char>(toupper(files.at(mid)->getName()[0]));
 
 		if (checkLetter < letter)
 			min = mid + 1;
@@ -190,8 +190,8 @@ void GuiGamelistOptions::save()
 	if (!mSaveFuncs.size())
 		return;
 
-	for (auto it = mSaveFuncs.begin(); it != mSaveFuncs.end(); it++)
-		(*it)();
+	for (const auto& it : mSaveFuncs)
+		it();
 
 	Settings::getInstance()->saveFile();
 }

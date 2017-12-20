@@ -32,11 +32,8 @@ private:
 
 	MenuComponent mMenu;
 
-	typedef OptionListComponent<char> LetterList;
-	std::shared_ptr<LetterList> mJumpToLetterList;
-
-	typedef OptionListComponent<const FileData::SortType*> SortList;
-	std::shared_ptr<SortList> mListSort;
+	std::shared_ptr<OptionListComponent<char>> mJumpToLetterList;
+	std::shared_ptr<OptionListComponent<const FileData::SortType*>> mListSort;
 
 #if defined(EXTENSION)
 	std::vector<std::function<void()>> mSaveFuncs;

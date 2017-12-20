@@ -19,7 +19,7 @@ GuiMsgBoxScroll::GuiMsgBoxScroll(Window* window, const std::string& text, const 
 	float width = Renderer::getScreenWidth() * 0.8f; // max width
 	float minWidth = Renderer::getScreenWidth() * 0.3f; // minimum width
 
-	mMsg = std::make_shared<TextComponent>(mWindow, text, Font::get(FONT_SIZE_SMALL), 0x777777FF);
+	mMsg = std::make_shared<TextComponent>(mWindow, text, Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
 
 	mMsgContainer = std::make_shared<ScrollableContainer>(mWindow);
 	mMsgContainer->setAutoScroll(true);

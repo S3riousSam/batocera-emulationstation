@@ -276,7 +276,7 @@ namespace GuiMenuEx
 
 		ComponentListRow row;
 		row.makeAcceptInputHandler(handler);
-		auto sc_auto = std::make_shared<TextComponent>(window, _("AUTOMATIC SCRAPER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		auto sc_auto = std::make_shared<TextComponent>(window, _("AUTOMATIC SCRAPER"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 		auto bracket = makeArrow(window);
 		row.addElement(sc_auto, false);
 		gui.addRow(row);
@@ -286,7 +286,7 @@ namespace GuiMenuEx
 	{
 		ComponentListRow row;
 		row.makeAcceptInputHandler(handler);
-		auto sc_manual = std::make_shared<TextComponent>(window, _("MANUAL SCRAPER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+		auto sc_manual = std::make_shared<TextComponent>(window, _("MANUAL SCRAPER"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 		auto bracket = makeArrow(window);
 		row.addElement(sc_manual, false);
 		gui.addRow(row);
@@ -297,13 +297,13 @@ void GuiMenuEx::createInputTextRow(Window* window, GuiSettings* gui, std::string
 {
 	ComponentListRow row;
 
-	const auto label = std::make_shared<TextComponent>(window, title, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+	const auto label = std::make_shared<TextComponent>(window, title, Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 	row.addElement(label, true);
 
 	std::shared_ptr<GuiComponent> ed;
 
 	ed = std::make_shared<TextComponent>(window, ((password && !RecalboxConf::get(settingsID).empty()) ? "*********" : RecalboxConf::get(settingsID)),
-		Font::get(FONT_SIZE_MEDIUM, FONT_PATH_LIGHT), 0x777777FF, ALIGN_RIGHT);
+		Font::get(FONT_SIZE_MEDIUM, FONT_PATH_LIGHT), COLOR_GRAY3, ALIGN_RIGHT);
 	row.addElement(ed, true);
 
 	auto spacer = std::make_shared<GuiComponent>(window);
@@ -334,7 +334,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 {
 	if (RecalboxConf::get("kodi.enabled") == "1")
 	{
-		menu.addEntry(_("KODI MEDIA CENTER").c_str(), 0x777777FF, true, [window] {
+		menu.addEntry(_("KODI MEDIA CENTER").c_str(), COLOR_GRAY3, true, [window] {
 			if (!SystemInterface::launchKodi(window))
 				LOG(LogWarning) << "Shutdown terminated with non-zero result!";
 		});
@@ -343,13 +343,13 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 #if defined(OBSOLETE)
 	if (Settings::getInstance()->getBool("RomsManager"))
 	{
-		addEntry("ROMS MANAGER", 0x777777FF, true, [this] { mWindow->pushGui(new GuiRomsManager(mWindow)); });
+		addEntry("ROMS MANAGER", COLOR_GRAY3, true, [this] { mWindow->pushGui(new GuiRomsManager(mWindow)); });
 	}
 #endif
 #if defined(MENU_SYSTEM_SETTINGS_ENABLED)
 	if (!IsBartopOptionEnabled())
 	{
-		menu.addEntry(_("SYSTEM SETTINGS").c_str(), 0x777777FF, true, [window] {
+		menu.addEntry(_("SYSTEM SETTINGS").c_str(), COLOR_GRAY3, true, [window] {
 			auto s = new GuiSettings(window, _("SYSTEM SETTINGS").c_str());
 
 			// system informations
@@ -358,11 +358,11 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				std::function<void()> openGui = [window] {
 					GuiSettings* informationsGui = new GuiSettings(window, _("INFORMATION").c_str());
 
-					auto version = std::make_shared<TextComponent>(window, SystemInterface::getVersion(), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+					auto version = std::make_shared<TextComponent>(window, SystemInterface::getVersion(), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 					informationsGui->addWithLabel(_("VERSION"), version);
 					bool warning = SystemInterface::isFreeSpaceLimit();
 					auto space = std::make_shared<TextComponent>(
-						window, SystemInterface::getFreeSpaceInfo(), Font::get(FONT_SIZE_MEDIUM), warning ? 0xFF0000FF : 0x777777FF);
+						window, SystemInterface::getFreeSpaceInfo(), Font::get(FONT_SIZE_MEDIUM), warning ? 0xFF0000FF : COLOR_GRAY3);
 					informationsGui->addWithLabel(_("DISK USAGE"), space);
 
 					// various informations
@@ -382,7 +382,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 								vname += tokens.at(i);
 							}
 
-							auto space = std::make_shared<TextComponent>(window, vname, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+							auto space = std::make_shared<TextComponent>(window, vname, Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 							informationsGui->addWithLabel(tokens.at(0), space);
 						}
 					}
@@ -400,7 +400,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 								_("NO"), nullptr));
 						});
 						auto supportFile =
-							std::make_shared<TextComponent>(window, _("CREATE A SUPPORT FILE"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+							std::make_shared<TextComponent>(window, _("CREATE A SUPPORT FILE"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 						row.addElement(supportFile, false);
 						informationsGui->addRow(row);
 					}
@@ -408,7 +408,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 					window->pushGui(informationsGui);
 				};
 				row.makeAcceptInputHandler(openGui);
-				auto informationsSettings = std::make_shared<TextComponent>(window, _("INFORMATION"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto informationsSettings = std::make_shared<TextComponent>(window, _("INFORMATION"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				auto bracket = makeArrow(window);
 				row.addElement(informationsSettings, true);
 				row.addElement(bracket, false);
@@ -524,7 +524,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 					{
 						ComponentListRow updateRow;
 						updateRow.makeAcceptInputHandler([window] { window->pushGui(new GuiUpdate(window)); });
-						auto update = std::make_shared<TextComponent>(window, _("START UPDATE"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+						auto update = std::make_shared<TextComponent>(window, _("START UPDATE"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 						updateRow.addElement(update, true);
 						updateRow.addElement(makeArrow(window), false); // bracket
 						updateGui->addRow(updateRow);
@@ -537,7 +537,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 
 				};
 				row.makeAcceptInputHandler(openGuiD);
-				auto update = std::make_shared<TextComponent>(window, _("UPDATES"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto update = std::make_shared<TextComponent>(window, _("UPDATES"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				row.addElement(update, true);
 				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
@@ -547,7 +547,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 			{
 				ComponentListRow row;
 				row.makeAcceptInputHandler([window] { window->pushGui(new GuiBackupStart(window)); });
-				auto backupSettings = std::make_shared<TextComponent>(window, _("BACKUP USER DATA"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto backupSettings = std::make_shared<TextComponent>(window, _("BACKUP USER DATA"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				row.addElement(backupSettings, true);
 				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
@@ -573,7 +573,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 					window->pushGui(kodiGui);
 				};
 				row.makeAcceptInputHandler(openGui);
-				auto kodiSettings = std::make_shared<TextComponent>(window, _("KODI SETTINGS"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto kodiSettings = std::make_shared<TextComponent>(window, _("KODI SETTINGS"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				row.addElement(kodiSettings, true);
 				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
@@ -583,7 +583,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 			{
 				ComponentListRow row;
 				row.makeAcceptInputHandler([window] { window->pushGui(new GuiInstallStart(window)); });
-				auto component = std::make_shared<TextComponent>(window, _("INSTALL ON A NEW DISK"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto component = std::make_shared<TextComponent>(window, _("INSTALL ON A NEW DISK"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				row.addElement(component, true);
 				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
@@ -598,7 +598,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 					securityGui->addWithLabel(_("ENFORCE SECURITY"), securityEnabled);
 
 					auto rootpassword =
-						std::make_shared<TextComponent>(window, SystemInterface::getRootPassword(), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+						std::make_shared<TextComponent>(window, SystemInterface::getRootPassword(), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 					securityGui->addWithLabel(_("ROOT PASSWORD"), rootpassword);
 
 					securityGui->addSaveFunc([window, securityEnabled] {
@@ -622,7 +622,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 					window->pushGui(securityGui);
 				};
 				row.makeAcceptInputHandler(openGui);
-				auto securitySettings = std::make_shared<TextComponent>(window, _("SECURITY"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto securitySettings = std::make_shared<TextComponent>(window, _("SECURITY"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				row.addElement(securitySettings, true);
 				row.addElement(makeArrow(window), false); // bracket
 				s->addRow(row);
@@ -660,7 +660,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 	}
 #endif
 #if defined(MENU_GAMES_SETTINGS_ENABLED)
-	menu.addEntry(_("GAMES SETTINGS"), 0x777777FF, true, [&menu, window] {
+	menu.addEntry(_("GAMES SETTINGS"), COLOR_GRAY3, true, [&menu, window] {
 		auto s = new GuiSettings(window, _("GAMES SETTINGS").c_str());
 		if (!IsBartopOptionEnabled())
 		{
@@ -725,7 +725,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				};
 				row.makeAcceptInputHandler(openGui);
 				auto retroachievementsSettings =
-					std::make_shared<TextComponent>(window, _("RETROACHIEVEMENTS SETTINGS"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+					std::make_shared<TextComponent>(window, _("RETROACHIEVEMENTS SETTINGS"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				auto bracket = makeArrow(window);
 				row.addElement(retroachievementsSettings, true);
 				row.addElement(bracket, false);
@@ -741,7 +741,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 					{
 						ComponentListRow noRow;
 						auto biosText =
-							std::make_shared<TextComponent>(window, _("NO MISSING BIOS").c_str(), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+							std::make_shared<TextComponent>(window, _("NO MISSING BIOS").c_str(), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 						noRow.addElement(biosText, true);
 						configuration->addRow(noRow);
 					}
@@ -750,7 +750,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 						for (const auto& systemBios : biosInformations)
 						{
 							ComponentListRow biosRow;
-							auto biosText = std::make_shared<TextComponent>(window, systemBios.name.c_str(), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+							auto biosText = std::make_shared<TextComponent>(window, systemBios.name.c_str(), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 							std::function<void()> openGuiDBios = [window, systemBios] {
 								GuiSettings* configurationInfo = new GuiSettings(window, systemBios.name.c_str());
 								for (const auto& biosFile : systemBios.bios)
@@ -758,9 +758,9 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 									auto biosPath =
 										std::make_shared<TextComponent>(window, biosFile.path.c_str(), Font::get(FONT_SIZE_MEDIUM), 0x000000FF);
 									auto biosMd5 =
-										std::make_shared<TextComponent>(window, biosFile.md5.c_str(), Font::get(FONT_SIZE_SMALL), 0x777777FF);
+										std::make_shared<TextComponent>(window, biosFile.md5.c_str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
 									auto biosStatus =
-										std::make_shared<TextComponent>(window, biosFile.status.c_str(), Font::get(FONT_SIZE_SMALL), 0x777777FF);
+										std::make_shared<TextComponent>(window, biosFile.status.c_str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
 									ComponentListRow biosFileRow;
 									biosFileRow.addElement(biosPath, true);
 									configurationInfo->addRow(biosFileRow);
@@ -781,7 +781,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				// bios button
 				ComponentListRow row;
 				row.makeAcceptInputHandler(openGuiD);
-				auto bios = std::make_shared<TextComponent>(window, _("MISSING BIOS"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto bios = std::make_shared<TextComponent>(window, _("MISSING BIOS"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				auto bracket = makeArrow(window);
 				row.addElement(bios, true);
 				row.addElement(bracket, false);
@@ -801,7 +801,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 						{
 							ComponentListRow systemRow;
 							auto systemText =
-								std::make_shared<TextComponent>(window, (*system)->getFullName(), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+								std::make_shared<TextComponent>(window, (*system)->getFullName(), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 							auto bracket = makeArrow(window);
 							systemRow.addElement(systemText, true);
 							systemRow.addElement(bracket, false);
@@ -816,7 +816,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				};
 				// Advanced button
 				row.makeAcceptInputHandler(openGuiD);
-				auto advanced = std::make_shared<TextComponent>(window, _("ADVANCED"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				auto advanced = std::make_shared<TextComponent>(window, _("ADVANCED"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 				auto bracket = makeArrow(window);
 				row.addElement(advanced, true);
 				row.addElement(bracket, false);
@@ -846,7 +846,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 						},
 						_("NO"), nullptr));
 				});
-				row.addElement(std::make_shared<TextComponent>(window, _("UPDATE GAMES LISTS"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+				row.addElement(std::make_shared<TextComponent>(window, _("UPDATE GAMES LISTS"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 				s->addRow(row);
 			}
 		}
@@ -863,7 +863,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 #if defined(MENU_CONTROLLERS_SETTINGS_ENABLED)
 	if (!IsBartopOptionEnabled())
 	{
-		menu.addEntry(_("CONTROLLERS SETTINGS").c_str(), 0x777777FF, true, [&menu, window] { createConfigInput(menu, window); });
+		menu.addEntry(_("CONTROLLERS SETTINGS").c_str(), COLOR_GRAY3, true, [&menu, window] { createConfigInput(menu, window); });
 	}
 #endif
 }
@@ -889,7 +889,7 @@ void GuiMenuEx::createConfigInput(GuiMenu& menu, Window* window)
 			}));
 	});
 
-	row.addElement(std::make_shared<TextComponent>(window, _("CONFIGURE A CONTROLLER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.addElement(std::make_shared<TextComponent>(window, _("CONFIGURE A CONTROLLER"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 	s->addRow(row);
 
 	row.elements.clear();
@@ -934,7 +934,7 @@ void GuiMenuEx::createConfigInput(GuiMenu& menu, Window* window)
 #endif
 					};
 					controllerRow.makeAcceptInputHandler(pairController);
-					auto update = std::make_shared<TextComponent>(window, *controllerString, Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+					auto update = std::make_shared<TextComponent>(window, *controllerString, Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 					auto bracket = makeArrow(window);
 					controllerRow.addElement(update, true);
 					controllerRow.addElement(bracket, false);
@@ -957,7 +957,7 @@ void GuiMenuEx::createConfigInput(GuiMenu& menu, Window* window)
 #endif
 	});
 
-	row.addElement(std::make_shared<TextComponent>(window, _("PAIR A BLUETOOTH CONTROLLER"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.addElement(std::make_shared<TextComponent>(window, _("PAIR A BLUETOOTH CONTROLLER"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 	s->addRow(row);
 	row.elements.clear();
 
@@ -965,7 +965,7 @@ void GuiMenuEx::createConfigInput(GuiMenu& menu, Window* window)
 		SystemInterface::forgetBluetoothControllers();
 		window->pushGui(new GuiMsgBox(window, _("CONTROLLERS LINKS HAVE BEEN DELETED."), _("OK")));
 	});
-	row.addElement(std::make_shared<TextComponent>(window, _("FORGET BLUETOOTH CONTROLLERS"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.addElement(std::make_shared<TextComponent>(window, _("FORGET BLUETOOTH CONTROLLERS"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3), true);
 	s->addRow(row);
 	row.elements.clear();
 
@@ -1099,12 +1099,12 @@ void GuiMenuEx::AddMenuNetwork(GuiMenu& menu, Window* window)
 #if defined(MENU_NETWORK_SETTINGS_ENABLED)
 	if (!IsBartopOptionEnabled())
 	{
-		menu.addEntry(_("NETWORK SETTINGS").c_str(), 0x777777FF, true, [window] {
+		menu.addEntry(_("NETWORK SETTINGS").c_str(), COLOR_GRAY3, true, [window] {
 			auto s = new GuiSettings(window, _("NETWORK SETTINGS").c_str());
 			auto status = std::make_shared<TextComponent>(
-				window, SystemInterface::ping() ? _("CONNECTED") : _("NOT CONNECTED"), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+				window, SystemInterface::ping() ? _("CONNECTED") : _("NOT CONNECTED"), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 			s->addWithLabel(_("STATUS"), status);
-			auto ip = std::make_shared<TextComponent>(window, SystemInterface::getIpAdress(), Font::get(FONT_SIZE_MEDIUM), 0x777777FF);
+			auto ip = std::make_shared<TextComponent>(window, SystemInterface::getIpAdress(), Font::get(FONT_SIZE_MEDIUM), COLOR_GRAY3);
 			s->addWithLabel(_("IP ADDRESS"), ip);
 			// Hostname
 			GuiMenuEx::createInputTextRow(window, s, _("HOSTNAME"), "system.hostname", false);
