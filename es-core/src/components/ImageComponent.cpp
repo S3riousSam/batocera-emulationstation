@@ -32,10 +32,6 @@ ImageComponent::ImageComponent(Window* window)
 	updateColors();
 }
 
-ImageComponent::~ImageComponent()
-{
-}
-
 void ImageComponent::resize()
 {
 	if (!mTexture)
@@ -43,8 +39,9 @@ void ImageComponent::resize()
 
 	SVGResource* svg = dynamic_cast<SVGResource*>(mTexture.get());
 
-	const Eigen::Vector2f textureSize =
-		svg ? svg->getSourceImageSize() : Eigen::Vector2f((float)mTexture->getSize().x(), (float)mTexture->getSize().y());
+	const Eigen::Vector2f textureSize = (svg != nullptr)
+		? svg->getSourceImageSize()
+		: Eigen::Vector2f(static_cast<float>(mTexture->getSize().x()), static_cast<float>(mTexture->getSize().y()));
 	if (textureSize.isZero())
 		return;
 
@@ -102,7 +99,7 @@ void ImageComponent::resize()
 		}
 	}
 
-	if (svg)
+	if (svg != nullptr)
 	{
 		// mSize.y() should already be rounded
 		svg->rasterizeAt((int)round(mSize.x()), (int)round(mSize.y()));
@@ -303,20 +300,17 @@ bool ImageComponent::hasImage()
 
 void ImageComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties)
 {
-	using namespace ThemeFlags;
-
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "image");
-	if (!elem)
-	{
+	if (elem == nullptr)
 		return;
-	}
 
-	Eigen::Vector2f scale =
-		getParent() ? getParent()->getSize() : Eigen::Vector2f((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
+	const Eigen::Vector2f scale = getParent() != nullptr
+		? getParent()->getSize()
+		: Eigen::Vector2f((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 
-	if (properties & POSITION && elem->has("pos"))
+	if (properties & ThemeFlags::POSITION && elem->has("pos"))
 	{
-		Eigen::Vector2f denormalized = elem->get<Eigen::Vector2f>("pos").cwiseProduct(scale);
+		const Eigen::Vector2f denormalized = elem->get<Eigen::Vector2f>("pos").cwiseProduct(scale);
 		setPosition(Eigen::Vector3f(denormalized.x(), denormalized.y(), 0));
 	}
 
@@ -329,22 +323,20 @@ void ImageComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const s
 	}
 
 	// position + size also implies origin
-	if ((properties & ORIGIN || (properties & POSITION && properties & ThemeFlags::SIZE)) && elem->has("origin"))
+	if ((properties & ThemeFlags::ORIGIN || (properties & ThemeFlags::POSITION && properties & ThemeFlags::SIZE)) && elem->has("origin"))
 		setOrigin(elem->get<Eigen::Vector2f>("origin"));
 
-	if (properties & PATH && elem->has("path"))
+	if (properties & ThemeFlags::PATH && elem->has("path"))
 	{
-		bool tile = (elem->has("tile") && elem->get<bool>("tile"));
+		const bool tile = (elem->has("tile") && elem->get<bool>("tile"));
 		setImage(elem->get<std::string>("path"), tile);
 	}
 
-	if (properties & COLOR && elem->has("color"))
+	if (properties & ThemeFlags::COLOR && elem->has("color"))
 		setColorShift(elem->get<unsigned int>("color"));
 }
 
 std::vector<HelpPrompt> ImageComponent::getHelpPrompts()
 {
-	std::vector<HelpPrompt> ret;
-	ret.push_back(HelpPrompt("b", _("SELECT")));
-	return ret;
+    return { HelpPrompt(BUTTON_LAUNCH, _("SELECT")) };
 }

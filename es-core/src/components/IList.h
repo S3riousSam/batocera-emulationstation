@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "Renderer.h"
 #include "components/ImageComponent.h"
@@ -70,26 +69,25 @@ protected:
 
 	std::vector<Entry> mEntries;
 
-public:
 	IList(Window* window, const ScrollTierList& tierList = LIST_SCROLL_STYLE_QUICK, const ListLoopType& loopType = LIST_PAUSE_AT_END)
 		: GuiComponent(window)
+		, mCursor(0)
+		, mScrollTier(0)
+		, mScrollVelocity(0)
+		, mScrollTierAccumulator(0)
+		, mScrollCursorAccumulator(0)
+		, mTitleOverlayOpacity(0x00)
+		, mTitleOverlayColor(0xFFFFFF00)
 		, mGradient(window)
+		, mTitleOverlayFont(Font::get(FONT_SIZE_LARGE))
 		, mTierList(tierList)
 		, mLoopType(loopType)
 	{
-		mCursor = 0;
-		mScrollTier = 0;
-		mScrollVelocity = 0;
-		mScrollTierAccumulator = 0;
-		mScrollCursorAccumulator = 0;
-
-		mTitleOverlayOpacity = 0x00;
-		mTitleOverlayColor = 0xFFFFFF00;
 		mGradient.setResize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 		mGradient.setImage(":/scroll_gradient.png");
-		mTitleOverlayFont = Font::get(FONT_SIZE_LARGE);
 	}
 
+public:
 	bool isScrolling() const
 	{
 		return (mScrollVelocity != 0 && mScrollTier > 0);

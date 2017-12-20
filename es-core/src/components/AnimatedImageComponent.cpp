@@ -43,10 +43,8 @@ void AnimatedImageComponent::reset()
 
 void AnimatedImageComponent::onSizeChanged()
 {
-	for (auto it = mFrames.begin(); it != mFrames.end(); it++)
-	{
-		it->first->setResize(mSize.x(), mSize.y());
-	}
+	for (auto& it : mFrames)
+		it.first->setResize(mSize.x(), mSize.y());
 }
 
 void AnimatedImageComponent::update(int deltaTime)
@@ -62,14 +60,12 @@ void AnimatedImageComponent::update(int deltaTime)
 
 		if (mCurrentFrame == static_cast<int>(mFrames.size()))
 		{
-			if (mLoop)
+			if (mLoop) // restart?
 			{
-				// restart
 				mCurrentFrame = 0;
 			}
-			else
+			else // done, stop at last frame
 			{
-				// done, stop at last frame
 				mCurrentFrame--;
 				mEnabled = false;
 				break;

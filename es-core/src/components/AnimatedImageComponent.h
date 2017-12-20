@@ -2,15 +2,15 @@
 #include "GuiComponent.h"
 #include "components/ImageComponent.h"
 
-struct AnimationFrame
-{
-	const char* path;
-	int time;
-};
-
 struct AnimationDef
 {
-	AnimationFrame* frames;
+	struct AnimationFrame
+	{
+		const char* path;
+		int time;
+	};
+
+	const AnimationFrame* frames;
 	size_t frameCount;
 	bool loop;
 };

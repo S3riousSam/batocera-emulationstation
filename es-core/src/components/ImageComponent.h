@@ -3,16 +3,14 @@
 #include GLHEADER
 #include "GuiComponent.h"
 #include "resources/TextureResource.h"
-#include <memory>
 #include <string>
 
 class ImageComponent : public GuiComponent
 {
 public:
 	ImageComponent(Window* window);
-	virtual ~ImageComponent();
 
-	// Loads the image at the given filepath. Will tile if tile is true (retrieves texture as tiling, creates vertices accordingly).
+	// Loads the image at the given filepath...
 	void setImage(const std::string& path, bool tile = false);
 	// Loads an image from memory.
 	void setImage(const char* image, size_t length, bool tile = false);
@@ -26,7 +24,7 @@ public:
 
 	// Sets the origin as a percentage of this image (e.g. (0, 0) is top left, (0.5, 0.5) is the center)
 	void setOrigin(float originX, float originY);
-	inline void setOrigin(Eigen::Vector2f origin)
+	void setOrigin(const Eigen::Vector2f& origin)
 	{
 		setOrigin(origin.x(), origin.y());
 	}
@@ -36,7 +34,7 @@ public:
 	// Can be set before or after an image is loaded.
 	// setMaxSize() and setResize() are mutually exclusive.
 	void setResize(float width, float height);
-	inline void setResize(const Eigen::Vector2f& size)
+	void setResize(const Eigen::Vector2f& size)
 	{
 		setResize(size.x(), size.y());
 	}
@@ -45,7 +43,7 @@ public:
 	// Can be set before or after an image is loaded.
 	// Never breaks the aspect ratio. setMaxSize() and setResize() are mutually exclusive.
 	void setMaxSize(float width, float height);
-	inline void setMaxSize(const Eigen::Vector2f& size)
+	void setMaxSize(const Eigen::Vector2f& size)
 	{
 		setMaxSize(size.x(), size.y());
 	}
@@ -66,10 +64,9 @@ public:
 
 	void render(const Eigen::Affine3f& parentTrans) override;
 
-	virtual void applyTheme(
-		const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
+	void applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
 
-	virtual std::vector<HelpPrompt> getHelpPrompts() override;
+	std::vector<HelpPrompt> getHelpPrompts() override;
 
 private:
 	Eigen::Vector2f mTargetSize;
@@ -78,8 +75,7 @@ private:
 	bool mFlipX, mFlipY, mTargetIsMax;
 
 	// Calculates the correct mSize from our resizing information (set by setResize/setMaxSize).
-	// Used internally whenever the resizing parameters or texture change.
-	void resize();
+	void resize(); // Used internally whenever the resizing parameters or texture change.
 
 	struct Vertex
 	{

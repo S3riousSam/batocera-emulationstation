@@ -11,7 +11,7 @@ DateTimeComponent::DateTimeComponent(Window* window, DisplayMode dispMode)
 	, mEditIndex(0)
 	, mDisplayMode(dispMode)
 	, mRelativeUpdateAccumulator(0)
-	, mColor(0x777777FF)
+	, mColor(COLOR_GRAY3)
 	, mFont(Font::get(FONT_SIZE_SMALL, FONT_PATH_LIGHT))
 	, mUppercase(false)
 	, mAutoSize(true)
@@ -184,15 +184,6 @@ std::string DateTimeComponent::getValue() const
 
 DateTimeComponent::DisplayMode DateTimeComponent::getCurrentDisplayMode() const
 {
-	/*if(mEditing)
-	{
-		if(mDisplayMode == DISP_RELATIVE_TO_NOW)
-		{
-			//TODO: if time component == 00:00:00, return DISP_DATE, else return DISP_DATE_TIME
-			return DISP_DATE;
-		}
-	}*/
-
 	return mDisplayMode;
 }
 
@@ -205,9 +196,6 @@ std::string DateTimeComponent::getDisplayString(DisplayMode mode) const
 	{
 	case DISP_DATE:
 		fmt = "%m/%d/%Y";
-		break;
-	case DISP_DATE_TIME:
-		fmt = "%m/%d/%Y %H:%M:%S";
 		break;
 	case DISP_RELATIVE_TO_NOW:
 	{
@@ -259,10 +247,7 @@ std::string DateTimeComponent::getDisplayString(DisplayMode mode) const
 
 std::shared_ptr<Font> DateTimeComponent::getFont() const
 {
-	if (mFont)
-		return mFont;
-
-	return Font::get(FONT_SIZE_MEDIUM);
+	return mFont ? mFont: Font::get(FONT_SIZE_MEDIUM);
 }
 
 void DateTimeComponent::updateTextCache()
@@ -304,8 +289,6 @@ void DateTimeComponent::updateTextCache()
 	end = font->sizeText(dispString.substr(0, 10));
 	diff = end - start;
 	mCursorBoxes.push_back(Eigen::Vector4f(start[0], start[1], diff[0], diff[1]));
-
-	// if mode == DISP_DATE_TIME do times too but I don't wanna do the logic for editing times because no one will ever use it so screw it
 }
 
 void DateTimeComponent::setColor(unsigned int color)
@@ -337,7 +320,7 @@ void DateTimeComponent::applyTheme(
 	const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties)
 {
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "datetime");
-	if (!elem)
+	if (elem == nullptr)
 		return;
 
 	// We set mAutoSize BEFORE calling GuiComponent::applyTheme because it calls
@@ -348,12 +331,10 @@ void DateTimeComponent::applyTheme(
 
 	GuiComponent::applyTheme(theme, view, element, properties);
 
-	using namespace ThemeFlags;
-
-	if (properties & COLOR && elem->has("color"))
+	if (properties & ThemeFlags::COLOR && elem->has("color"))
 		setColor(elem->get<unsigned int>("color"));
 
-	if (properties & FORCE_UPPERCASE && elem->has("forceUppercase"))
+	if (properties & ThemeFlags::FORCE_UPPERCASE && elem->has("forceUppercase"))
 		setUppercase(elem->get<bool>("forceUppercase"));
 
 	setFont(Font::getFromTheme(elem, properties, mFont));

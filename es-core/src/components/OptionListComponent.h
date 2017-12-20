@@ -10,15 +10,11 @@
 #include "resources/Font.h"
 #include <sstream>
 
-// Used to display a list of options.
-// Can select one or multiple options.
-
+// Used to display a list of options (Can select one or multiple options)
 // if !multiSelect
 // * <- curEntry ->
-
 // always
 // * press a -> open full list
-
 template<typename T>
 class OptionListComponent : public GuiComponent
 {
@@ -51,26 +47,24 @@ private:
 			// for select all/none
 			std::vector<ImageComponent*> checkboxes;
 
-			for (auto it = mParent->mEntries.begin(); it != mParent->mEntries.end(); it++)
+			for (auto& it : mParent->mEntries)
 			{
 				row.elements.clear();
-				row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(it->name), font, 0x777777FF), true);
-
-				OptionListData& e = *it;
+				row.addElement(std::make_shared<TextComponent>(mWindow, strToUpper(it.name), font, COLOR_GRAY3), true);
 
 				if (mParent->mMultiSelect)
 				{
 					// add checkbox
 					auto checkbox = std::make_shared<ImageComponent>(mWindow);
-					checkbox->setImage(it->selected ? CHECK_PATH_ON : CHECK_PATH_OFF);
+					checkbox->setImage(it.selected ? CHECK_PATH_ON : CHECK_PATH_OFF);
 					checkbox->setResize(0, font->getLetterHeight());
 					row.addElement(checkbox, false);
 
 					// input handler
 					// update checkbox state & selected value
-					row.makeAcceptInputHandler([this, &e, checkbox] {
-						e.selected = !e.selected;
-						checkbox->setImage(e.selected ? CHECK_PATH_ON : CHECK_PATH_OFF);
+					row.makeAcceptInputHandler([this, &it, checkbox] {
+						it.selected = !it.selected;
+						checkbox->setImage(it.selected ? CHECK_PATH_ON : CHECK_PATH_OFF);
 						mParent->onSelectedChanged();
 					});
 
@@ -79,18 +73,18 @@ private:
 				}
 				else
 				{
-					// input handler for non-multiselect
+					// input handler for non multi-select
 					// update selected value and close
-					row.makeAcceptInputHandler([this, &e] {
+					row.makeAcceptInputHandler([this, &it] {
 						mParent->mEntries.at(mParent->getSelectedId()).selected = false;
-						e.selected = true;
+						it.selected = true;
 						mParent->onSelectedChanged();
 						delete this;
 					});
 				}
 
 				// also set cursor to this row if we're not multi-select and this row is selected
-				mMenu.addRow(row, (!mParent->mMultiSelect && it->selected));
+				mMenu.addRow(row, (!mParent->mMultiSelect && it.selected));
 			}
 
 			mMenu.addButton(_("BACK"), "accept", [this] { delete this; });
@@ -148,9 +142,9 @@ public:
 		, mLeftArrow(window)
 		, mRightArrow(window)
 	{
-		auto font = Font::get(fontSize, FONT_PATH_LIGHT);
+		const auto font = Font::get(fontSize, FONT_PATH_LIGHT);
 		mText.setFont(font);
-		mText.setColor(0x777777FF);
+		mText.setColor(COLOR_GRAY3);
 		mText.setAlignment(ALIGN_CENTER);
 		addChild(&mText);
 
@@ -203,7 +197,7 @@ public:
 				if (config->isMappedTo("left", input))
 				{
 					// move selection to previous
-					unsigned int i = getSelectedId();
+					const unsigned int i = getSelectedId();
 					int next = (int)i - 1;
 					if (next < 0)
 						next += mEntries.size();
@@ -216,7 +210,7 @@ public:
 				else if (config->isMappedTo("right", input))
 				{
 					// move selection to next
-					unsigned int i = getSelectedId();
+					const unsigned int i = getSelectedId();
 					int next = (i + 1) % mEntries.size();
 					mEntries.at(i).selected = false;
 					mEntries.at(next).selected = true;
@@ -228,15 +222,14 @@ public:
 		return GuiComponent::input(config, input);
 	}
 
-	std::vector<T> getSelectedObjects()
+	std::vector<T> getSelectedObjects() const
 	{
 		std::vector<T> ret;
-		for (auto it = mEntries.begin(); it != mEntries.end(); it++)
+		for (auto it : mEntries)
 		{
-			if (it->selected)
-				ret.push_back(it->object);
+			if (it.selected)
+				ret.push_back(it.object);
 		}
-
 		return ret;
 	}
 
@@ -262,10 +255,7 @@ public:
 
 	void add(const std::string& name, const T& obj, bool selected)
 	{
-		OptionListData e;
-		e.name = name;
-		e.object = obj;
-		e.selected = selected;
+		const OptionListData e = {name, obj, selected};
 #if defined(EXTENSION)
 		if (selected)
 			firstSelected = obj;
@@ -276,7 +266,7 @@ public:
 	}
 
 #if defined(EXTENSION)
-	inline void setSelectedChangedCallback(const std::function<void(const T&)>& callback)
+	 void setSelectedChangedCallback(const std::function<void(const T&)>& callback)
 	{
 		mSelectedChangedCallback = callback;
 	}
@@ -317,20 +307,20 @@ private:
 			mText.setText(strbuf);
 			mText.setSize(0, mText.getSize().y());
 			setSize(mText.getSize().x() + mRightArrow.getSize().x() + 24, mText.getSize().y());
-			if (mParent) // hack since theres no "on child size changed" callback atm...
+			if (mParent != nullptr) // hack since theres no "on child size changed" callback atm...
 				mParent->onSizeChanged();
 		}
 		else
 		{
 			// display currently selected + l/r cursors
-			for (auto it = mEntries.begin(); it != mEntries.end(); it++)
+			for (const auto& it : mEntries)
 			{
-				if (it->selected)
+				if (it.selected)
 				{
-					mText.setText(strToUpper(it->name));
+					mText.setText(strToUpper(it.name));
 					mText.setSize(0, mText.getSize().y());
 					setSize(mText.getSize().x() + mLeftArrow.getSize().x() + mRightArrow.getSize().x() + 24, mText.getSize().y());
-					if (mParent) // hack since theres no "on child size changed" callback atm...
+					if (mParent != nullptr) // hack since theres no "on child size changed" callback atm...
 						mParent->onSizeChanged();
 					break;
 				}
