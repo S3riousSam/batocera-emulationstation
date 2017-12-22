@@ -1,9 +1,7 @@
 #include "components/TextEditComponent.h"
 #include "LocaleES.h"
-#include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
-#include "Window.h"
 #include "resources/Font.h"
 
 namespace
@@ -25,9 +23,7 @@ TextEditComponent::TextEditComponent(Window* window)
 	, mCursorRepeatDir(0)
 {
 	addChild(&mBox);
-
 	onFocusLost();
-
 	setSize(256, mFont->getHeight() + TEXT_PADDING_VERT);
 }
 
@@ -120,13 +116,9 @@ bool TextEditComponent::input(InputConfig* config, Input input)
 		if (config->getDeviceId() == DEVICE_KEYBOARD && input.id == SDLK_RETURN)
 		{
 			if (isMultiline())
-			{
 				textInput("\n");
-			}
 			else
-			{
 				stopEditing();
-			}
 
 			return true;
 		}
@@ -187,17 +179,13 @@ void TextEditComponent::moveCursor(int amt)
 
 void TextEditComponent::setCursor(size_t pos)
 {
-	if (pos == std::string::npos)
-		mCursor = mText.length();
-	else
-		mCursor = (int)pos;
-
+	mCursor = (pos == std::string::npos) ? mText.length() : static_cast<int>(pos);
 	moveCursor(0);
 }
 
 void TextEditComponent::onTextChanged()
 {
-	std::string wrappedText = (isMultiline() ? mFont->wrapText(mText, getTextAreaSize().x()) : mText);
+	const std::string wrappedText = (isMultiline() ? mFont->wrapText(mText, getTextAreaSize().x()) : mText);
 	mTextCache = std::unique_ptr<TextCache>(mFont->buildTextCache(wrappedText, 0, 0, 0x77777700 | getOpacity()));
 
 	if (mCursor > (int)mText.length())
@@ -208,29 +196,21 @@ void TextEditComponent::onCursorChanged()
 {
 	if (isMultiline())
 	{
-		Eigen::Vector2f textSize = mFont->getWrappedTextCursorOffset(mText, getTextAreaSize().x(), mCursor);
+		const Eigen::Vector2f textSize = mFont->getWrappedTextCursorOffset(mText, getTextAreaSize().x(), mCursor);
 
 		if (mScrollOffset.y() + getTextAreaSize().y() < textSize.y() + mFont->getHeight()) // need to scroll down?
-		{
 			mScrollOffset[1] = textSize.y() - getTextAreaSize().y() + mFont->getHeight();
-		}
 		else if (mScrollOffset.y() > textSize.y()) // need to scroll up?
-		{
 			mScrollOffset[1] = textSize.y();
-		}
 	}
 	else
 	{
-		Eigen::Vector2f cursorPos = mFont->sizeText(mText.substr(0, mCursor));
+		const Eigen::Vector2f cursorPos = mFont->sizeText(mText.substr(0, mCursor));
 
 		if (mScrollOffset.x() + getTextAreaSize().x() < cursorPos.x())
-		{
 			mScrollOffset[0] = cursorPos.x() - getTextAreaSize().x();
-		}
 		else if (mScrollOffset.x() > cursorPos.x())
-		{
 			mScrollOffset[0] = cursorPos.x();
-		}
 	}
 }
 
@@ -243,9 +223,9 @@ void TextEditComponent::render(const Eigen::Affine3f& parentTrans)
 	// offset into our "text area" (padding)
 	trans.translation() += Eigen::Vector3f(getTextAreaPos().x(), getTextAreaPos().y(), 0);
 
-	Eigen::Vector2i clipPos((int)trans.translation().x(), (int)trans.translation().y());
-	Eigen::Vector3f dimScaled = trans * Eigen::Vector3f(getTextAreaSize().x(), getTextAreaSize().y(), 0); // use "text area" size for clipping
-	Eigen::Vector2i clipDim((int)dimScaled.x() - trans.translation().x(), (int)dimScaled.y() - trans.translation().y());
+	const Eigen::Vector2i clipPos((int)trans.translation().x(), (int)trans.translation().y());
+	const Eigen::Vector3f dimScaled = trans * Eigen::Vector3f(getTextAreaSize().x(), getTextAreaSize().y(), 0); // use "text area" size for clipping
+	const Eigen::Vector2i clipDim((int)dimScaled.x() - trans.translation().x(), (int)dimScaled.y() - trans.translation().y());
 	Renderer::pushClipRect(clipPos, clipDim);
 
 	trans.translate(Eigen::Vector3f(-mScrollOffset.x(), -mScrollOffset.y(), 0));
@@ -254,15 +234,12 @@ void TextEditComponent::render(const Eigen::Affine3f& parentTrans)
 	Renderer::setMatrix(trans);
 
 	if (mTextCache)
-	{
 		mFont->renderTextCache(mTextCache.get());
-	}
 
 	// pop the clip early to allow the cursor to be drawn outside of the "text area"
 	Renderer::popClipRect();
 
-	// draw cursor
-	if (mEditing)
+	if (mEditing) // draw cursor?
 	{
 		Eigen::Vector2f cursorPos;
 		if (isMultiline())
@@ -275,7 +252,7 @@ void TextEditComponent::render(const Eigen::Affine3f& parentTrans)
 			cursorPos[1] = 0;
 		}
 
-		float cursorHeight = mFont->getHeight() * 0.8f;
+		const float cursorHeight = mFont->getHeight() * 0.8f;
 		Renderer::drawRect(cursorPos.x(), cursorPos.y() + (mFont->getHeight() - cursorHeight) / 2, 2.0f, cursorHeight, 0x000000FF);
 	}
 }
@@ -297,15 +274,7 @@ Eigen::Vector2f TextEditComponent::getTextAreaSize() const
 
 std::vector<HelpPrompt> TextEditComponent::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-	if (mEditing)
-	{
-		prompts.push_back(HelpPrompt("up/down/left/right", _("MOVE CURSOR")));
-		prompts.push_back(HelpPrompt(BUTTON_BACK, _("STOP EDITING")));
-	}
-	else
-	{
-		prompts.push_back(HelpPrompt(BUTTON_LAUNCH, _("EDIT")));
-	}
-	return prompts;
+	return mEditing
+		? std::vector<HelpPrompt>({ HelpPrompt("up/down/left/right", _("MOVE CURSOR")), HelpPrompt(BUTTON_BACK, _("STOP EDITING")) })
+		: std::vector<HelpPrompt>({ HelpPrompt(BUTTON_LAUNCH, _("EDIT")) });
 }

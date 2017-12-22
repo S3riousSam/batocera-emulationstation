@@ -2,16 +2,16 @@
 #include <map>
 #include <string>
 
-// This is a singleton for storing settings.
-class Settings
+class Settings // Singleton storing settings (es_settings.cfg)
 {
 public:
 	static Settings* getInstance();
-
+private:
 	void loadFile();
+public:
 	void saveFile();
 
-	// You will get a warning if you try a get on a key that is not already present.
+	// You get a warning if you try a get on a key that is not already present.
 	bool getBool(const std::string& name);
 	int getInt(const std::string& name);
 	float getFloat(const std::string& name);
@@ -23,13 +23,9 @@ public:
 	void setString(const std::string& name, const std::string& value);
 
 private:
-	static Settings* sInstance;
-
 	Settings();
 
-	// Clear everything and load default values.
-	void setDefaults();
-
+	static Settings* sInstance;
 	std::map<std::string, bool> mBoolMap;
 	std::map<std::string, int> mIntMap;
 	std::map<std::string, float> mFloatMap;

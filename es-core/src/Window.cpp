@@ -1,5 +1,7 @@
 #include "Window.h"
 #include "AudioManager.h"
+#include "GuiComponent.h"
+#include "InputManager.h"
 #include "Log.h"
 #include "RecalboxConf.h"
 #include "Renderer.h"
@@ -26,7 +28,7 @@ Window::Window()
 	, mAllowSleep(true)
 	, mSleeping(false)
 	, mTimeSinceLastInput(0)
-	, launchKodi(false)
+	, mLaunchKodi(false)
 {
 	mHelp = new HelpComponent(this);
 	mBackgroundOverlay = new ImageComponent(this);
@@ -37,8 +39,8 @@ Window::~Window()
 {
 	delete mBackgroundOverlay;
 
-	// delete all our GUIs
-	while (peekGui())
+	// delete GUI components
+	while (peekGui() != nullptr)
 		delete peekGui();
 
 	delete mHelp;
@@ -73,10 +75,7 @@ void Window::removeGui(GuiComponent* gui)
 
 GuiComponent* Window::peekGui()
 {
-	if (mGuiStack.size() == 0)
-		return NULL;
-
-	return mGuiStack.back();
+	return (mGuiStack.size() == 0) ? nullptr : mGuiStack.back();
 }
 
 bool Window::init(unsigned int width, unsigned int height, bool initRenderer)
@@ -105,7 +104,7 @@ bool Window::init(unsigned int width, unsigned int height, bool initRenderer)
 	mBackgroundOverlay->setResize((float)Renderer::getScreenWidth(), (float)Renderer::getScreenHeight());
 
 	// update our help because font sizes probably changed
-	if (peekGui())
+	if (peekGui() != nullptr)
 		peekGui()->updateHelpPrompts();
 
 	return true;
@@ -120,7 +119,7 @@ void Window::deinit()
 
 void Window::textInput(const char* text)
 {
-	if (peekGui())
+	if (peekGui() != nullptr)
 		peekGui()->textInput(text);
 }
 
@@ -137,14 +136,12 @@ void Window::input(InputConfig* config, Input input)
 
 	mTimeSinceLastInput = 0;
 
-	if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_g && SDL_GetModState() & KMOD_LCTRL &&
-		Settings::getInstance()->getBool("Debug"))
+	if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_g && SDL_GetModState() & KMOD_LCTRL && Settings::getInstance()->getBool("Debug"))
 	{
 		// toggle debug grid with Ctrl-G
 		Settings::getInstance()->setBool("DebugGrid", !Settings::getInstance()->getBool("DebugGrid"));
 	}
-	else if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_t && SDL_GetModState() & KMOD_LCTRL &&
-		Settings::getInstance()->getBool("Debug"))
+	else if (config->getDeviceId() == DEVICE_KEYBOARD && input.value && input.id == SDLK_t && SDL_GetModState() & KMOD_LCTRL && Settings::getInstance()->getBool("Debug"))
 	{
 		// toggle TextComponent debug view with Ctrl-T
 		Settings::getInstance()->setBool("DebugText", !Settings::getInstance()->getBool("DebugText"));
@@ -158,22 +155,22 @@ void Window::input(InputConfig* config, Input input)
 	else
 	{
 #if defined(EXTENSION)
-		if (config->isMappedTo("x", input) && input.value && !launchKodi && RecalboxConf::get("kodi.enabled") == "1" &&
+		if (config->isMappedTo("x", input) && input.value && !mLaunchKodi && RecalboxConf::get("kodi.enabled") == "1" &&
 			RecalboxConf::get("kodi.xbutton") == "1")
 		{
-			launchKodi = true;
+			mLaunchKodi = true;
 			this->pushGui(new GuiMsgBox(this, _("DO YOU WANT TO START KODI MEDIA CENTER?"), _("YES"),
 				[this] {
 					if (!SystemInterface::launchKodi(this))
 						LOG(LogWarning) << "Shutdown terminated with non-zero result!";
-					launchKodi = false;
+					mLaunchKodi = false;
 				},
-				_("NO"), [this] { launchKodi = false; }));
+				_("NO"), [this] { mLaunchKodi = false; }));
 		}
 		else
 #endif
 		{
-			if (peekGui())
+			if (peekGui() != nullptr)
 				this->peekGui()->input(config, input);
 		}
 	}
@@ -184,7 +181,7 @@ void Window::update(int deltaTime)
 #if defined(EXTENSION)
 	if (!mMessages.empty())
 	{
-		std::string message = mMessages.back();
+		const std::string message = mMessages.back();
 		mMessages.pop_back();
 		pushGui(new GuiMsgBox(this, message));
 	}
@@ -227,7 +224,7 @@ void Window::update(int deltaTime)
 
 	mTimeSinceLastInput += deltaTime;
 
-	if (peekGui())
+	if (peekGui() != nullptr)
 		peekGui()->update(deltaTime);
 }
 

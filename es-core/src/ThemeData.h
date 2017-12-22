@@ -11,13 +11,6 @@
 #include <sstream>
 #include <string>
 
-template<typename T>
-class TextListComponent;
-
-class Sound;
-class ImageComponent;
-class NinePatchComponent;
-class TextComponent;
 class Window;
 
 namespace ThemeFlags
@@ -53,7 +46,7 @@ public:
 		*this << "    ";
 	}
 
-	virtual const char* what() const throw() override
+	const char* what() const throw() override
 	{
 		return msg.c_str();
 	}
@@ -77,13 +70,11 @@ ThemeException& operator<<(ThemeException& e, T appendMsg)
 class ThemeExtras : public GuiComponent
 {
 public:
-	ThemeExtras(Window* window)
-		: GuiComponent(window)
-	{
-	}
+	ThemeExtras(Window* window);
 	virtual ~ThemeExtras();
 
-	// will take ownership of the components within extras (delete them in destructor or when setExtras is called again)
+	// This method takes ownership of the components within extras
+	// it deletes them in destructor or when setExtras is called again.
 	void setExtras(const std::vector<GuiComponent*>& extras);
 
 private:
@@ -94,11 +85,11 @@ struct ThemeSet
 {
 	boost::filesystem::path path;
 
-	inline std::string getName() const
+	std::string getName() const
 	{
 		return path.stem().string();
 	}
-	inline boost::filesystem::path getThemePath(const std::string& system) const
+	boost::filesystem::path getThemePath(const std::string& system) const
 	{
 		return path / system / "theme.xml";
 	}
@@ -121,7 +112,7 @@ public:
 			return boost::get<T>(properties.at(prop));
 		}
 
-		inline bool has(const std::string& prop) const
+		bool has(const std::string& prop) const
 		{
 			return (properties.find(prop) != properties.end());
 		}
@@ -138,18 +129,7 @@ private:
 public:
 	ThemeData();
 
-	// throws ThemeException
-	void loadFile(const std::string& path);
-
-	enum ElementPropertyType
-	{
-		NORMALIZED_PAIR,
-		PATH,
-		STRING,
-		COLOR,
-		FLOAT,
-		BOOLEAN
-	};
+	void loadFile(const std::string& path); // throws ThemeException
 
 	// If expectedType is an empty string, will do no type checking.
 	const ThemeElement* getElement(const std::string& view, const std::string& element, const std::string& expectedType) const;
@@ -165,15 +145,12 @@ public:
 #endif
 
 private:
-	static std::map<std::string, std::map<std::string, ElementPropertyType>> sElementMap;
-
 	std::deque<boost::filesystem::path> mPaths;
 	float mVersion;
 
 	void parseIncludes(const pugi::xml_node& themeRoot);
 	void parseViews(const pugi::xml_node& themeRoot);
 	void parseView(const pugi::xml_node& viewNode, ThemeView& view);
-	void parseElement(const pugi::xml_node& elementNode, const std::map<std::string, ElementPropertyType>& typeMap, ThemeElement& element);
 
 	std::map<std::string, ThemeView> mViews;
 };

@@ -1,9 +1,8 @@
 #pragma once
-#include "SDL_mixer.h"
-#include <map>
 #include <memory>
 #include <string>
 
+struct Mix_Chunk;
 class ThemeData;
 
 class Sound
@@ -24,10 +23,8 @@ public:
 	void loadFile(const std::string& path);
 
 	void play();
-	bool isPlaying() const;
 	void stop();
 
 private:
-	Sound(const std::string& path = "");
-	static std::map<std::string, std::shared_ptr<Sound>> sMap;
+	Sound(const std::string& path);
 };

@@ -146,7 +146,7 @@ TextListComponent<T>::TextListComponent(Window* window)
 	mFont = Font::get(FONT_SIZE_MEDIUM);
 	mUppercase = false;
 	mLineSpacing = 1.5f;
-	mSelectorColor = 0x000000FF;
+	mSelectorColor = COLOR_BLACK;
 	mSelectedColor = 0;
 	mColors[0] = 0x0000FFFF;
 	mColors[1] = 0x00FF00FF;
@@ -155,9 +155,9 @@ TextListComponent<T>::TextListComponent(Window* window)
 template<typename T>
 void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = parentTrans * getTransform();
+	const Eigen::Affine3f trans = parentTrans * getTransform();
 
-	std::shared_ptr<Font>& font = mFont;
+	const std::shared_ptr<Font>& font = mFont;
 
 	if (size() == 0)
 		return;
@@ -166,8 +166,8 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 
 	int startEntry = 0;
 
-	// number of entries that can fit on the screen simultaniously
-	int screenCount = (int)(mSize.y() / entrySize + 0.5f);
+	// number of entries that can fit on the screen simultaneously
+	const int screenCount = (int)(mSize.y() / entrySize + 0.5f);
 
 	if (size() >= screenCount)
 	{
@@ -188,8 +188,7 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 	if (startEntry < listCutoff)
 	{
 		Renderer::setMatrix(trans);
-		Renderer::drawRect(
-			0.f, (mCursor - startEntry) * entrySize + (entrySize - font->getHeight()) / 2, mSize.x(), font->getHeight(), mSelectorColor);
+		Renderer::drawRect(0.f, (mCursor - startEntry) * entrySize + (entrySize - font->getHeight()) / 2, mSize.x(), font->getHeight(), mSelectorColor);
 	}
 
 	// clip to inside margins
@@ -202,15 +201,10 @@ void TextListComponent<T>::render(const Eigen::Affine3f& parentTrans)
 	{
 		typename IList<TextListData, T>::Entry& entry = mEntries.at((unsigned int)i);
 
-		unsigned int color;
-		if (mCursor == i && mSelectedColor)
-			color = mSelectedColor;
-		else
-			color = mColors[entry.data.colorId];
+		const unsigned int color = (mCursor == i && mSelectedColor) ? mSelectedColor : mColors[entry.data.colorId];
 
 		if (!entry.data.textCache)
-			entry.data.textCache =
-				std::unique_ptr<TextCache>(font->buildTextCache(mUppercase ? strToUpper(entry.name) : entry.name, 0, 0, 0x000000FF));
+			entry.data.textCache = std::unique_ptr<TextCache>(font->buildTextCache(mUppercase ? strToUpper(entry.name) : entry.name, 0, 0, COLOR_BLACK));
 
 		entry.data.textCache->setColor(color);
 
@@ -265,7 +259,6 @@ bool TextListComponent<T>::input(InputConfig* config, Input input)
 				listInput(1);
 				return true;
 			}
-
 			if (config->isMappedTo("up", input))
 			{
 				listInput(-1);
@@ -276,7 +269,6 @@ bool TextListComponent<T>::input(InputConfig* config, Input input)
 				listInput(10);
 				return true;
 			}
-
 			if (config->isMappedTo("pageup", input))
 			{
 				listInput(-10);
@@ -285,7 +277,9 @@ bool TextListComponent<T>::input(InputConfig* config, Input input)
 		}
 		else
 		{
-			if (config->isMappedTo("down", input) || config->isMappedTo("up", input) || config->isMappedTo("pagedown", input) ||
+			if (config->isMappedTo("down", input) ||
+				config->isMappedTo("up", input) ||
+				config->isMappedTo("pagedown", input) ||
 				config->isMappedTo("pageup", input))
 			{
 				stopScrolling();
@@ -305,7 +299,7 @@ void TextListComponent<T>::update(int deltaTime)
 		// if we're not scrolling and this object's text goes outside our size, marquee it!
 		const std::string& text = mEntries.at((unsigned int)mCursor).name;
 
-		Eigen::Vector2f textSize = mFont->sizeText(text);
+		const Eigen::Vector2f textSize = mFont->sizeText(text);
 
 		// it's long enough to marquee
 		if (textSize.x() - mMarqueeOffset > mSize.x() - 12 - (mAlignment != ALIGN_CENTER ? mHorizontalMargin : 0))
@@ -352,11 +346,10 @@ void TextListComponent<T>::applyTheme(
 	GuiComponent::applyTheme(theme, view, element, properties);
 
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "textlist");
-	if (!elem)
+	if (elem == nullptr)
 		return;
 
-	using namespace ThemeFlags;
-	if (properties & COLOR)
+	if (properties & ThemeFlags::COLOR)
 	{
 		if (elem->has("selectorColor"))
 			setSelectorColor(elem->get<unsigned int>("selectorColor"));
@@ -370,10 +363,10 @@ void TextListComponent<T>::applyTheme(
 
 	setFont(Font::getFromTheme(elem, properties, mFont));
 
-	if (properties & SOUND && elem->has("scrollSound"))
+	if (properties & ThemeFlags::SOUND && elem->has("scrollSound"))
 		setSound(Sound::get(elem->get<std::string>("scrollSound")));
 
-	if (properties & ALIGNMENT)
+	if (properties & ThemeFlags::ALIGNMENT)
 	{
 		if (elem->has("alignment"))
 		{
@@ -394,9 +387,9 @@ void TextListComponent<T>::applyTheme(
 		}
 	}
 
-	if (properties & FORCE_UPPERCASE && elem->has("forceUppercase"))
+	if (properties & ThemeFlags::FORCE_UPPERCASE && elem->has("forceUppercase"))
 		setUppercase(elem->get<bool>("forceUppercase"));
 
-	if (properties & LINE_SPACING && elem->has("lineSpacing"))
+	if (properties & ThemeFlags::LINE_SPACING && elem->has("lineSpacing"))
 		setLineSpacing(elem->get<float>("lineSpacing"));
 }

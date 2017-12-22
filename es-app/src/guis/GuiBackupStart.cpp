@@ -60,13 +60,12 @@ void GuiBackupStart::start()
 
 bool GuiBackupStart::input(InputConfig* config, Input input)
 {
-	const bool consumed = GuiComponent::input(config, input);
-	if (consumed)
+	if (GuiComponent::input(config, input)) // consumed
 		return true;
 
 	if (input.value != 0 && config->isMappedTo("a", input))
 	{
-		delete this; // TODO!?
+		delete this;
 		return true;
 	}
 
@@ -74,7 +73,7 @@ bool GuiBackupStart::input(InputConfig* config, Input input)
 	{
 		// close everything
 		Window* window = mWindow;
-		while (window->peekGui() && window->peekGui() != ViewController::get())
+		while (window->peekGui() != nullptr && window->peekGui() != ViewController::get())
 			delete window->peekGui();
 	}
 

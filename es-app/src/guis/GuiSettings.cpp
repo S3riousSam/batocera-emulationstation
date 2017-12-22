@@ -53,7 +53,7 @@ bool GuiSettings::input(InputConfig* config, Input input)
 	if (config->isMappedTo("start", input) && input.value != 0)
 	{
 		// close everything
-		while (mWindow->peekGui() && mWindow->peekGui() != ViewController::get())
+		while (mWindow->peekGui() != nullptr && mWindow->peekGui() != ViewController::get())
 			delete mWindow->peekGui();
 		return true;
 	}

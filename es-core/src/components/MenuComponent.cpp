@@ -2,8 +2,11 @@
 #include "LocaleES.h"
 #include "components/ButtonComponent.h"
 
-#define BUTTON_GRID_VERT_PADDING 32
-#define BUTTON_GRID_HORIZ_PADDING 10
+namespace
+{
+    const int BUTTON_GRID_VERT_PADDING = 32;
+    const int BUTTON_GRID_HORIZ_PADDING = 10;
+}
 
 #define TITLE_HEIGHT (mTitle->getFont()->getLetterHeight() + TITLE_VERT_PADDING)
 

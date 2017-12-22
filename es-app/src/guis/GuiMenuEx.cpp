@@ -18,6 +18,7 @@
 #include "GuiLoading.h"
 #include "GuiSettings.h"
 #include "GuiUpdate.h"
+#include "InputManager.h"
 #include "LibretroRatio.h"
 #include "LocaleES.h"
 #include "RecalboxConf.h"
@@ -151,7 +152,7 @@ namespace GuiMenuEx
 				RecalboxConf::set("global.videooutput", optionsVideo->getSelected());
 				RecalboxConf::saveRecalboxConf();
 				window->pushGui(new GuiMsgBox(window, _("THE SYSTEM WILL NOW REBOOT"), _("OK"), [] {
-					if (runRestartCommand() != 0)
+					if (Platform::runRestartCommand() != 0)
 						LOG(LogWarning) << "Reboot terminated with non-zero result!";
 				}));
 			}
@@ -614,7 +615,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 						if (reboot)
 						{
 							window->pushGui(new GuiMsgBox(window, _("THE SYSTEM WILL NOW REBOOT"), _("OK"), [window] {
-								if (runRestartCommand() != 0)
+								if (Platform::runRestartCommand() != 0)
 									LOG(LogWarning) << "Reboot terminated with non-zero result!";
 							}));
 						}
@@ -650,7 +651,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 				if (reboot)
 				{
 					window->pushGui(new GuiMsgBox(window, _("THE SYSTEM WILL NOW REBOOT"), _("OK"), [window] {
-						if (runRestartCommand() != 0)
+						if (Platform::runRestartCommand() != 0)
 							LOG(LogWarning) << "Reboot terminated with non-zero result!";
 					}));
 				}
@@ -755,12 +756,9 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 								GuiSettings* configurationInfo = new GuiSettings(window, systemBios.name.c_str());
 								for (const auto& biosFile : systemBios.bios)
 								{
-									auto biosPath =
-										std::make_shared<TextComponent>(window, biosFile.path.c_str(), Font::get(FONT_SIZE_MEDIUM), 0x000000FF);
-									auto biosMd5 =
-										std::make_shared<TextComponent>(window, biosFile.md5.c_str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
-									auto biosStatus =
-										std::make_shared<TextComponent>(window, biosFile.status.c_str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
+									auto biosPath = std::make_shared<TextComponent>(window, biosFile.path.c_str(), Font::get(FONT_SIZE_MEDIUM), COLOR_BLACK);
+									auto biosMd5 = std::make_shared<TextComponent>(window, biosFile.md5.c_str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
+									auto biosStatus = std::make_shared<TextComponent>(window, biosFile.status.c_str(), Font::get(FONT_SIZE_SMALL), COLOR_GRAY3);
 									ComponentListRow biosFileRow;
 									biosFileRow.addElement(biosPath, true);
 									configurationInfo->addRow(biosFileRow);
@@ -835,7 +833,7 @@ void GuiMenuEx::AddMenuItems(GuiMenu& menu, Window* window)
 							SystemData::deleteSystems();
 							SystemData::loadConfig();
 							GuiComponent* gui;
-							while ((gui = window->peekGui()) != NULL)
+							while ((gui = window->peekGui()) != nullptr)
 							{
 								window->removeGui(gui);
 								delete gui;
@@ -1016,11 +1014,11 @@ void GuiMenuEx::createConfigInput(GuiMenu& menu, Window* window)
 
 				const std::string displayName = dispNameSS.str();
 
-				bool foundFromConfig = (configuratedName == config->getDeviceName()) && (configuratedGuid == config->getDeviceGUIDString());
+				bool foundFromConfig = (configuratedName == config->getDeviceName()) && (configuratedGuid == config->getDeviceGUID());
 				int deviceID = config->getDeviceId();
 				// Si la manette est configurée, qu'elle correspond a la configuration, et qu'elle n'est pas
 				// deja selectionnée on l'ajoute en séléctionnée
-				auto newInputConfig = new GuiMenu::StrInputConfig(config->getDeviceName(), config->getDeviceGUIDString());
+				auto newInputConfig = new GuiMenu::StrInputConfig(config->getDeviceName(), config->getDeviceGUID());
 				menu.mLoadedInput.push_back(newInputConfig);
 
 				if (foundFromConfig && std::find(alreadyTaken.begin(), alreadyTaken.end(), deviceID) == alreadyTaken.end() && !found)
@@ -1028,13 +1026,13 @@ void GuiMenuEx::createConfigInput(GuiMenu& menu, Window* window)
 					found = true;
 					alreadyTaken.push_back(deviceID);
 					LOG(LogWarning) << "adding entry for player" << player << " (selected): " << config->getDeviceName() << "  "
-									<< config->getDeviceGUIDString();
+									<< config->getDeviceGUID();
 					inputOptionList->add(displayName, newInputConfig, true);
 				}
 				else
 				{
 					LOG(LogWarning) << "adding entry for player" << player << " (not selected): " << config->getDeviceName() << "  "
-									<< config->getDeviceGUIDString();
+									<< config->getDeviceGUID();
 					inputOptionList->add(displayName, newInputConfig, false);
 				}
 			}

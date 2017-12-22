@@ -108,8 +108,7 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 {
 	BasicGameListView::onThemeChanged(theme);
 
-	using namespace ThemeFlags;
-	mImage.applyTheme(theme, getName(), "md_image", POSITION | ThemeFlags::SIZE);
+	mImage.applyTheme(theme, getName(), "md_image", ThemeFlags::POSITION | ThemeFlags::SIZE);
 
 	initMDLabels();
 	const std::vector<TextComponent*> labels = getMDLabels();
@@ -117,24 +116,22 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	if (mSystem->getHasFavorites())
 	{
 		assert(labels.size() == 9);
-		const char* lblElements[9] = {"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", "md_lbl_genre", "md_lbl_players",
-			"md_lbl_lastplayed", "md_lbl_playcount", "md_lbl_favorite"};
+		const char* lblElements[9] = {"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", "md_lbl_genre", "md_lbl_players", "md_lbl_lastplayed", "md_lbl_playcount", "md_lbl_favorite"};
 
 		for (unsigned int i = 0; i < labels.size(); i++)
 		{
-			labels[i]->applyTheme(theme, getName(), lblElements[i], ALL);
+			labels[i]->applyTheme(theme, getName(), lblElements[i], ThemeFlags::ALL);
 		}
 	}
 	else
 #endif
 	{
 		assert(labels.size() == 8);
-		const char* lblElements[8] = {"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", "md_lbl_genre", "md_lbl_players",
-			"md_lbl_lastplayed", "md_lbl_playcount"};
+		const char* lblElements[8] = {"md_lbl_rating", "md_lbl_releasedate", "md_lbl_developer", "md_lbl_publisher", "md_lbl_genre", "md_lbl_players", "md_lbl_lastplayed", "md_lbl_playcount"};
 
 		for (unsigned int i = 0; i < labels.size(); i++)
 		{
-			labels[i]->applyTheme(theme, getName(), lblElements[i], ALL);
+			labels[i]->applyTheme(theme, getName(), lblElements[i], ThemeFlags::ALL);
 		}
 	}
 
@@ -144,12 +141,11 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 	if (mSystem->getHasFavorites())
 	{
 		assert(values.size() == 9);
-		const char* valElements[9] = {
-			"md_rating", "md_releasedate", "md_developer", "md_publisher", "md_genre", "md_players", "md_lastplayed", "md_playcount", "md_favorite"};
+		const char* valElements[9] = { "md_rating", "md_releasedate", "md_developer", "md_publisher", "md_genre", "md_players", "md_lastplayed", "md_playcount", "md_favorite"};
 
 		for (unsigned int i = 0; i < values.size(); i++)
 		{
-			values[i]->applyTheme(theme, getName(), valElements[i], ALL ^ ThemeFlags::TEXT);
+			values[i]->applyTheme(theme, getName(), valElements[i], ThemeFlags::ALL ^ ThemeFlags::TEXT);
 		}
 	}
 	else
@@ -161,18 +157,18 @@ void DetailedGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& them
 
 		for (unsigned int i = 0; i < values.size(); i++)
 		{
-			values[i]->applyTheme(theme, getName(), valElements[i], ALL ^ ThemeFlags::TEXT);
+			values[i]->applyTheme(theme, getName(), valElements[i], ThemeFlags::ALL ^ ThemeFlags::TEXT);
 		}
 	}
 
-	mDescContainer.applyTheme(theme, getName(), "md_description", POSITION | ThemeFlags::SIZE);
+	mDescContainer.applyTheme(theme, getName(), "md_description", ThemeFlags::POSITION | ThemeFlags::SIZE);
 	mDescription.setSize(mDescContainer.getSize().x(), 0);
-	mDescription.applyTheme(theme, getName(), "md_description", ALL ^ (POSITION | ThemeFlags::SIZE | TEXT));
+	mDescription.applyTheme(theme, getName(), "md_description", ThemeFlags::ALL ^ (ThemeFlags::POSITION | ThemeFlags::SIZE | ThemeFlags::TEXT));
 }
 
 void DetailedGameListView::initMDLabels()
 {
-	using namespace Eigen;
+	using Eigen::Vector3f;
 
 	std::vector<TextComponent*> components = getMDLabels();
 
@@ -205,8 +201,6 @@ void DetailedGameListView::initMDLabels()
 
 void DetailedGameListView::initMDValues()
 {
-	using namespace Eigen;
-
 	const std::vector<TextComponent*> labels = getMDLabels();
 	const std::vector<GuiComponent*> values = getMDValues();
 
@@ -227,7 +221,7 @@ void DetailedGameListView::initMDValues()
 	for (unsigned int i = 0; i < labels.size(); i++)
 	{
 		const float heightDiff = (labels[i]->getSize().y() - values[i]->getSize().y()) / 2;
-		values[i]->setPosition(labels[i]->getPosition() + Vector3f(labels[i]->getSize().x(), heightDiff, 0));
+		values[i]->setPosition(labels[i]->getPosition() + Eigen::Vector3f(labels[i]->getSize().x(), heightDiff, 0));
 		values[i]->setSize(colSize - labels[i]->getSize().x(), values[i]->getSize().y());
 
 		const float testBot = values[i]->getPosition().y() + values[i]->getSize().y();

@@ -1,58 +1,63 @@
 #include "platform.h"
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
-#include <iostream>
 #include <stdlib.h>
-#if !defined(WIN32)
+#if defined(WIN32)
+#include <codecvt>
+#else
 #include <sys/statvfs.h>
 #endif
-#include "Settings.h"
-#include <sstream>
 
-#include <fstream>
-
-#ifdef WIN32
-#include <codecvt>
-#endif
-
-std::string getHomePath()
+namespace
 {
-#if !defined(WIN32)
-	std::string homePath;
-
-	// this should give you something like "/home/YOUR_USERNAME" on Linux and "C:\Users\YOUR_USERNAME\" on Windows
-	const char* envHome = getenv("HOME");
-	if (envHome != nullptr)
+	std::string getEnvironmentVariable(const char* const NAME)
 	{
-		homePath = envHome;
-	}
+#if defined(WIN32)
+		size_t requiredSize = 0;
+		getenv_s(&requiredSize, nullptr, 0, NAME);
+		if (requiredSize == 0)
+			return std::string(); // the variable does not exist
 
-#ifdef WIN32
-	// but does not seem to work for Windows XP or Vista, so try something else
-	if (homePath.empty())
-	{
-		const char* envDir = getenv("HOMEDRIVE");
-		const char* envPath = getenv("HOMEPATH");
-		if (envDir != nullptr && envPath != nullptr)
-		{
-			homePath = envDir;
-			homePath += envPath;
+		std::vector<char> buffer;
+		buffer.resize(requiredSize + 1);
 
-			for (unsigned int i = 0; i < homePath.length(); i++)
-				if (homePath[i] == '\\')
-					homePath[i] = '/';
-		}
-	}
-#endif
+		// Get the value of the LIB environment variable.
+		getenv_s(&requiredSize, &buffer[0], requiredSize, NAME);
 
-	// convert path to generic directory seperators
-	boost::filesystem::path genericPath(homePath);
-	return genericPath.generic_string();
+		return &buffer[0];
 #else
-	return "D:\\Workspace\\EmulationStation.data";
+		const char* value = getenv(NAME);
+		return value != nullptr ? value : std::string();
 #endif
+	}
 }
 
-int runShutdownCommand()
+std::string Platform::getHomePath()
+{
+	static std::string cacheResult;
+	if (!cacheResult.empty())
+		return cacheResult;
+
+	// This should give something like "/home/YOUR_USERNAME" on Linux and "C:\Users\YOUR_USERNAME\" on Windows...
+	std::string homePath = getEnvironmentVariable("HOME");
+	if (homePath.empty())
+		homePath = getEnvironmentVariable("HOME_ES");
+
+#if defined(WIN32)
+	// ...but does not seem to work for Windows XP or Vista, so try something else
+	if (homePath.empty())
+	{
+		homePath = getEnvironmentVariable("HOMEDRIVE") + getEnvironmentVariable("HOMEPATH");
+		boost::replace_all(homePath, "\\", "/"); // in-place replacement.
+	}
+#endif
+	// convert path to generic directory separators
+	cacheResult = boost::filesystem::path(homePath).generic_string();
+	return cacheResult;
+}
+
+#if defined(USEFUL)
+int Platform::runShutdownCommand()
 {
 #if defined(WIN32)
 	return system("shutdown -s -t 0");
@@ -60,8 +65,9 @@ int runShutdownCommand()
 	return system("poweroff");
 #endif
 }
+#endif
 
-int runRestartCommand()
+int Platform::runRestartCommand()
 {
 #if defined(WIN32)
 	return system("shutdown -r -t 0");
@@ -70,17 +76,14 @@ int runRestartCommand()
 #endif
 }
 
-int runSystemCommand(const std::string& cmd_utf8)
+int Platform::runSystemCommand(const std::string& cmd_utf8)
 {
-#ifdef WIN32
-	// on Windows we use _wsystem to support non-ASCII paths
-	// which requires converting from utf8 to a wstring
-	typedef std::codecvt_utf8<wchar_t> convert_type;
-	std::wstring_convert<convert_type, wchar_t> converter;
-	std::wstring wchar_str = converter.from_bytes(cmd_utf8);
+#if defined(WIN32)
+	// _wsystem to support non-ASCII paths which requires converting from utf8 to a wstring
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+	const std::wstring wchar_str = converter.from_bytes(cmd_utf8);
 	return _wsystem(wchar_str.c_str());
 #else
-	return system(
-		(cmd_utf8 + " 2> /recalbox/share/system/logs/es_launch_stderr.log | head -300 > /recalbox/share/system/logs/es_launch_stdout.log").c_str());
+	return system((cmd_utf8 + " 2> /recalbox/share/system/logs/es_launch_stderr.log | head -300 > /recalbox/share/system/logs/es_launch_stdout.log").c_str());
 #endif
 }

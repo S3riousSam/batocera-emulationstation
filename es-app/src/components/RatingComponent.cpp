@@ -1,15 +1,20 @@
 #include "components/RatingComponent.h"
 #include "Renderer.h"
+#include "ThemeData.h"
 #include "Util.h"
-#include "Window.h"
 #include "resources/SVGResource.h"
+
+namespace
+{
+	const float NUM_RATING_STARS = 5.0f;
+}
 
 RatingComponent::RatingComponent(Window* window)
 	: GuiComponent(window)
+	, mValue(0.5f)
+	, mFilledTexture(TextureResource::get(":/star_filled.svg", true))
+	, mUnfilledTexture(TextureResource::get(":/star_unfilled.svg", true))
 {
-	mFilledTexture = TextureResource::get(":/star_filled.svg", true);
-	mUnfilledTexture = TextureResource::get(":/star_unfilled.svg", true);
-	mValue = 0.5f;
 	mSize << 64 * NUM_RATING_STARS, 64;
 	updateVertices();
 }
@@ -48,15 +53,14 @@ void RatingComponent::onSizeChanged()
 	else if (mSize.x() == 0)
 		mSize[0] = mSize.y() * NUM_RATING_STARS;
 
-	auto filledSVG = dynamic_cast<SVGResource*>(mFilledTexture.get());
-	auto unfilledSVG = dynamic_cast<SVGResource*>(mUnfilledTexture.get());
-
 	if (mSize.y() > 0)
 	{
-		size_t heightPx = (size_t)round(mSize.y());
-		if (filledSVG)
+		auto filledSVG = dynamic_cast<SVGResource*>(mFilledTexture.get());
+		auto unfilledSVG = dynamic_cast<SVGResource*>(mUnfilledTexture.get());
+		const size_t heightPx = (size_t)round(mSize.y());
+		if (filledSVG != nullptr)
 			filledSVG->rasterizeAt(heightPx, heightPx);
-		if (unfilledSVG)
+		if (unfilledSVG != nullptr)
 			unfilledSVG->rasterizeAt(heightPx, heightPx);
 	}
 
@@ -65,38 +69,36 @@ void RatingComponent::onSizeChanged()
 
 void RatingComponent::updateVertices()
 {
-	const float numStars = NUM_RATING_STARS;
-
 	const float h = round(getSize().y()); // is the same as a single star's width
-	const float w = round(h * mValue * numStars);
-	const float fw = round(h * numStars);
+	const float w = round(h * mValue * NUM_RATING_STARS);
+	const float fw = round(h * NUM_RATING_STARS);
 
 	mVertices[0].pos << 0.0f, 0.0f;
 	mVertices[0].tex << 0.0f, 1.0f;
 	mVertices[1].pos << w, h;
-	mVertices[1].tex << mValue * numStars, 0.0f;
+	mVertices[1].tex << mValue * NUM_RATING_STARS, 0.0f;
 	mVertices[2].pos << 0.0f, h;
 	mVertices[2].tex << 0.0f, 0.0f;
 
 	mVertices[3] = mVertices[0];
 	mVertices[4].pos << w, 0.0f;
-	mVertices[4].tex << mValue * numStars, 1.0f;
+	mVertices[4].tex << mValue * NUM_RATING_STARS, 1.0f;
 	mVertices[5] = mVertices[1];
 
 	mVertices[6] = mVertices[4];
 	mVertices[7].pos << fw, h;
-	mVertices[7].tex << numStars, 0.0f;
+	mVertices[7].tex << NUM_RATING_STARS, 0.0f;
 	mVertices[8] = mVertices[1];
 
 	mVertices[9] = mVertices[6];
 	mVertices[10].pos << fw, 0.0f;
-	mVertices[10].tex << numStars, 1.0f;
+	mVertices[10].tex << NUM_RATING_STARS, 1.0f;
 	mVertices[11] = mVertices[7];
 }
 
 void RatingComponent::render(const Eigen::Affine3f& parentTrans)
 {
-	Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
+	const Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
 	Renderer::setMatrix(trans);
 
 	glEnable(GL_TEXTURE_2D);
@@ -142,26 +144,23 @@ bool RatingComponent::input(InputConfig* config, Input input)
 	return GuiComponent::input(config, input);
 }
 
-void RatingComponent::applyTheme(
-	const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties)
+void RatingComponent::applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties)
 {
 	GuiComponent::applyTheme(theme, view, element, properties);
 
-	using namespace ThemeFlags;
-
-	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "rating");
-	if (!elem)
+	const ThemeData::ThemeElement* elementRating = theme->getElement(view, element, "rating");
+	if (elementRating == nullptr)
 		return;
 
-	bool imgChanged = false;
-	if (properties & PATH && elem->has("filledPath"))
+	bool imgChanged = false; // Allows to call onSizeChanged only once
+	if (properties & ThemeFlags::PATH && elementRating->has("filledPath"))
 	{
-		mFilledTexture = TextureResource::get(elem->get<std::string>("filledPath"), true);
+		mFilledTexture = TextureResource::get(elementRating->get<std::string>("filledPath"), true);
 		imgChanged = true;
 	}
-	if (properties & PATH && elem->has("unfilledPath"))
+	if (properties & ThemeFlags::PATH && elementRating->has("unfilledPath"))
 	{
-		mUnfilledTexture = TextureResource::get(elem->get<std::string>("unfilledPath"), true);
+		mUnfilledTexture = TextureResource::get(elementRating->get<std::string>("unfilledPath"), true);
 		imgChanged = true;
 	}
 
@@ -171,7 +170,5 @@ void RatingComponent::applyTheme(
 
 std::vector<HelpPrompt> RatingComponent::getHelpPrompts()
 {
-	std::vector<HelpPrompt> prompts;
-	prompts.push_back(HelpPrompt(BUTTON_LAUNCH, "add star"));
-	return prompts;
+	return {HelpPrompt(BUTTON_LAUNCH, "add star")};
 }

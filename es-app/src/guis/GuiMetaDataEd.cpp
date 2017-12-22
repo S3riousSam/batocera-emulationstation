@@ -23,19 +23,18 @@
 #endif
 #include <boost/filesystem.hpp>
 
-using namespace Eigen;
-
 GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector<MetaDataDecl>& mdd, ScraperSearchParams scraperParams,
 	const std::string& header, std::function<void()> saveCallback, std::function<void()> deleteFunc, SystemData* system)
 	: GuiComponent(window)
 	, mScraperParams(scraperParams)
 	, mBackground(window, ":/frame.png")
-	, mGrid(window, Vector2i(1, 3))
+	, mGrid(window, Eigen::Vector2i(1, 3))
 	, mMetaDataDecl(mdd)
 	, mMetaData(md)
 	, mSavedCallback(saveCallback)
 	, mDeleteFunc(deleteFunc)
 {
+	using Eigen::Vector2i;
 	addChild(&mBackground);
 	addChild(&mGrid);
 
@@ -241,7 +240,7 @@ GuiMetaDataEd::GuiMetaDataEd(Window* window, MetaDataList* md, const std::vector
 
 void GuiMetaDataEd::onSizeChanged()
 {
-	mBackground.fitTo(mSize, Vector3f::Zero(), Vector2f(-32, -32));
+	mBackground.fitTo(mSize, Eigen::Vector3f::Zero(), Eigen::Vector2f(-32, -32));
 
 	mGrid.setSize(mSize);
 

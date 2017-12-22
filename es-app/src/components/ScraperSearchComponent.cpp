@@ -391,14 +391,10 @@ void ScraperSearchComponent::update(int deltaTime)
 	GuiComponent::update(deltaTime);
 
 	if (mBlockAccept)
-	{
 		mBusyAnim.update(deltaTime);
-	}
 
 	if (mThumbnailReq && mThumbnailReq->status() != HttpReq::Status::Processing)
-	{
 		updateThumbnail();
-	}
 
 	if (mSearchHandle && mSearchHandle->status() != AsyncHandleStatus::Progressing)
 	{
@@ -411,13 +407,9 @@ void ScraperSearchComponent::update(int deltaTime)
 		mSearchHandle.reset();
 
 		if (status == AsyncHandleStatus::Done)
-		{
 			onSearchDone(results);
-		}
 		else if (status == AsyncHandleStatus::Error)
-		{
 			onSearchError(statusString);
-		}
 	}
 
 	if (mMDResolveHandle && mMDResolveHandle->status() != AsyncHandleStatus::Progressing)

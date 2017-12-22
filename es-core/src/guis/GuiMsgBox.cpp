@@ -34,11 +34,11 @@ GuiMsgBox::GuiMsgBox(Window* window, const std::string& text, const std::string&
 	}
 	else
 	{
-		for (auto it = mButtons.begin(); it != mButtons.end(); it++)
+		for (const auto& it : mButtons)
 		{
-			if (strToUpper((*it)->getText()) == "OK" || strToUpper((*it)->getText()) == "NO")
+			if (strToUpper(it->getText()) == "OK" || strToUpper(it->getText()) == "NO")
 			{
-				mAcceleratorFunc = (*it)->getPressedFunc();
+				mAcceleratorFunc = it->getPressedFunc();
 				break;
 			}
 		}
@@ -78,7 +78,7 @@ bool GuiMsgBox::input(InputConfig* config, Input input)
 		return true;
 	}
 
-	/* when it's not configured, allow to remove the message box too to allow the configdevice window a chance */
+	// when it's not configured, allow to remove the message box too to allow the config device window a chance
 	if (mAcceleratorFunc && ((config->isMappedTo("a", input) && input.value != 0) || (config->isConfigured() == false && input.type == TYPE_BUTTON)))
 	{
 		mAcceleratorFunc();
@@ -93,7 +93,7 @@ void GuiMsgBox::onSizeChanged()
 	mGrid.setSize(mSize);
 	mGrid.setRowHeightPerc(1, mButtonGrid->getSize().y() / mSize.y());
 
-	// update messagebox size
+	// update message box size
 	mMsg->setSize(mSize.x() - HORIZONTAL_PADDING_PX * 2, mGrid.getRowHeight(0));
 	mGrid.onSizeChanged();
 
@@ -102,7 +102,7 @@ void GuiMsgBox::onSizeChanged()
 
 void GuiMsgBox::deleteMeAndCall(const std::function<void()>& func)
 {
-	auto funcCopy = func;
+	auto funcCopy = func; // TODO: Why doing this? func is a local value...
 	delete this;
 
 	if (funcCopy)

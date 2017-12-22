@@ -1,5 +1,4 @@
 #pragma once
-#include <FreeImage.h>
 #include <vector>
 
 class ImageIO

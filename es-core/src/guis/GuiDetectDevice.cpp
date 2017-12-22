@@ -1,4 +1,5 @@
 #include "guis/GuiDetectDevice.h"
+#include "InputManager.h"
 #include "LocaleES.h"
 #include "Renderer.h"
 #include "Util.h"
@@ -10,16 +11,19 @@
 #include <sstream>
 #include <string>
 
-#define HOLD_TIME 1000
-
-using namespace Eigen;
+namespace
+{
+	const int HOLD_TIME = 1000;
+}
 
 GuiDetectDevice::GuiDetectDevice(Window* window, bool firstRun, const std::function<void()>& doneCallback)
 	: GuiComponent(window)
 	, mFirstRun(firstRun)
 	, mBackground(window, ":/frame.png")
-	, mGrid(window, Vector2i(1, 5))
+	, mGrid(window, Eigen::Vector2i(1, 5))
 {
+	using Eigen::Vector2i;
+
 	mHoldingConfig = NULL;
 	mHoldTime = 0;
 	mDoneCallback = doneCallback;
@@ -66,7 +70,7 @@ GuiDetectDevice::GuiDetectDevice(Window* window, bool firstRun, const std::funct
 
 void GuiDetectDevice::onSizeChanged()
 {
-	mBackground.fitTo(mSize, Vector3f::Zero(), Vector2f(-32, -32));
+	mBackground.fitTo(mSize, Eigen::Vector3f::Zero(), Eigen::Vector2f(-32, -32));
 
 	// grid
 	mGrid.setSize(mSize);
@@ -100,7 +104,7 @@ bool GuiDetectDevice::input(InputConfig* config, Input input)
 		{
 			// cancel
 			mHoldingConfig = NULL;
-			mDeviceHeld->setText("");
+			mDeviceHeld->setText(std::string());
 		}
 	}
 

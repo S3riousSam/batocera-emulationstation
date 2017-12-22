@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Eigen/Dense>
 #include <boost/date_time.hpp>
 #include <boost/filesystem.hpp>
@@ -11,7 +10,6 @@ std::string strToUpper(const std::string& str);
 
 Eigen::Affine3f& roundMatrix(Eigen::Affine3f& mat);
 Eigen::Affine3f roundMatrix(const Eigen::Affine3f& mat);
-
 Eigen::Vector3f roundVector(const Eigen::Vector3f& vec);
 Eigen::Vector2f roundVector(const Eigen::Vector2f& vec);
 
@@ -20,7 +18,6 @@ float round(float num);
 #endif
 
 std::string getCanonicalPath(const std::string& str);
-
 std::string getExpandedPath(const std::string& str);
 
 // example: removeCommonPath("/home/pi/roms/nes/foo/bar.nes", "/home/pi/roms/nes/") returns "foo/bar.nes"

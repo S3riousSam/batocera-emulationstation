@@ -1,10 +1,29 @@
 #include "components/ScrollableContainer.h"
-#include "Log.h"
 #include "Renderer.h"
 
-#define AUTO_SCROLL_RESET_DELAY 10000 // ms to reset to top after we reach the bottom
-#define AUTO_SCROLL_DELAY 8000 // ms to wait before we start to scroll
-#define AUTO_SCROLL_SPEED 50 // ms between scrolls
+namespace
+{
+	const int AUTO_SCROLL_RESET_DELAY = 10000; // ms to reset to top after we reach the bottom
+	const int AUTO_SCROLL_DELAY = 8000; // ms to wait before we start to scroll
+	const int AUTO_SCROLL_SPEED = 50; // ms between scrolls
+
+	// this should probably return a box to allow for when controls don't start at 0,0
+	Eigen::Vector2f getContentSize(const std::vector<GuiComponent*>& children)
+	{
+		Eigen::Vector2f max(0, 0);
+		for (const auto& child : children)
+		{
+			const Eigen::Vector2f pos(child->getPosition()[0], child->getPosition()[1]);
+			const Eigen::Vector2f bottomRight = child->getSize() + pos;
+			if (bottomRight.x() > max.x())
+				max.x() = bottomRight.x();
+			if (bottomRight.y() > max.y())
+				max.y() = bottomRight.y();
+		}
+
+		return max;
+	}
+}
 
 ScrollableContainer::ScrollableContainer(Window* window)
 	: GuiComponent(window)
@@ -14,6 +33,7 @@ ScrollableContainer::ScrollableContainer(Window* window)
 	, mScrollPos(0, 0)
 	, mScrollDir(0, 0)
 	, mAutoScrollResetAccumulator(0)
+	, mAtEnd(false) // it was missing!?
 {
 }
 
@@ -21,10 +41,9 @@ void ScrollableContainer::render(const Eigen::Affine3f& parentTrans)
 {
 	Eigen::Affine3f trans = parentTrans * getTransform();
 
-	Eigen::Vector2i clipPos((int)trans.translation().x(), (int)trans.translation().y());
-
-	Eigen::Vector3f dimScaled = trans * Eigen::Vector3f(mSize.x(), mSize.y(), 0);
-	Eigen::Vector2i clipDim((int)dimScaled.x() - trans.translation().x(), (int)dimScaled.y() - trans.translation().y());
+	const Eigen::Vector2i clipPos(static_cast<int>(trans.translation().x()), static_cast<int>(trans.translation().y()));
+	const Eigen::Vector3f dimScaled = trans * Eigen::Vector3f(mSize.x(), mSize.y(), 0);
+	const Eigen::Vector2i clipDim(static_cast<int>(dimScaled.x() - trans.translation().x()), static_cast<int>(dimScaled.y() - trans.translation().y()));
 
 	Renderer::pushClipRect(clipPos, clipDim);
 
@@ -54,6 +73,7 @@ void ScrollableContainer::setAutoScroll(bool autoScroll)
 	}
 }
 
+#if defined(USEFUL)
 Eigen::Vector2f ScrollableContainer::getScrollPos() const
 {
 	return mScrollPos;
@@ -63,6 +83,7 @@ void ScrollableContainer::setScrollPos(const Eigen::Vector2f& pos)
 {
 	mScrollPos = pos;
 }
+#endif
 
 void ScrollableContainer::update(int deltaTime)
 {
@@ -71,7 +92,7 @@ void ScrollableContainer::update(int deltaTime)
 		mAutoScrollAccumulator += deltaTime;
 
 		// scale speed by our width! more text per line = slower scrolling
-		const float widthMod = (680.0f / getSize().x());
+		//const float widthMod = (680.0f / getSize().x()); // unused
 		while (mAutoScrollAccumulator >= mAutoScrollSpeed)
 		{
 			mScrollPos += mScrollDir;
@@ -85,7 +106,7 @@ void ScrollableContainer::update(int deltaTime)
 	if (mScrollPos.y() < 0)
 		mScrollPos[1] = 0;
 
-	const Eigen::Vector2f contentSize = getContentSize();
+	const Eigen::Vector2f contentSize = getContentSize(mChildren);
 	if (mScrollPos.x() + getSize().x() > contentSize.x())
 	{
 		mScrollPos[0] = contentSize.x() - getSize().x();
@@ -110,23 +131,6 @@ void ScrollableContainer::update(int deltaTime)
 	}
 
 	GuiComponent::update(deltaTime);
-}
-
-// this should probably return a box to allow for when controls don't start at 0,0
-Eigen::Vector2f ScrollableContainer::getContentSize()
-{
-	Eigen::Vector2f max(0, 0);
-	for (unsigned int i = 0; i < mChildren.size(); i++)
-	{
-		Eigen::Vector2f pos(mChildren.at(i)->getPosition()[0], mChildren.at(i)->getPosition()[1]);
-		Eigen::Vector2f bottomRight = mChildren.at(i)->getSize() + pos;
-		if (bottomRight.x() > max.x())
-			max.x() = bottomRight.x();
-		if (bottomRight.y() > max.y())
-			max.y() = bottomRight.y();
-	}
-
-	return max;
 }
 
 void ScrollableContainer::reset()

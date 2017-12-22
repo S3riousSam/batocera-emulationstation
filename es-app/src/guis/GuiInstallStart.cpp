@@ -16,9 +16,8 @@ GuiInstallStart::GuiInstallStart(Window* window)
 	addChild(&mMenu);
 
 	// available install storage
-	std::vector<std::string> availableStorage = SystemInterface::getAvailableInstallDevices();
 	moptionsStorage = std::make_shared<OptionListComponent<std::string>>(window, _("TARGET DEVICE"), false);
-	for (const auto& it : availableStorage)
+	for (const auto& it : SystemInterface::getAvailableInstallDevices())
 	{
 		std::vector<std::string> tokens;
 		boost::split(tokens, it, boost::is_any_of(" "));
@@ -86,7 +85,7 @@ bool GuiInstallStart::input(InputConfig* config, Input input)
 	{
 		// close everything
 		Window* window = mWindow;
-		while (window->peekGui() && window->peekGui() != ViewController::get())
+		while (window->peekGui() != nullptr && window->peekGui() != ViewController::get())
 			delete window->peekGui();
 	}
 

@@ -4,15 +4,14 @@
 #include "Renderer.h"
 #include "ThemeData.h"
 #include "Util.h"
-#include "Window.h"
 
 NinePatchComponent::NinePatchComponent(Window* window, const std::string& path, unsigned int edgeColor, unsigned int centerColor)
 	: GuiComponent(window)
 	, mEdgeColor(edgeColor)
 	, mCenterColor(centerColor)
 	, mPath(path)
-	, mVertices(NULL)
-	, mColors(NULL)
+	, mVertices(nullptr)
+	, mColors(nullptr)
 {
 	if (!mPath.empty())
 		buildVertices();
@@ -20,10 +19,9 @@ NinePatchComponent::NinePatchComponent(Window* window, const std::string& path, 
 
 NinePatchComponent::~NinePatchComponent()
 {
-	if (mVertices != NULL)
+	if (mVertices != nullptr)
 		delete[] mVertices;
-
-	if (mColors != NULL)
+	if (mColors != nullptr)
 		delete[] mColors;
 }
 
@@ -35,18 +33,17 @@ void NinePatchComponent::updateColors()
 
 void NinePatchComponent::buildVertices()
 {
-	if (mVertices != NULL)
+	if (mVertices != nullptr)
 		delete[] mVertices;
-
-	if (mColors != NULL)
+	if (mColors != nullptr)
 		delete[] mColors;
 
 	mTexture = TextureResource::get(mPath);
 
 	if (mTexture->getSize() == Eigen::Vector2i::Zero())
 	{
-		mVertices = NULL;
-		mColors = NULL;
+		mVertices = nullptr;
+		mColors = nullptr;
 		LOG(LogWarning) << "NinePatchComponent missing texture!";
 		return;
 	}
@@ -58,7 +55,7 @@ void NinePatchComponent::buildVertices()
 	const Eigen::Vector2f ts = mTexture->getSize().cast<float>();
 
 	// coordinates on the image in pixels, top left origin
-	const Eigen::Vector2f pieceCoords[9] = {
+	static const Eigen::Vector2f pieceCoords[9] = {
 		Eigen::Vector2f(0, 0),
 		Eigen::Vector2f(16, 0),
 		Eigen::Vector2f(32, 0),
@@ -138,16 +135,14 @@ void NinePatchComponent::buildVertices()
 
 	// round vertices
 	for (int i = 0; i < 6 * 9; i++)
-	{
 		mVertices[i].pos = roundVector(mVertices[i].pos);
-	}
 }
 
 void NinePatchComponent::render(const Eigen::Affine3f& parentTrans)
 {
 	const Eigen::Affine3f trans = roundMatrix(parentTrans * getTransform());
 
-	if (mTexture && mVertices != NULL)
+	if (mTexture && mVertices != nullptr)
 	{
 		Renderer::setMatrix(trans);
 

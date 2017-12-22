@@ -33,8 +33,7 @@ public:
 	void setEdgeColor(unsigned int edgeColor); // Apply a color shift to the "edge" parts of the ninepatch.
 	void setCenterColor(unsigned int centerColor); // Apply a color shift to the "center" part of the ninepatch.
 
-	virtual void applyTheme(
-		const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
+	virtual void applyTheme(const std::shared_ptr<ThemeData>& theme, const std::string& view, const std::string& element, unsigned int properties) override;
 
 private:
 	Eigen::Vector2f getCornerSize() const;

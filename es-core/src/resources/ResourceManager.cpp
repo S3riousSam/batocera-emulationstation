@@ -23,30 +23,17 @@ std::shared_ptr<ResourceManager>& ResourceManager::getInstance()
 	return sInstance;
 }
 
-const ResourceData ResourceManager::getFileData(const std::string& path) const
+ResourceData ResourceManager::getFileData(const std::string& path) const
 {
-	// check if its embedded
-
-	if (res2hMap.find(path) != res2hMap.end())
+	if (res2hMap.find(path) != res2hMap.end()) // embedded?
 	{
-		// it is
-		Res2hEntry embeddedEntry = res2hMap.find(path)->second;
-		ResourceData data = {std::shared_ptr<unsigned char>(const_cast<unsigned char*>(embeddedEntry.data), nop_deleter), embeddedEntry.size};
-		return data;
+		const Res2hEntry& embeddedEntry = res2hMap.find(path)->second;
+		return ResourceData{ std::shared_ptr<unsigned char>(const_cast<unsigned char*>(embeddedEntry.data), nop_deleter), embeddedEntry.size };
 	}
 
-	// it's not embedded; load the file
-	if (!fs::exists(path))
-	{
-		// if the file doesn't exist, return an "empty" ResourceData
-		ResourceData data = {NULL, 0};
-		return data;
-	}
-	else
-	{
-		ResourceData data = loadFile(path);
-		return data;
-	}
+	return !fs::exists(path) // file doesn't exist?
+		? ResourceData{nullptr, 0} // return an "empty" ResourceData
+		: loadFile(path);
 }
 
 ResourceData ResourceManager::loadFile(const std::string& path) const
@@ -54,7 +41,7 @@ ResourceData ResourceManager::loadFile(const std::string& path) const
 	std::ifstream stream(path, std::ios::binary);
 
 	stream.seekg(0, stream.end);
-	size_t size = (size_t)stream.tellg();
+	const size_t size = static_cast<size_t>(stream.tellg());
 	stream.seekg(0, stream.beg);
 
 	// supply custom deleter to properly free array
@@ -62,17 +49,12 @@ ResourceData ResourceManager::loadFile(const std::string& path) const
 	stream.read((char*)data.get(), size);
 	stream.close();
 
-	ResourceData ret = {data, size};
-	return ret;
+	return ResourceData{ data, size };
 }
 
 bool ResourceManager::fileExists(const std::string& path) const
 {
-	// if it exists as an embedded file, return true
-	if (res2hMap.find(path) != res2hMap.end())
-		return true;
-
-	return fs::exists(path);
+	return (res2hMap.find(path) != res2hMap.end()) ? true : fs::exists(path); // Embedded file returns true
 }
 
 void ResourceManager::unloadAll()

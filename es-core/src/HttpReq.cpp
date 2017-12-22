@@ -10,7 +10,7 @@ namespace
 	// god dammit libcurl why can't you have some way to check the status of an individual handle
 	// why do I have to handle ALL messages at once
 	std::map<CURL*, HttpReq*> s_requests;
-} // namespace
+}
 
 std::string HttpReq::urlEncode(const std::string& s)
 {
@@ -130,13 +130,9 @@ HttpReq::Status HttpReq::status()
 				}
 
 				if (msg->data.result == CURLE_OK)
-				{
 					req->mStatus = Status::Success;
-				}
 				else
-				{
 					req->setErrorState(curl_easy_strerror(msg->data.result));
-				}
 			}
 		}
 	}

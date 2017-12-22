@@ -72,12 +72,11 @@ void SystemView::addSystem(SystemData* it)
 	else
 	{
 		// no logo in theme; use text
-		TextComponent* text = new TextComponent(mWindow, (it)->getName(), Font::get(FONT_SIZE_LARGE), 0x000000FF, ALIGN_CENTER);
+		TextComponent* text = new TextComponent(mWindow, (it)->getName(), Font::get(FONT_SIZE_LARGE), COLOR_BLACK, ALIGN_CENTER);
 		text->setSize(logoSize());
 		e.data.logo = std::shared_ptr<GuiComponent>(text);
 
-		TextComponent* textSelected =
-			new TextComponent(mWindow, (it)->getName(), Font::get((int)(FONT_SIZE_LARGE * SELECTED_SCALE)), 0x000000FF, ALIGN_CENTER);
+		TextComponent* textSelected = new TextComponent(mWindow, (it)->getName(), Font::get((int)(FONT_SIZE_LARGE * SELECTED_SCALE)), COLOR_BLACK, ALIGN_CENTER);
 		textSelected->setSize(logoSize());
 		e.data.logoSelected = std::shared_ptr<GuiComponent>(textSelected);
 	}

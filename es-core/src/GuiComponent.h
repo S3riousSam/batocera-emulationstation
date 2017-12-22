@@ -34,6 +34,7 @@ struct ColorSef
     }
 } static const ColorGRAY1(0xC6), ColorGRAY2(0x99), ColorGRAY3(0x77), ColorGRAY4(0x65);
 
+#define COLOR_BLACK 0x000000FF
 #define COLOR_GRAY1 0xC6C6C6FF // Light
 #define COLOR_GRAY2 0x999999FF
 #define COLOR_GRAY3 0x777777FF
@@ -70,15 +71,14 @@ public:
 	Eigen::Vector3f getPosition() const;
 	void setPosition(const Eigen::Vector3f& offset);
 	void setPosition(float x, float y, float z = 0.0f);
-	virtual void onPositionChanged(){};
 
 	Eigen::Vector2f getSize() const;
 	void setSize(const Eigen::Vector2f& size);
 	void setSize(float w, float h);
-	virtual void onSizeChanged(){};
+	virtual void onSizeChanged(){}
 
-	void setParent(GuiComponent* parent);
-	GuiComponent* getParent() const;
+	const GuiComponent* getParent() const;
+	GuiComponent* getParent();
 
 	void addChild(GuiComponent* cmp);
 	void removeChild(GuiComponent* cmp);
@@ -101,19 +101,15 @@ public:
 	bool finishAnimation(unsigned char slot);
 
 	bool advanceAnimation(unsigned char slot, unsigned int time); // Returns true if successful (an animation was in this slot).
-	void stopAllAnimations();
-	void cancelAllAnimations();
 
 	virtual unsigned char getOpacity() const;
 	virtual void setOpacity(unsigned char opacity);
 
-	const Eigen::Affine3f& getTransform();
-
 	virtual std::string getValue() const;
 	virtual void setValue(const std::string& value);
 
-	virtual void onFocusGained(){};
-	virtual void onFocusLost(){};
+	virtual void onFocusGained(){}
+	virtual void onFocusLost(){}
 
 	// Default implementation just handles <pos> and <size> tags as normalized float pairs.
 	// You probably want to keep this behavior for any derived classes as well as add your own.
@@ -123,7 +119,7 @@ public:
 	virtual std::vector<HelpPrompt> getHelpPrompts()
 	{
 		return std::vector<HelpPrompt>();
-	};
+	}
 
 	// Called whenever help prompts change.
 	void updateHelpPrompts();
@@ -134,6 +130,7 @@ public:
 	bool isProcessing() const;
 
 protected:
+	const Eigen::Affine3f& getTransform();
 	void renderChildren(const Eigen::Affine3f& transform) const;
 	void updateSelf(int deltaTime); // updates animations
 	void updateChildren(int deltaTime); // updates animations
@@ -149,10 +146,15 @@ protected:
 
 	bool mIsProcessing;
 
-public:
+private:
 	const static unsigned char MAX_ANIMATIONS = 4;
 
-private:
+	void cancelAllAnimations();
+
+	void setParent(GuiComponent* parent);
+
+	virtual void onPositionChanged() {} // Unused
+
 	Eigen::Affine3f mTransform; // Don't access this directly! Use getTransform()!
 	AnimationController* mAnimationMap[MAX_ANIMATIONS];
 };

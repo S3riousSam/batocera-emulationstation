@@ -22,7 +22,7 @@ enum InputType
 	TYPE_COUNT
 };
 
-struct Input
+class Input
 {
 public:
 	int device;
@@ -32,12 +32,12 @@ public:
 	bool configured;
 
 	Input()
+		: device(DEVICE_KEYBOARD)
+		, type(TYPE_COUNT)
+		, id(-01)
+		, value(-999)
+		, configured(false)
 	{
-		device = DEVICE_KEYBOARD;
-		configured = false;
-		id = -1;
-		value = -999;
-		type = TYPE_COUNT;
 	}
 
 	Input(int dev, InputType t, int i, int val, bool conf)
@@ -49,7 +49,8 @@ public:
 	{
 	}
 
-	std::string getHatDir(int val)
+private:
+	std::string getHatDir(int val) const
 	{
 		if (val & SDL_HAT_UP)
 			return "up";
@@ -62,7 +63,8 @@ public:
 		return "neutral?";
 	}
 
-	std::string string()
+public:
+	std::string string() const
 	{
 		std::stringstream stream;
 		switch (type)
@@ -97,24 +99,24 @@ public:
 	void mapInput(const std::string& name, Input input);
 	void unmapInput(const std::string& name); // unmap all Inputs mapped to this name
 
-	inline int getDeviceId() const
+	int getDeviceId() const
 	{
 		return mDeviceId;
 	};
-	inline const std::string& getDeviceName()
+	const std::string& getDeviceName()
 	{
 		return mDeviceName;
 	}
-	inline const std::string& getDeviceGUIDString()
+	const std::string& getDeviceGUID()
 	{
 		return mDeviceGUID;
 	}
 #if defined(EXTENSION)
-	inline int getDeviceIndex() const
+	int getDeviceIndex() const
 	{
 		return mDeviceIndex;
 	};
-	inline int getDeviceNbAxes() const
+	int getDeviceNbAxes() const
 	{
 		return mDeviceNbAxes;
 	};
@@ -123,19 +125,15 @@ public:
 	// Returns true if Input is mapped to this name, false otherwise.
 	bool isMappedTo(const std::string& name, Input input);
 
-	// Returns a list of names this input is mapped to.
+	// Returns the list of names this input is mapped to.
 	std::vector<std::string> getMappedTo(Input input);
 
-	void loadFromXML(pugi::xml_node root);
-	void writeToXML(pugi::xml_node parent);
+	void loadFromXML(pugi::xml_node root); // load xml into mNameMap
+	void writeToXML(pugi::xml_node parent) const; // write xml from mNameMap
 
-	bool isConfigured();
+	bool isConfigured() const;
 
 private:
-	// Returns true if there is an Input mapped to this name, false otherwise.
-	// Writes Input mapped to this name to result if true.
-	bool getInputByName(const std::string& name, Input* result);
-
 	std::map<std::string, Input> mNameMap;
 	const int mDeviceId;
 	const std::string mDeviceName;

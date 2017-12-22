@@ -1,20 +1,17 @@
 #pragma once
-#include "SDL_audio.h"
-#include "Sound.h"
 #include <memory>
 #include <vector>
-#if defined(EXTENSION)
-#include "Music.h"
-#endif
+
+class Music; // EXTENSION
+class Sound;
+class ThemeData;
 
 class AudioManager
 {
+	static std::shared_ptr<AudioManager> sInstance;
 	static std::vector<std::shared_ptr<Sound>> sSoundVector;
 #if defined(EXTENSION)
 	static std::vector<std::shared_ptr<Music>> sMusicVector;
-#endif
-	static std::shared_ptr<AudioManager> sInstance;
-#if defined(EXTENSION)
 	std::shared_ptr<Music> currentMusic;
 #endif
 

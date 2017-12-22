@@ -248,7 +248,7 @@ const ComponentGrid::GridEntry* ComponentGrid::getCellAt(int x, int y) const
 bool ComponentGrid::input(InputConfig* config, Input input)
 {
 	GridEntry* cursorEntry = getCellAt(mCursor);
-	if (cursorEntry && cursorEntry->component->input(config, input))
+	if (cursorEntry != nullptr && cursorEntry->component->input(config, input))
 		return true;
 
 	if (!input.value)
@@ -289,7 +289,7 @@ bool ComponentGrid::moveCursor(Eigen::Vector2i dir)
 
 	const Eigen::Vector2i origCursor = mCursor;
 
-	GridEntry* currentCursorEntry = getCellAt(mCursor);
+	const GridEntry* currentCursorEntry = getCellAt(mCursor);
 
 	Eigen::Vector2i searchAxis(dir.x() == 0, dir.y() == 0);
 

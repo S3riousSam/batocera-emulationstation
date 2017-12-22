@@ -2,11 +2,14 @@
 #include "Music.h"
 #include "AudioManager.h"
 #include "Log.h"
-#include "RecalboxConf.h"
-#include "Settings.h"
 #include "ThemeData.h"
+#include <SDL_mixer.h>
+#include <map>
 
-std::map<std::string, std::shared_ptr<Music>> Music::sMap;
+namespace
+{
+	static std::map<std::string, std::shared_ptr<Music>> sMap;
+}
 
 std::shared_ptr<Music> Music::get(const std::string& path)
 {
@@ -16,7 +19,6 @@ std::shared_ptr<Music> Music::get(const std::string& path)
 	std::shared_ptr<Music> music = std::shared_ptr<Music>(new Music(path));
 	sMap[path] = music;
 	AudioManager::getInstance()->registerMusic(music);
-
 	return music;
 }
 
@@ -24,19 +26,19 @@ std::shared_ptr<Music> Music::getFromTheme(const std::shared_ptr<ThemeData>& the
 {
 	LOG(LogInfo) << " req music [" << view << "." << element << "]";
 	const ThemeData::ThemeElement* elem = theme->getElement(view, element, "sound");
-	if (!elem || !elem->has("path"))
+	if (elem == nullptr || !elem->has("path"))
 	{
 		LOG(LogInfo) << "   (missing)";
-		return NULL;
+		return nullptr;
 	}
 	return get(elem->get<std::string>("path"));
 }
 
 Music::Music(const std::string& path)
-	: music(NULL)
+	: mPath(path)
+	, music(nullptr)
 	, playing(false)
 {
-	mPath = path;
 	initMusic();
 }
 
@@ -47,54 +49,48 @@ Music::~Music()
 
 void Music::initMusic()
 {
-	if (music != NULL)
+	if (music != nullptr)
 		deinitMusic();
 
 	if (mPath.empty())
 		return;
 
-	// load wav file via SDL
-	Mix_Music* gMusic = NULL;
-	gMusic = Mix_LoadMUS(mPath.c_str());
-	if (gMusic == NULL)
+	Mix_Music* mix = Mix_LoadMUS(mPath.c_str()); // load waves file via SDL
+	if (mix == nullptr)
 	{
-		LOG(LogError) << "Error loading sound \"" << mPath << "\"!\n"
-					  << "	" << SDL_GetError();
+		LOG(LogError) << "Error loading sound \"" << mPath << "\"!\n " << SDL_GetError();
 		return;
 	}
-	else
-	{
-		music = gMusic;
-	}
+
+	music = mix;
 }
 
 void Music::deinitMusic()
 {
 	playing = false;
-	if (music != NULL)
+	if (music != nullptr)
 	{
 		Mix_FreeMusic(music);
-		music = NULL;
+		music = nullptr;
 	}
 }
 
 void Music::play(bool repeat, void (*callback)())
 {
-	if (music == NULL)
+	if (music == nullptr)
 		return;
+
 	if (!playing)
-	{
 		playing = true;
-	}
+
 	LOG(LogInfo) << "playing";
 	if (Mix_FadeInMusic(music, repeat ? -1 : 1, 1000) == -1)
 	{
 		LOG(LogInfo) << "Mix_PlayMusic: " << Mix_GetError();
 		return;
 	}
+
 	if (!repeat)
-	{
 		Mix_HookMusicFinished(callback);
-	}
 }
 #endif

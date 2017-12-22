@@ -4,6 +4,7 @@
 #include "guis/GuiMsgBoxScroll.h"
 #endif
 #include "Log.h"
+#include "Music.h"
 #include "NetworkThread.h"
 #include "RecalboxConf.h"
 #include "Settings.h"
@@ -19,7 +20,7 @@
 #define PATH_MAX 256
 #endif
 
-namespace RecalBox
+namespace Extension
 {
 	void initAudio()
 	{
@@ -30,7 +31,7 @@ namespace RecalBox
 	void playSound(const std::string& name)
 	{
 		const std::string selectedTheme = Settings::getInstance()->getString("ThemeSet");
-		const std::string loadingMusic = getHomePath() + "/.emulationstation/themes/" + selectedTheme + "/fx/" + name + ".ogg";
+		const std::string loadingMusic = Platform::getHomePath() + "/.emulationstation/themes/" + selectedTheme + "/fx/" + name + ".ogg";
 		if (boost::filesystem::exists(loadingMusic))
 		{
 			Music::get(loadingMusic)->play(false, NULL);

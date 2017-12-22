@@ -7,7 +7,7 @@
 
 GuiComponent::GuiComponent(Window& window)
 	: mWindow(&window)
-	, mParent(NULL)
+	, mParent(nullptr)
 	, mOpacity(255)
 	, mPosition(Eigen::Vector3f::Zero())
 	, mSize(Eigen::Vector2f::Zero())
@@ -136,7 +136,7 @@ void GuiComponent::removeChild(GuiComponent* cmp)
 		LOG(LogError) << "Tried to remove child from incorrect parent!";
 	}
 
-	cmp->setParent(NULL);
+	cmp->setParent(nullptr);
 
 	for (auto i = mChildren.begin(); i != mChildren.end(); i++)
 	{
@@ -168,7 +168,12 @@ void GuiComponent::setParent(GuiComponent* parent)
 	mParent = parent;
 }
 
-GuiComponent* GuiComponent::getParent() const
+const GuiComponent* GuiComponent::getParent() const
+{
+	return mParent;
+}
+
+GuiComponent* GuiComponent::getParent()
 {
 	return mParent;
 }
@@ -224,7 +229,7 @@ bool GuiComponent::stopAnimation(unsigned char slot)
 	if (mAnimationMap[slot])
 	{
 		delete mAnimationMap[slot];
-		mAnimationMap[slot] = NULL;
+		mAnimationMap[slot] = nullptr;
 		return true;
 	}
 	else
@@ -240,7 +245,7 @@ bool GuiComponent::cancelAnimation(unsigned char slot)
 	{
 		mAnimationMap[slot]->removeFinishedCallback();
 		delete mAnimationMap[slot];
-		mAnimationMap[slot] = NULL;
+		mAnimationMap[slot] = nullptr;
 		return true;
 	}
 	else
@@ -259,7 +264,7 @@ bool GuiComponent::finishAnimation(unsigned char slot)
 		assert(done);
 
 		delete mAnimationMap[slot]; // will also call finishedCallback
-		mAnimationMap[slot] = NULL;
+		mAnimationMap[slot] = nullptr;
 		return true;
 	}
 	else
@@ -276,7 +281,7 @@ bool GuiComponent::advanceAnimation(unsigned char slot, unsigned int time)
 	{
 		if (anim->update(time)) // done?
 		{
-			mAnimationMap[slot] = NULL;
+			mAnimationMap[slot] = nullptr;
 			delete anim;
 		}
 		return true;
@@ -287,11 +292,13 @@ bool GuiComponent::advanceAnimation(unsigned char slot, unsigned int time)
 	}
 }
 
+#if defined(USEFUL)
 void GuiComponent::stopAllAnimations()
 {
 	for (unsigned char i = 0; i < MAX_ANIMATIONS; i++)
 		stopAnimation(i);
 }
+#endif
 
 void GuiComponent::cancelAllAnimations()
 {
@@ -301,18 +308,18 @@ void GuiComponent::cancelAllAnimations()
 
 bool GuiComponent::isAnimationPlaying(unsigned char slot) const
 {
-	return mAnimationMap[slot] != NULL;
+	return mAnimationMap[slot] != nullptr;
 }
 
 bool GuiComponent::isAnimationReversed(unsigned char slot) const
 {
-	assert(mAnimationMap[slot] != NULL);
+	assert(mAnimationMap[slot] != nullptr);
 	return mAnimationMap[slot]->isReversed();
 }
 
 int GuiComponent::getAnimationTime(unsigned char slot) const
 {
-	assert(mAnimationMap[slot] != NULL);
+	assert(mAnimationMap[slot] != nullptr);
 	return mAnimationMap[slot]->getTime();
 }
 
@@ -343,8 +350,7 @@ void GuiComponent::updateHelpPrompts()
 		return;
 	}
 
-	std::vector<HelpPrompt> prompts = getHelpPrompts();
-
+	const std::vector<HelpPrompt> prompts = getHelpPrompts();
 	if (mWindow->peekGui() == this)
 		mWindow->setHelpPrompts(prompts, getHelpStyle());
 }

@@ -1,8 +1,6 @@
 #include "components/ButtonComponent.h"
-#include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
-#include "Window.h"
 
 ButtonComponent::ButtonComponent(Window* window, const std::string& text, const std::string& helpText, const std::function<void()>& func)
 	: GuiComponent(window)

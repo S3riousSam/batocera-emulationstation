@@ -3,7 +3,6 @@
 #include "Log.h"
 #include "Renderer.h"
 #include "Util.h"
-#include "Window.h"
 
 DateTimeComponent::DateTimeComponent(Window* window, DisplayMode dispMode)
 	: GuiComponent(window)

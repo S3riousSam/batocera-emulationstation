@@ -1,43 +1,20 @@
 #include "Settings.h"
 #include "Log.h"
-#include "platform.h"
+#include "platform.h" // getHomePath
 #include "pugixml/pugixml.hpp"
 #include <boost/assign.hpp>
 #include <boost/filesystem.hpp>
 
-Settings* Settings::sInstance = NULL;
-
-// these values are NOT saved to es_settings.xml
-// since they're set through command-line arguments, and not the in-program settings menu
-std::vector<const char*> settings_dont_save =
-{
-	"Debug", "DebugGrid", "DebugText", "ParseGamelistOnly", "ShowExit", "Windowed", "VSync", "HideConsole", "IgnoreGamelist",
-#if defined(EXTENSION)
-	"UpdateCommand", "UpdateServer", "VersionFile", "SharePartition", "RecalboxSettingScript", "RecalboxConfigScript", "LastVersionFile", "VersionMessage", "MusicDirectory"
-#endif
-};
+Settings* Settings::sInstance = nullptr;
 
 Settings::Settings()
+	: mBoolMap({
+		std::pair<std::string, bool>("BackgroundJoystickInput", false),
+		std::pair<std::string, bool>("ParseGamelistOnly", false)
+	})
 {
-	setDefaults();
-	loadFile();
-}
-
-Settings* Settings::getInstance()
-{
-	if (sInstance == NULL)
-		sInstance = new Settings();
-
-	return sInstance;
-}
-
-void Settings::setDefaults()
-{
-	mBoolMap.clear();
-	mIntMap.clear();
-
-	mBoolMap["BackgroundJoystickInput"] = false;
-	mBoolMap["ParseGamelistOnly"] = false;
+	//mBoolMap["BackgroundJoystickInput"] = false;
+	//mBoolMap["ParseGamelistOnly"] = false;
 	mBoolMap["DrawFramerate"] = false;
 	mBoolMap["ShowExit"] = true;
 	mBoolMap["Windowed"] = false;
@@ -100,41 +77,77 @@ void Settings::setDefaults()
 	mStringMap["VersionMessage"] = "/recalbox/recalbox.msg";
 	mStringMap["MusicDirectory"] = "/recalbox/share/music/";
 #endif
+
+	loadFile();
 }
 
-template<typename K, typename V>
-void saveMap(pugi::xml_node& node, std::map<K, V>& map, const char* type)
+Settings* Settings::getInstance()
 {
-	for (const auto& iter : map)
-	{
-		// key is on the "don't save" list, so don't save it
-		if (std::find(settings_dont_save.begin(), settings_dont_save.end(), iter.first) != settings_dont_save.end())
-			continue;
+	if (sInstance == nullptr)
+		sInstance = new Settings();
 
-		pugi::xml_node parent_node = node.append_child(type);
-		parent_node.append_attribute("name").set_value(iter.first.c_str());
-		parent_node.append_attribute("value").set_value(iter.second);
+	return sInstance;
+}
+
+namespace
+{
+	template<typename K, typename V>
+	void saveMap(pugi::xml_node& node, std::map<K, V>& map, const char* type)
+	{
+		// These values are NOT saved to es_settings.xml
+		// (they're set through command-line arguments, and not the in-program settings menu)
+		static std::vector<const char*> settings_dont_save = {
+			"Debug",
+			"DebugGrid",
+			"DebugText",
+			"ParseGamelistOnly",
+			"ShowExit",
+			"Windowed",
+			"VSync",
+			"HideConsole",
+			"IgnoreGamelist",
+	#if defined(EXTENSION)
+			"UpdateCommand",
+			"UpdateServer",
+			"VersionFile",
+			"SharePartition",
+			"RecalboxSettingScript",
+			"RecalboxConfigScript",
+			"LastVersionFile",
+			"VersionMessage",
+			"MusicDirectory"
+	#endif
+		};
+
+		for (const auto& iter : map)
+		{
+			// key is on the "don't save" list, so don't save it
+			if (std::find(settings_dont_save.begin(), settings_dont_save.end(), iter.first) != settings_dont_save.end())
+				continue;
+
+			pugi::xml_node parent_node = node.append_child(type);
+			parent_node.append_attribute("name").set_value(iter.first.c_str());
+			parent_node.append_attribute("value").set_value(iter.second);
+		}
 	}
 }
 
 void Settings::saveFile()
 {
-	const std::string path = getHomePath() + "/.emulationstation/es_settings.cfg";
+	const std::string path = Platform::getHomePath() + "/.emulationstation/es_settings.cfg";
 
 	pugi::xml_document doc;
-
 	pugi::xml_node config = doc.append_child("config");
-
 	saveMap<std::string, bool>(config, mBoolMap, "bool");
 	saveMap<std::string, int>(config, mIntMap, "int");
 	saveMap<std::string, float>(config, mFloatMap, "float");
 
 	// saveMap<std::string, std::string>(config, mStringMap, "string");
-	for (auto iter = mStringMap.begin(); iter != mStringMap.end(); iter++)
+	for (const auto& iter : mStringMap)
 	{
 		pugi::xml_node node = config.append_child("string");
-		node.append_attribute("name").set_value(iter->first.c_str());
-		node.append_attribute("value").set_value(iter->second.c_str());
+		node.append_attribute("name").set_value(iter.first.c_str());
+		node.append_attribute("value").set_value(iter.second.c_str());
 	}
 
 	doc.save_file(path.c_str());
@@ -142,7 +155,7 @@ void Settings::saveFile()
 
 void Settings::loadFile()
 {
-	const std::string path = getHomePath() + "/.emulationstation/es_settings.cfg";
+	const std::string path = Platform::getHomePath() + "/.emulationstation/es_settings.cfg";
 
 	if (!boost::filesystem::exists(path))
 		return;
@@ -157,7 +170,7 @@ void Settings::loadFile()
 
 	pugi::xml_node config = doc.child("config");
 	if (config)
-	{ /* correct file format, having a config root node */
+	{ // correct file format, having a config root node
 		for (pugi::xml_node node = config.child("bool"); node; node = node.next_sibling("bool"))
 			setBool(node.attribute("name").as_string(), node.attribute("value").as_bool());
 		for (pugi::xml_node node = config.child("int"); node; node = node.next_sibling("int"))
@@ -168,7 +181,7 @@ void Settings::loadFile()
 			setString(node.attribute("name").as_string(), node.attribute("value").as_string());
 	}
 	else
-	{ /* the old format, without the root config node -- keep for a transparent upgrade */
+	{ // the old format, without the root config node -- keep for a transparent upgrade
 		for (pugi::xml_node node = doc.child("bool"); node; node = node.next_sibling("bool"))
 			setBool(node.attribute("name").as_string(), node.attribute("value").as_bool());
 		for (pugi::xml_node node = doc.child("int"); node; node = node.next_sibling("int"))

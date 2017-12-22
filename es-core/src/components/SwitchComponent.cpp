@@ -1,9 +1,7 @@
 #include "SwitchComponent.h"
 #include "LocaleES.h"
 #include "Renderer.h"
-#include "Window.h"
 #include "resources/Font.h"
-#include <Log.h>
 
 SwitchComponent::SwitchComponent(Window* window, bool state)
 	: GuiComponent(window)

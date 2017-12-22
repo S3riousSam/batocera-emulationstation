@@ -1,10 +1,14 @@
 #include "Sound.h"
 #include "AudioManager.h"
 #include "Log.h"
-#include "Settings.h"
 #include "ThemeData.h"
+#include <SDL_mixer.h>
+#include <map>
 
-std::map<std::string, std::shared_ptr<Sound>> Sound::sMap;
+namespace
+{
+	static std::map<std::string, std::shared_ptr<Sound>> sMap;
+}
 
 std::shared_ptr<Sound> Sound::get(const std::string& path)
 {
@@ -58,14 +62,9 @@ void Sound::init()
 	if (mPath.empty())
 		return;
 
-	// load wav file via SDL
-	mSampleData = Mix_LoadWAV(mPath.c_str());
+	mSampleData = Mix_LoadWAV(mPath.c_str()); // load waves file via SDL
 	if (mSampleData == NULL)
-	{
-		LOG(LogError) << "Error loading sound \"" << mPath << "\"!\n"
-					  << "	" << SDL_GetError();
-		return;
-	}
+		LOG(LogError) << "Error loading sound \"" << mPath << "\"!\n " << SDL_GetError();
 }
 
 void Sound::deinit()
@@ -73,9 +72,7 @@ void Sound::deinit()
 	playing = false;
 
 	if (mSampleData != NULL)
-	{
 		Mix_FreeChunk(mSampleData);
-	}
 }
 
 void Sound::play()
@@ -84,16 +81,9 @@ void Sound::play()
 		return;
 
 	if (!playing)
-	{
-		// flag our sample as playing
-		playing = true;
-	}
-	Mix_PlayChannel(-1, mSampleData, 0);
-}
+		playing = true; // flag our sample as playing
 
-bool Sound::isPlaying() const
-{
-	return playing;
+	Mix_PlayChannel(-1, mSampleData, 0);
 }
 
 void Sound::stop()

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/NinePatchComponent.h"
 #include "resources/Font.h"
@@ -12,7 +11,6 @@ public:
 	ButtonComponent(Window* window, const std::string& text = std::string(), const std::string& helpText = std::string(), const std::function<void()>& func = nullptr);
 
 	void setPressedFunc(std::function<void()> f);
-
 	void setEnabled(bool enable);
 
 	bool input(InputConfig* config, Input input) override;
@@ -20,11 +18,11 @@ public:
 
 	void setText(const std::string& text, const std::string& helpText);
 
-	inline const std::string& getText() const
+	const std::string& getText() const
 	{
 		return mText;
 	};
-	inline const std::function<void()>& getPressedFunc() const
+	const std::function<void()>& getPressedFunc() const
 	{
 		return mPressedFunc;
 	};

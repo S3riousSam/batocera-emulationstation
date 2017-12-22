@@ -1,5 +1,4 @@
 #pragma once
-
 #include <SDL.h>
 #include <map>
 #include <string>
@@ -8,17 +7,15 @@
 class InputConfig;
 class Window;
 
-// you should only ever instantiate one of these, by the way
-class InputManager
+class InputManager // Singleton
 {
 private:
 	InputManager();
 
 	static InputManager* mInstance;
-
-	static const int DEADZONE = 23000;
-
+#if defined(USEFUL)
 	void loadDefaultKBConfig();
+#endif
 
 	std::map<SDL_JoystickID, SDL_Joystick*> mJoysticks;
 	std::map<SDL_JoystickID, InputConfig*> mInputConfigs;
@@ -30,7 +27,7 @@ private:
 
 	void addJoystickByDeviceIndex(int id);
 	void removeJoystickByJoystickID(SDL_JoystickID id);
-	bool loadInputConfig(InputConfig* config); // returns true if successfully loaded, false if not (or didn't exist)
+	bool loadInputConfig(InputConfig& config); // returns true if successfully loaded, false if not (or didn't exist)
 #if defined(EXTENSION) || !defined(EXTENSION)
 	void clearJoystick();
 	void addAllJoysticks();
@@ -48,17 +45,18 @@ public:
 	void deinit();
 
 	int getNumJoysticks();
+#if defined(USEFUL)
 	int getButtonCountByDevice(int deviceId);
+#endif
 #if defined(EXTENSION)
 	int getAxisCountByDevice(int deviceId);
 #endif
 
-	int getNumConfiguredDevices();
-
+	int getNumConfiguredDevices() const;
+#if defined(EXTENSION)
 	std::string getDeviceGUIDString(int deviceId);
-
 	InputConfig* getInputConfigByDevice(int deviceId);
-
+#endif
 	bool parseEvent(const SDL_Event& ev, Window* window);
 #if defined(EXTENSION)
 	std::string configureEmulators();

@@ -4,13 +4,12 @@
 #include "Settings.h"
 #include "ThemeData.h"
 #include "Util.h"
-#include "Window.h"
 
 TextComponent::TextComponent(Window* window)
 	: GuiComponent(window)
 	, mFont(Font::get(FONT_SIZE_MEDIUM))
 	, mUppercase(false)
-	, mColor(0x000000FF)
+	, mColor(COLOR_BLACK)
 	, mAutoCalcExtent(true, true)
 	, mAlignment(ALIGN_LEFT)
 	, mLineSpacing(1.5f)
@@ -22,7 +21,7 @@ TextComponent::TextComponent(Window* window, const std::string& text, const std:
 	: GuiComponent(window)
 	, mFont(NULL)
 	, mUppercase(false)
-	, mColor(0x000000FF)
+	, mColor(COLOR_BLACK)
 	, mAutoCalcExtent(true, true)
 	, mAlignment(align)
 	, mLineSpacing(1.5f)
@@ -86,13 +85,11 @@ void TextComponent::setUppercase(bool uppercase)
 void TextComponent::render(const Eigen::Affine3f& parentTrans)
 {
 	Eigen::Affine3f trans = parentTrans * getTransform();
-
-	/*Eigen::Vector3f dim(mSize.x(), mSize.y(), 0);
+#if defined(DEAD_CODE)
+	Eigen::Vector3f dim(mSize.x(), mSize.y(), 0);
 	dim = trans * dim - trans.translation();
-	Renderer::pushClipRect(Eigen::Vector2i((int)trans.translation().x(), (int)trans.translation().y()),
-		Eigen::Vector2i((int)(dim.x() + 0.5f), (int)(dim.y() + 0.5f)));
-		*/
-
+	Renderer::pushClipRect(Eigen::Vector2i((int)trans.translation().x(), (int)trans.translation().y()), Eigen::Vector2i((int)(dim.x() + 0.5f), (int)(dim.y() + 0.5f)));
+#endif
 	if (mTextCache)
 	{
 		const Eigen::Vector2f& textSize = mTextCache->metrics.size;

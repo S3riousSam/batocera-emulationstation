@@ -1,5 +1,4 @@
 #pragma once
-
 #include <list>
 #include <map>
 #include <memory>
@@ -20,8 +19,13 @@ class ResourceManager;
 class IReloadable
 {
 public:
+	~IReloadable() = default;
+
 	virtual void unload(std::shared_ptr<ResourceManager>& rm) = 0;
 	virtual void reload(std::shared_ptr<ResourceManager>& rm) = 0;
+
+protected:
+	IReloadable() = default;
 };
 
 class ResourceManager
@@ -34,7 +38,7 @@ public:
 	void unloadAll();
 	void reloadAll();
 
-	const ResourceData getFileData(const std::string& path) const;
+	ResourceData getFileData(const std::string& path) const;
 	bool fileExists(const std::string& path) const;
 
 private:

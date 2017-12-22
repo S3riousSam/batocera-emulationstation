@@ -229,7 +229,7 @@ void SystemData::launchGame(Window* window, FileData* game)
 
 	LOG(LogInfo) << "	" << command;
 	std::cout << "==============================================\n";
-	int exitCode = runSystemCommand(command);
+	int exitCode = Platform::runSystemCommand(command);
 	std::cout << "==============================================\n";
 
 	if (exitCode != 0)
@@ -505,7 +505,7 @@ void SystemData::deleteSystems()
 
 std::string SystemData::getConfigPath(bool forWrite)
 {
-	const fs::path path = getHomePath() + "/.emulationstation/es_systems.cfg";
+	const fs::path path = Platform::getHomePath() + "/.emulationstation/es_systems.cfg";
 	return (forWrite || fs::exists(path)) ? path.generic_string() : "/etc/emulationstation/es_systems.cfg";
 }
 
@@ -523,7 +523,7 @@ std::string SystemData::getGamelistPath(bool forWrite) const
 			return filePath.generic_string();
 	}
 	// Unable to get or create directory in roms, fallback on ~
-	filePath = getHomePath() + "/.emulationstation/gamelists/" + mName + "/gamelist.xml";
+	filePath = Platform::getHomePath() + "/.emulationstation/gamelists/" + mName + "/gamelist.xml";
 	fs::create_directories(filePath.parent_path());
 	return filePath.generic_string();
 }

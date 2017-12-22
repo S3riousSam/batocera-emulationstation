@@ -39,10 +39,9 @@ ISimpleGameListView::ISimpleGameListView(Window* window, FileData* root)
 
 void ISimpleGameListView::onThemeChanged(const std::shared_ptr<ThemeData>& theme)
 {
-	using namespace ThemeFlags;
-	mBackground.applyTheme(theme, getName(), "background", ALL);
-	mHeaderImage.applyTheme(theme, getName(), "logo", ALL);
-	mHeaderText.applyTheme(theme, getName(), "logoText", ALL);
+	mBackground.applyTheme(theme, getName(), "background", ThemeFlags::ALL);
+	mHeaderImage.applyTheme(theme, getName(), "logo", ThemeFlags::ALL);
+	mHeaderText.applyTheme(theme, getName(), "logoText", ThemeFlags::ALL);
 	mThemeExtras.setExtras(ThemeData::makeExtras(theme, getName(), mWindow));
 
 	if (mHeaderImage.hasImage())

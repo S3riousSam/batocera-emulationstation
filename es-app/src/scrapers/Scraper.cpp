@@ -306,7 +306,7 @@ std::string getSaveAsPath(const ScraperSearchParams& params, const std::string& 
 	if (!boost::filesystem::exists(path) && !boost::filesystem::create_directory(path))
 	{
 		// Unable to create the directory in system rom dir, fallback on ~
-		path = getHomePath() + IMAGES_OUTPUT_PATH + subdirectory + "/";
+		path = Platform::getHomePath() + IMAGES_OUTPUT_PATH + subdirectory + "/";
 	}
 #endif
 

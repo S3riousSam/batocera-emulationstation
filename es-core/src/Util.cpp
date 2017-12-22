@@ -3,12 +3,9 @@
 #include "platform.h"
 #include "resources/ResourceManager.h"
 
-namespace fs = boost::filesystem;
-
 std::string strToUpper(const char* from)
 {
-	std::string str(from);
-	return boost::locale::to_upper(str);
+	return boost::locale::to_upper(std::string(from));
 }
 
 std::string& strToUpper(std::string& from)
@@ -19,8 +16,7 @@ std::string& strToUpper(std::string& from)
 
 std::string strToUpper(const std::string& from)
 {
-	std::string str(from);
-	return boost::locale::to_upper(str);
+	return boost::locale::to_upper(std::string(from));
 }
 
 #if defined(_MSC_VER) && _MSC_VER < 1800
@@ -64,10 +60,7 @@ Eigen::Vector2f roundVector(const Eigen::Vector2f& vec)
 // embedded resources, e.g. ":/font.ttf", need to be properly handled too
 std::string getCanonicalPath(const std::string& path)
 {
-	if (path.empty() || !boost::filesystem::exists(path))
-		return path;
-
-	return boost::filesystem::canonical(path).generic_string();
+	return (path.empty() || !boost::filesystem::exists(path)) ? path : boost::filesystem::canonical(path).generic_string();
 }
 
 std::string getExpandedPath(const std::string& str)
@@ -78,7 +71,7 @@ std::string getExpandedPath(const std::string& str)
 	if (!path.empty() && path[0] == '~')
 	{
 		path.erase(0, 1);
-		path.insert(0, getHomePath());
+		path.insert(0, Platform::getHomePath());
 	}
 
 	return path;
@@ -86,8 +79,10 @@ std::string getExpandedPath(const std::string& str)
 
 // expands "./my/path.sfc" to "[relativeTo]/my/path.sfc"
 // if allowHome is true, also expands "~/my/path.sfc" to "/home/pi/my/path.sfc"
-fs::path resolvePath(const fs::path& path, const fs::path& relativeTo, bool allowHome)
+boost::filesystem::path resolvePath(const boost::filesystem::path& path, const boost::filesystem::path& relativeTo, bool allowHome)
 {
+	namespace fs = boost::filesystem;
+
 	// nothing here
 	if (path.begin() == path.end())
 		return path;
@@ -102,7 +97,7 @@ fs::path resolvePath(const fs::path& path, const fs::path& relativeTo, bool allo
 
 	if (allowHome && *path.begin() == "~")
 	{
-		fs::path ret = getHomePath();
+		fs::path ret = Platform::getHomePath();
 		for (auto it = ++path.begin(); it != path.end(); ++it)
 			ret /= *it;
 		return ret;
@@ -112,8 +107,10 @@ fs::path resolvePath(const fs::path& path, const fs::path& relativeTo, bool allo
 }
 
 // example: removeCommonPath("/home/pi/roms/nes/foo/bar.nes", "/home/pi/roms/nes/") returns "foo/bar.nes"
-fs::path removeCommonPath(const fs::path& path, const fs::path& relativeTo, bool& contains)
+boost::filesystem::path removeCommonPath(const boost::filesystem::path& path, const boost::filesystem::path& relativeTo, bool& contains)
 {
+	namespace fs = boost::filesystem;
+
 	// if either of these doesn't exist, fs::canonical() is going to throw an error
 	if (!fs::exists(path) || !fs::exists(relativeTo))
 	{
@@ -161,14 +158,14 @@ fs::path removeCommonPath(const fs::path& path, const fs::path& relativeTo, bool
 
 // usage: makeRelativePath("/path/to/my/thing.sfc", "/path/to") -> "./my/thing.sfc"
 // usage: makeRelativePath("/home/pi/my/thing.sfc", "/path/to", true) -> "~/my/thing.sfc"
-fs::path makeRelativePath(const fs::path& path, const fs::path& relativeTo, bool allowHome)
+boost::filesystem::path makeRelativePath(const boost::filesystem::path& path, const boost::filesystem::path& relativeTo, bool allowHome)
 {
+	namespace fs = boost::filesystem;
 	bool contains = false;
 
 	fs::path ret = removeCommonPath(path, relativeTo, contains);
 	if (contains)
 	{
-		// success
 		ret = "." / ret;
 		return ret;
 	}
@@ -176,18 +173,16 @@ fs::path makeRelativePath(const fs::path& path, const fs::path& relativeTo, bool
 	if (allowHome)
 	{
 		contains = false;
-		std::string homePath = getHomePath();
+		std::string homePath = Platform::getHomePath();
 		ret = removeCommonPath(path, homePath, contains);
 		if (contains)
 		{
-			// success
 			ret = "~" / ret;
 			return ret;
 		}
 	}
 
-	// nothing could be resolved
-	return path;
+	return path; // nothing could be resolved
 }
 
 boost::posix_time::ptime string_to_ptime(const std::string& str, const std::string& fmt)
@@ -196,6 +191,5 @@ boost::posix_time::ptime string_to_ptime(const std::string& str, const std::stri
 	ss.imbue(std::locale(std::locale::classic(), new boost::posix_time::time_input_facet(fmt))); // std::locale handles deleting the facet
 	boost::posix_time::ptime time;
 	ss >> time;
-
 	return time;
 }

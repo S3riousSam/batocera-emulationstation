@@ -163,7 +163,7 @@ void ScreenscraperRequest::process(const std::unique_ptr<HttpReq>& req, std::vec
 		result.mdl.set("name", game.child("GameTitle").text().get());
 		result.mdl.set("desc", game.child("Overview").text().get());
 
-		boost::posix_time::ptime rd = string_to_ptime(game.child("ReleaseDate").text().get(), "%m/%d/%Y");
+		const boost::posix_time::ptime rd = string_to_ptime(game.child("ReleaseDate").text().get(), "%m/%d/%Y");
 		result.mdl.setTime("releasedate", rd);
 
 		result.mdl.set("developer", game.child("Developer").text().get());

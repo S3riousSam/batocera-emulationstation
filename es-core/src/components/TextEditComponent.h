@@ -1,12 +1,10 @@
 #pragma once
-
 #include "GuiComponent.h"
 #include "components/NinePatchComponent.h"
 
 class Font;
 class TextCache;
 
-// Used to enter text.
 class TextEditComponent : public GuiComponent
 {
 public:

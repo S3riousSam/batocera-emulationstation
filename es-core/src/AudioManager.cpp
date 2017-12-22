@@ -1,10 +1,15 @@
 #include "AudioManager.h"
-
 #include "Log.h"
+#if defined(EXTENSION)
+#include "Music.h"
+#endif
 #include "RecalboxConf.h"
 #include "Settings.h"
+#include "Sound.h"
 #include "ThemeData.h"
 #include <SDL.h>
+#include <SDL_audio.h>
+#include <SDL_mixer.h>
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 #include <views/SystemView.h>
@@ -22,7 +27,7 @@ std::shared_ptr<AudioManager> AudioManager::sInstance;
 
 AudioManager::AudioManager()
 #if defined(EXTENSION)
-	: currentMusic(NULL)
+	: currentMusic(nullptr)
 	, running(0)
 #endif
 {
@@ -36,11 +41,8 @@ AudioManager::~AudioManager()
 
 std::shared_ptr<AudioManager>& AudioManager::getInstance()
 {
-	// check if an AudioManager instance is already created, if not create one
 	if (sInstance == nullptr)
-	{
 		sInstance = std::shared_ptr<AudioManager>(new AudioManager);
-	}
 	return sInstance;
 }
 
@@ -105,7 +107,7 @@ void AudioManager::themeChanged(const std::shared_ptr<ThemeData>& theme)
 	if (RecalboxConf::get("audio.bgmusic") == "1")
 	{
 		const ThemeData::ThemeElement* elem = theme->getElement("system", "directory", "sound");
-		currentThemeMusicDirectory = (!elem || !elem->has("path")) ? std::string() : elem->get<std::string>("path");
+		currentThemeMusicDirectory = (elem == nullptr || !elem->has("path")) ? std::string() : elem->get<std::string>("path");
 		std::shared_ptr<Music> bgsound = Music::getFromTheme(theme, "system", "bgsound");
 
 		// Found a music for the system
@@ -113,7 +115,7 @@ void AudioManager::themeChanged(const std::shared_ptr<ThemeData>& theme)
 		{
 			runningFromPlaylist = false;
 			stopMusic();
-			bgsound->play(true, NULL);
+			bgsound->play(true, nullptr);
 			currentMusic = bgsound;
 			return;
 		}
@@ -132,7 +134,6 @@ void AudioManager::playRandomMusic()
 		stopMusic();
 		bgsound->play(false, musicEndInternal);
 		currentMusic = bgsound;
-		return;
 	}
 	else
 	{
@@ -150,19 +151,19 @@ void AudioManager::resumeMusic()
 
 void AudioManager::registerSound(std::shared_ptr<Sound>& sound)
 {
-	getInstance();
+	//getInstance();
 	sSoundVector.push_back(sound);
 }
 #if defined(EXTENSION)
 void AudioManager::registerMusic(std::shared_ptr<Music>& music)
 {
-	getInstance();
+	//getInstance();
 	sMusicVector.push_back(music);
 }
 #endif
 void AudioManager::unregisterSound(std::shared_ptr<Sound>& sound)
 {
-	getInstance();
+	//getInstance();
 	for (size_t i = 0; i < sSoundVector.size(); i++)
 	{
 		if (sSoundVector.at(i) == sound)
@@ -177,12 +178,12 @@ void AudioManager::unregisterSound(std::shared_ptr<Sound>& sound)
 #if defined(EXTENSION)
 void AudioManager::unregisterMusic(std::shared_ptr<Music>& music)
 {
-	getInstance();
+	//getInstance();
 	for (size_t i = 0; i < sMusicVector.size(); i++)
 	{
 		if (sMusicVector.at(i) == music)
 		{
-			// sMusicVector[i]->stop();
+			//sMusicVector[i]->stop();
 			sMusicVector.erase(sMusicVector.begin() + i);
 			return;
 		}
@@ -193,86 +194,77 @@ void AudioManager::unregisterMusic(std::shared_ptr<Music>& music)
 
 void AudioManager::play()
 {
-	getInstance();
-
+	//getInstance();
 #if !defined(EXTENSION)
-	// unpause audio, the mixer will figure out if samples need to be played...
-	SDL_PauseAudio(0);
+	SDL_PauseAudio(0); // Resuming audio, the mixer figures out if samples need to be played...
 #endif
 }
 
 void AudioManager::stop()
 {
 	// stop playing all Sounds
-	for (unsigned int i = 0; i < sSoundVector.size(); i++)
-	{
-		if (sSoundVector.at(i)->isPlaying())
-			sSoundVector[i]->stop();
-	}
+	for (auto& it : sSoundVector)
+		it->stop();
 	// stop playing all Musics
 
-	// pause audio
 #if !defined(EXTENSION)
 	SDL_PauseAudio(1);
 #endif
 }
 
 #if defined(EXTENSION)
-std::vector<std::string> getMusicIn(const std::string& path)
+namespace
 {
-	std::vector<std::string> all_matching_files;
-
-	if (!boost::filesystem::is_directory(path))
-		return all_matching_files;
-
-	const std::string target_path(path);
-	const boost::regex my_filter(".*\\.(mp3|ogg)$");
-
-	boost::filesystem::directory_iterator end_itr; // Default ctor yields past-the-end
-	for (boost::filesystem::directory_iterator i(target_path); i != end_itr; ++i)
+	std::vector<std::string> getMusicIn(const std::string& path)
 	{
-		// Skip if not a file
-		if (!boost::filesystem::is_regular_file(i->status()))
-			continue;
+		std::vector<std::string> all_matching_files;
 
-		boost::smatch what;
+		if (!boost::filesystem::is_directory(path))
+			return all_matching_files;
 
-		// Skip if no match
-		if (!boost::regex_match(i->path().string(), what, my_filter))
-			continue;
+		const std::string target_path(path);
+		const boost::regex my_filter(".*\\.(mp3|ogg)$");
 
-		// File matches, store it
-		all_matching_files.push_back(i->path().string());
+		boost::filesystem::directory_iterator end_itr; // Default ctor yields past-the-end
+		for (boost::filesystem::directory_iterator i(target_path); i != end_itr; ++i)
+		{
+			if (!boost::filesystem::is_regular_file(i->status()))
+				continue; // Skip if not a file
+
+			boost::smatch what;
+			if (!boost::regex_match(i->path().string(), what, my_filter))
+				continue; // Skip if no match
+
+			// File matches, store it
+			all_matching_files.push_back(i->path().string());
+		}
+
+		return std::vector<std::string>(); // TODO
 	}
-
-	return std::vector<std::string>(); // TODO
 }
 
 std::shared_ptr<Music> AudioManager::getRandomMusic(std::string themeSoundDirectory)
 {
-	// 1 check in User music directory
 	std::vector<std::string> musics = getMusicIn(Settings::getInstance()->getString("MusicDirectory"));
 	if (musics.empty())
 	{
-		//  Check in theme sound directory
-		if (themeSoundDirectory != "")
+		if (!themeSoundDirectory.empty())
 		{
 			musics = getMusicIn(themeSoundDirectory);
 			if (musics.empty())
-				return NULL;
+				return nullptr;
 		}
 		else
-			return NULL;
+		{
+			return nullptr;
+		}
 	}
 #if defined(WIN32)
 	srand(time(NULL) % getpid());
 #else
 	srand(time(NULL) % getpid() + getppid());
 #endif
-
-	int randomIndex = rand() % musics.size();
-	std::shared_ptr<Music> bgsound = Music::get(musics.at(randomIndex));
-	return bgsound;
+	return Music::get(musics.at(rand() % musics.size()));
 }
 
 void AudioManager::musicEnd()
@@ -285,7 +277,7 @@ void AudioManager::musicEnd()
 void AudioManager::playCheckSound()
 {
 	const std::string selectedTheme = Settings::getInstance()->getString("ThemeSet");
-	std::string loadingMusic = getHomePath() + "/.emulationstation/themes/" + selectedTheme + "/fx/loading.ogg";
+	std::string loadingMusic = Platform::getHomePath() + "/.emulationstation/themes/" + selectedTheme + "/fx/loading.ogg";
 
 	if (boost::filesystem::exists(loadingMusic) == false)
 		loadingMusic = "/recalbox/share_init/system/.emulationstation/themes/" + selectedTheme + "/fx/loading.ogg";

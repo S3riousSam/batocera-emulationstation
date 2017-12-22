@@ -1,13 +1,14 @@
 #include "ImageIO.h"
 #include "Log.h"
 #include <memory.h>
+#include <FreeImage.h>
 
 std::vector<unsigned char> ImageIO::loadFromMemoryRGBA32(const unsigned char* data, const size_t size, size_t& width, size_t& height)
 {
 	std::vector<unsigned char> rawData;
 	width = 0;
 	height = 0;
-	FIMEMORY* fiMemory = FreeImage_OpenMemory((BYTE*)data, size);
+	FIMEMORY* fiMemory = FreeImage_OpenMemory(const_cast<BYTE*>(data), size);
 	if (fiMemory != nullptr)
 	{
 		// detect the filetype from data
@@ -33,8 +34,8 @@ std::vector<unsigned char> ImageIO::loadFromMemoryRGBA32(const unsigned char* da
 				{
 					width = FreeImage_GetWidth(fiBitmap);
 					height = FreeImage_GetHeight(fiBitmap);
-					unsigned int pitch = FreeImage_GetPitch(fiBitmap);
-					// loop through scanlines and add all pixel data to the return vector
+					const unsigned int pitch = FreeImage_GetPitch(fiBitmap);
+					// loop through scan lines and add all pixel data to the return vector
 					// this is necessary, because width*height*bpp might not be == pitch
 					unsigned char* tempData = new unsigned char[width * height * 4];
 					for (size_t i = 0; i < height; i++)
@@ -45,7 +46,7 @@ std::vector<unsigned char> ImageIO::loadFromMemoryRGBA32(const unsigned char* da
 					// convert from BGRA to RGBA
 					for (size_t i = 0; i < width * height; i++)
 					{
-						RGBQUAD bgra = ((RGBQUAD*)tempData)[i];
+						const RGBQUAD bgra = ((RGBQUAD*)tempData)[i];
 						RGBQUAD rgba;
 						rgba.rgbBlue = bgra.rgbRed;
 						rgba.rgbGreen = bgra.rgbGreen;
@@ -68,21 +69,19 @@ std::vector<unsigned char> ImageIO::loadFromMemoryRGBA32(const unsigned char* da
 		{
 			LOG(LogError) << "Error - File type " << (format == FIF_UNKNOWN ? "unknown" : "unsupported") << "!";
 		}
-		// free FIMEMORY again
-		FreeImage_CloseMemory(fiMemory);
+		FreeImage_CloseMemory(fiMemory); // free FIMEMORY again
 	}
 	return rawData;
 }
 
 void ImageIO::flipPixelsVert(unsigned char* imagePx, const size_t& width, const size_t& height)
 {
-	unsigned int temp;
-	unsigned int* arr = (unsigned int*)imagePx;
+	unsigned int* arr = reinterpret_cast<unsigned int*>(imagePx);
 	for (size_t y = 0; y < height / 2; y++)
 	{
 		for (size_t x = 0; x < width; x++)
 		{
-			temp = arr[x + (y * width)];
+			const unsigned int temp = arr[x + (y * width)];
 			arr[x + (y * width)] = arr[x + (height * width) - ((y + 1) * width)];
 			arr[x + (height * width) - ((y + 1) * width)] = temp;
 		}

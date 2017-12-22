@@ -5,7 +5,6 @@
 #include "LocaleES.h"
 #include "Log.h"
 #include "Util.h"
-#include "Window.h"
 #include "components/ButtonComponent.h"
 #include "components/ImageComponent.h"
 #include "components/MenuComponent.h"
@@ -13,6 +12,7 @@
 
 namespace
 {
+	// clang-format off
 	struct InputInfo
 	{
 		const char* const name;
@@ -20,37 +20,52 @@ namespace
 		const std::string label;
 		const char* const icon;
 		const bool axis;
-	} const g_INPUTS[] = {{"Up", false, "UP", ":/help/dpad_up.svg", false}, {"Down", false, "DOWN", ":/help/dpad_down.svg", false},
-		{"Left", false, "LEFT", ":/help/dpad_left.svg", false}, {"Right", false, "RIGHT", ":/help/dpad_right.svg", false},
+	} const g_INPUTS[] = {
+		{"Up", false, "UP", ":/help/dpad_up.svg", false},
+		{"Down", false, "DOWN", ":/help/dpad_down.svg", false},
+		{"Left", false, "LEFT", ":/help/dpad_left.svg", false},
+		{"Right", false, "RIGHT", ":/help/dpad_right.svg", false},
 		{"Joystick1Up", true, _("JOYSTICK 1 UP"), ":/help/joystick_up.svg", true},
 		{"Joystick1Left", true, _("JOYSTICK 1 LEFT"), ":/help/joystick_left.svg", true},
 		{"Joystick2Up", true, _("JOYSTICK 2 UP"), ":/help/joystick_up.svg", true},
-		{"Joystick2Left", true, _("JOYSTICK 2 LEFT"), ":/help/joystick_left.svg", true}, {"A", false, "A", ":/help/button_a.svg", false},
-		{"B", false, "B", ":/help/button_b.svg", false}, {"X", true, "X", ":/help/button_x.svg", false},
-		{"Y", true, "Y", ":/help/button_y.svg", false}, {"Start", false, "START", ":/help/button_start.svg", false},
-		{"Select", false, "SELECT", ":/help/button_select.svg", false}, {"PageUp", true, _("PAGE UP"), ":/help/button_l.svg", false},
-		{"PageDown", true, _("PAGE DOWN"), ":/help/button_r.svg", false}, {"L2", true, "L2", ":/help/button_l2.svg", false},
-		{"R2", true, "R2", ":/help/button_r2.svg", false}, {"L3", true, "L3", ":/help/button_l3.svg", false},
-		{"R3", true, "R3", ":/help/button_r3.svg", false}, {"HotKey", false, _("HOTKEY"), ":/help/button_hotkey.svg", false}};
+		{"Joystick2Left", true, _("JOYSTICK 2 LEFT"), ":/help/joystick_left.svg", true},
+		{"A", false, "A", ":/help/button_a.svg", false},
+		{"B", false, "B", ":/help/button_b.svg", false},
+		{"X", true, "X", ":/help/button_x.svg", false},
+		{"Y", true, "Y", ":/help/button_y.svg", false},
+		{"Start", false, "START", ":/help/button_start.svg", false},
+		{"Select", false, "SELECT", ":/help/button_select.svg", false},
+		{"PageUp", true, _("PAGE UP"), ":/help/button_l.svg", false},
+		{"PageDown", true, _("PAGE DOWN"), ":/help/button_r.svg", false},
+		{"L2", true, "L2", ":/help/button_l2.svg", false},
+		{"R2", true, "R2", ":/help/button_r2.svg", false},
+		{"L3", true, "L3", ":/help/button_l3.svg", false},
+		{"R3", true, "R3", ":/help/button_r3.svg", false},
+		{"HotKey", false, _("HOTKEY"), ":/help/button_hotkey.svg", false}
+	};
+	// clang-format on
 
 	static_assert(sizeof(g_INPUTS) / sizeof(g_INPUTS[0]) == 21ull, "Data structure expects 10 elements");
 	static const size_t INPUT_COUNT = sizeof(g_INPUTS) / sizeof(g_INPUTS[0]);
-} // namespace
+}
 
 // MasterVolUp and MasterVolDown are also hooked up, but do not appear on this screen.
 // If you want, you can manually add them to es_input.cfg.
 
-using namespace Eigen;
-
-#define HOLD_TO_SKIP_MS 1000
+namespace
+{
+	const int HOLD_TO_SKIP_MS = 1000;
+}
 
 GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfigureAll, const std::function<void()>& okCallback)
 	: GuiComponent(window)
 	, mBackground(window, ":/frame.png")
-	, mGrid(window, Vector2i(1, 7))
+	, mGrid(window, Eigen::Vector2i(1, 7))
 	, mTargetConfig(target)
 	, mHoldingInput(false)
 {
+	using Eigen::Vector2i;
+
 	LOG(LogInfo) << "Configuring device " << target->getDeviceId() << " (" << target->getDeviceName() << ").";
 
 	if (reconfigureAll)
@@ -102,9 +117,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	{
 #if defined(EXTENSION)
 		if (g_INPUTS[i].axis && !hasAxis)
-		{
 			continue;
-		}
 #endif
 		ComponentListRow row;
 
@@ -185,9 +198,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 	}
 
 	// only show "HOLD TO SKIP" if this input is skippable
-	mList->setCursorChangedCallback([this](CursorState state) {
-        mSubtitle2->setOpacity(g_INPUTS[mList->getCursorId()].skippable * 255);
-	});
+	mList->setCursorChangedCallback([this](CursorState state) { mSubtitle2->setOpacity(g_INPUTS[mList->getCursorId()].skippable * 255); });
 
 	// make the first one say "PRESS ANYTHING" if we're re-configuring everything
 	if (mConfiguringAll)
@@ -210,7 +221,7 @@ GuiInputConfig::GuiInputConfig(Window* window, InputConfig* target, bool reconfi
 
 void GuiInputConfig::onSizeChanged()
 {
-	mBackground.fitTo(mSize, Vector3f::Zero(), Vector2f(-32, -32));
+	mBackground.fitTo(mSize, Eigen::Vector3f::Zero(), Eigen::Vector2f(-32, -32));
 
 	// update grid
 	mGrid.setSize(mSize);
@@ -273,7 +284,7 @@ void GuiInputConfig::rowDone()
 			// at bottom of list, done
 			mConfiguringAll = false;
 			mConfiguringRow = false;
-			mGrid.moveCursor(Vector2i(0, 1));
+			mGrid.moveCursor(Eigen::Vector2i(0, 1));
 		}
 		else // or another one
 		{
@@ -317,11 +328,13 @@ bool GuiInputConfig::assign(Input input, int inputId, int inputIndex)
 	// if this input is mapped to something other than "nothing" or the current row, error
 	// (if it's the same as what it was before, allow it)
 	if (std::string("HotKey").compare(g_INPUTS[inputId].name) != 0)
+	{
 		if (mTargetConfig->getMappedTo(input).size() > 0 && !mTargetConfig->isMappedTo(g_INPUTS[inputId].name, input))
 		{
 			error(mMappings.at(inputIndex), "Already mapped!");
 			return false;
 		}
+	}
 
 	setAssignedTo(mMappings.at(inputIndex), input);
 

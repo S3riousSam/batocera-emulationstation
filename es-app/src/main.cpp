@@ -3,6 +3,7 @@
 
 #include "AudioManager.h"
 #include "EmulationStation.h"
+#include "InputManager.h"
 #include "Log.h"
 #include "Renderer.h"
 #include "ScraperCmdLine.h"
@@ -24,7 +25,7 @@
 #include "LocaleES.h"
 #include "SystemInterface.h"
 
-namespace RecalBox
+namespace Extension
 {
 	void initAudio();
 	void playSound(const std::string& name);
@@ -32,7 +33,7 @@ namespace RecalBox
 
 	void performExtra(Window& window);
 	void byebye(bool reboot, bool shutdown);
-} // namespace RecalBox
+}
 
 #else
 #define _(A) A
@@ -144,7 +145,7 @@ bool parseArgs(int argc, char* argv[], unsigned int* width, unsigned int* height
 bool verifyHomeFolderExists()
 {
 	// make sure the config directory exists
-	std::string home = getHomePath();
+	std::string home = Platform::getHomePath();
 	std::string configDir = home + "/.emulationstation";
 	if (!fs::exists(configDir))
 	{
@@ -246,7 +247,7 @@ int main(int argc, char* argv[])
 	LOG(LogInfo) << "EmulationStation - v" << PROGRAM_VERSION_STRING << ", built " << PROGRAM_BUILT_STRING;
 
 #if defined(EXTENSION)
-	RecalBox::setLocale(argv[0]);
+	Extension::setLocale(argv[0]);
 
 	// FileSorts::init(); // require locale
 	initMetadata(); // require locale
@@ -286,8 +287,8 @@ int main(int argc, char* argv[])
 		window.renderLoadingScreen();
 	}
 #if defined(EXTENSION)
-	RecalBox::initAudio();
-	RecalBox::playSound("loading");
+	Extension::initAudio();
+	Extension::playSound("loading");
 #endif
 	const char* errorMsg = NULL;
 	if (!loadSystemConfigFile(&errorMsg))
@@ -313,7 +314,7 @@ int main(int argc, char* argv[])
 		}));
 	}
 #if defined(EXTENSION)
-	RecalBox::performExtra(window);
+	Extension::performExtra(window);
 #endif
 #if defined(ENABLE_COMMAND_LINE_SCRAPER)
 	if (scrape_cmdline) // run the command line scraper then quit
@@ -442,7 +443,7 @@ int main(int argc, char* argv[])
 #endif
 	LOG(LogInfo) << "EmulationStation cleanly shutting down.";
 #if defined(EXTENSION)
-	RecalBox::byebye(doReboot, doShutdown);
+	Extension::byebye(doReboot, doShutdown);
 #endif
 
 	Font::uinitLibrary();

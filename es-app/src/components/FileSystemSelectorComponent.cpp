@@ -60,7 +60,7 @@ bool sortPredicter(const fe& lhs, const fe& rhs)
 FileSystemSelectorComponent::FileSystemSelectorComponent(Window* window, fssc::Mode mode)
 	: MenuComponent(window, nullptr)
 {
-	init(mode, getHomePath());
+	init(mode, Platform::getHomePath());
 }
 
 FileSystemSelectorComponent::FileSystemSelectorComponent(Window* window, const fs::path& path, fssc::Mode mode)
@@ -76,7 +76,7 @@ void FileSystemSelectorComponent::init(const fssc::Mode mode, const fs::path& pa
 
 	setTitle(titleForCurrentMode().c_str());
 	if (!setCurrentPath(path))
-		setCurrentPath(getHomePath());
+		setCurrentPath(Platform::getHomePath());
 
 	addChild(m_currentPathLabel.get());
 	onSizeChanged();

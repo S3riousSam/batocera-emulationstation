@@ -1,9 +1,8 @@
 #pragma once
-#include "GuiComponent.h"
-#include "InputManager.h"
 #include "resources/Font.h"
 #include <vector>
 
+class GuiComponent;
 class HelpComponent;
 class ImageComponent;
 
@@ -71,5 +70,5 @@ private:
 
 	bool mRenderedHelpPrompts;
 
-	bool launchKodi;
+	bool mLaunchKodi;
 };

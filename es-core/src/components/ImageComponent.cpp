@@ -17,7 +17,8 @@ Eigen::Vector2i ImageComponent::getTextureSize() const
 Eigen::Vector2f ImageComponent::getCenter() const
 {
 	return Eigen::Vector2f(
-		mPosition.x() - (getSize().x() * mOrigin.x()) + getSize().x() / 2, mPosition.y() - (getSize().y() * mOrigin.y()) + getSize().y() / 2);
+		mPosition.x() - (getSize().x() * mOrigin.x()) + getSize().x() / 2,
+		mPosition.y() - (getSize().y() * mOrigin.y()) + getSize().y() / 2);
 }
 
 ImageComponent::ImageComponent(Window* window)
