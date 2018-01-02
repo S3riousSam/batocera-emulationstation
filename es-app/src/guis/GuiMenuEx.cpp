@@ -4,14 +4,14 @@
 #include "GuiMenu.h"
 #include "components/OptionListComponent.h"
 #include "components/SliderComponent.h"
-#include "components\ComponentList.h"
-#include "components\SwitchComponent.h"
-#include "guis\GuiAutoScrape.h"
-#include "guis\GuiDetectDevice.h"
-#include "guis\GuiInstallStart.h"
-#include "guis\GuiMsgBox.h"
-#include "guis\GuiTextEditPopup.h"
-#include "guis\GuiTextEditPopupKeyboard.h"
+#include "components/ComponentList.h"
+#include "components/SwitchComponent.h"
+#include "guis/GuiAutoScrape.h"
+#include "guis/GuiDetectDevice.h"
+#include "guis/GuiInstallStart.h"
+#include "guis/GuiMsgBox.h"
+#include "guis/GuiTextEditPopup.h"
+#include "guis/GuiTextEditPopupKeyboard.h"
 #if defined(OBSOLETE)
 #include "guis/GuiRomsManager.h"
 #endif
@@ -27,7 +27,7 @@
 #include "SystemInterface.h"
 #include "VolumeControl.h"
 #include "Window.h"
-#include "views\ViewController.h"
+#include "views/ViewController.h"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string/split.hpp>

@@ -44,18 +44,26 @@ namespace Extension
 		char abs_exe_path[PATH_MAX];
 		char* p = strrchr(argv1, '/');
 
-		if (p == 0)
+#if !defined(WIN32)
+#pragma GCC diagnostic push#pragma GCC diagnostic ignored "-Wunused-result"
+#endif
+		if (p == nullptr)
 		{
 			getcwd(abs_exe_path, sizeof(abs_exe_path));
 		}
 		else
 		{
 			*p = '\0';
+			// http://pubs.opengroup.org/onlinepubs/009695399/functions/getcwd.html
 			getcwd(path_save, sizeof(path_save));
+			// http://pubs.opengroup.org/onlinepubs/009695399/functions/chdir.html
 			chdir(argv1);
 			getcwd(abs_exe_path, sizeof(abs_exe_path));
 			chdir(path_save);
 		}
+#if !defined(WIN32)
+#pragma GCC diagnostic pop
+#endif
 
 		boost::locale::localization_backend_manager my = boost::locale::localization_backend_manager::global();
 		// Get global backend
@@ -105,6 +113,10 @@ namespace Extension
 
 	void byebye(bool reboot, bool shutdown)
 	{
+#if !defined(WIN32)
+#pragma GCC diagnostic push#pragma GCC diagnostic ignored "-Wunused-result"
+#endif
+		// http://pubs.opengroup.org/onlinepubs/009695399/functions/system.html
 		if (reboot)
 		{
 			LOG(LogInfo) << "Rebooting system";
@@ -117,6 +129,9 @@ namespace Extension
 			system("touch /tmp/shutdown.please");
 			system("shutdown -h now");
 		}
+#if !defined(WIN32)
+#pragma GCC diagnostic pop
+#endif
 	}
-} // namespace RecalBox
+} // namespace Extension
 #endif
