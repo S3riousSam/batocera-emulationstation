@@ -36,6 +36,7 @@ public:
 	void themeChanged(const std::shared_ptr<ThemeData>& theme);
 	void resumeMusic();
 	void playCheckSound();
+	void playRandomMusic();
 	void registerMusic(std::shared_ptr<Music>& music);
 	void unregisterMusic(std::shared_ptr<Music>& music);
 	void musicEnd();
@@ -52,6 +53,6 @@ private:
 
 	std::string currentThemeMusicDirectory;
 
-	void playRandomMusic();
+
 #endif
 };

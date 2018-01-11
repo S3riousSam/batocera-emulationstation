@@ -107,6 +107,9 @@ namespace GuiMenuEx
 			RecalboxConf::set("audio.bgmusic", sounds_enabled->getState() ? "1" : "0");
 			if (!sounds_enabled->getState())
 				AudioManager::getInstance()->stopMusic();
+			else
+				AudioManager::getInstance()->playRandomMusic();
+
 			if (currentDevice != optionsAudio->getSelected())
 			{
 				RecalboxConf::set("audio.device", optionsAudio->getSelected());
