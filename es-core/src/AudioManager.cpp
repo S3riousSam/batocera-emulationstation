@@ -17,6 +17,7 @@
 #include <unistd.h>
 #endif
 #include <time.h>
+#include <boost/range/iterator_range.hpp>
 
 #if defined(EXTENSION)
 std::vector<std::shared_ptr<Music>> AudioManager::sMusicVector;
@@ -217,33 +218,23 @@ namespace
 {
 	std::vector<std::string> getMusicIn(const std::string& path)
 	{
-		std::vector<std::string> all_matching_files;
-
 		if (!boost::filesystem::is_directory(path))
-			return all_matching_files;
+			return std::vector<std::string>();
 
-		const std::string target_path(path);
-		const boost::regex my_filter(".*\\.(mp3|ogg)$");
-
-		boost::filesystem::directory_iterator end_itr; // Default ctor yields past-the-end
-		for (boost::filesystem::directory_iterator i(target_path); i != end_itr; ++i)
+		std::vector<std::string> all_matching_files;
+		for (const auto& i : boost::make_iterator_range(boost::filesystem::directory_iterator(path)))
 		{
-			if (!boost::filesystem::is_regular_file(i->status()))
-				continue; // Skip if not a file
-
-			boost::smatch what;
-			if (!boost::regex_match(i->path().string(), what, my_filter))
-				continue; // Skip if no match
-
-			// File matches, store it
-			all_matching_files.push_back(i->path().string());
+			if (boost::filesystem::is_regular_file(i.status()) &&
+				boost::regex_match(i.path().string(), boost::smatch(), boost::regex(".*\\.(mp3|ogg)$")))
+			{
+				all_matching_files.push_back(i.path().string()); // File matches, store it
+			}
 		}
-
-		return std::vector<std::string>(); // TODO
+		return all_matching_files;
 	}
 }
 
-std::shared_ptr<Music> AudioManager::getRandomMusic(std::string themeSoundDirectory)
+std::shared_ptr<Music> AudioManager::getRandomMusic(const std::string& themeSoundDirectory)
 {
 	std::vector<std::string> musics = getMusicIn(Settings::getInstance()->getString("MusicDirectory"));
 	if (musics.empty())
