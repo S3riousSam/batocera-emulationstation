@@ -45,7 +45,7 @@ struct ColorSef
 class GuiComponent
 {
 public:
-	GuiComponent(Window& window);
+	GuiComponent(Window& window, const Eigen::Vector3f& position = Eigen::Vector3f::Zero(), const Eigen::Vector2f& size = Eigen::Vector2f::Zero());
 	GuiComponent(Window* window);
 	virtual ~GuiComponent();
 

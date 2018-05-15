@@ -73,7 +73,7 @@ GuiMenu::GuiMenu(Window* window)
 		auto openScrapeNow = [this] { mWindow->pushGui(new GuiScraperStart(mWindow)); };
 		auto s = new GuiSettings(mWindow, _("MANUAL SCRAPER"));
 #else
-		auto s = new GuiSettings(mWindow, _("SCRAPER"));
+			auto s = new GuiSettings(mWindow, _("SCRAPER"));
 #endif
 		auto scraperList = std::make_shared<OptionListComponent<std::string>>(mWindow, _("SCRAPE FROM"), false);
 		for (const auto& it : Scraper::getNames())
@@ -103,7 +103,7 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 	};
 #else
-	});
+		});
 #endif
 #endif // MANUAL_SCRAPING
 
@@ -123,10 +123,10 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 		GuiMenuEx::AddSoundSettings(*s, mWindow, volume);
 #else
-		// enable sounds
-		auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("EnableSounds"));
-		s->addWithLabel(_("ENABLE SOUNDS"), sounds_enabled);
-		s->addSaveFunc([sounds_enabled] { Settings::getInstance()->setBool("EnableSounds", sounds_enabled->getState()); });
+			// enable sounds
+			auto sounds_enabled = std::make_shared<SwitchComponent>(mWindow, Settings::getInstance()->getBool("EnableSounds"));
+			s->addWithLabel(_("ENABLE SOUNDS"), sounds_enabled);
+			s->addSaveFunc([sounds_enabled] { Settings::getInstance()->setBool("EnableSounds", sounds_enabled->getState()); });
 #endif
 		mWindow->pushGui(s);
 #if defined(EXTENSION)
@@ -147,14 +147,14 @@ GuiMenu::GuiMenu(Window* window)
 #if defined(EXTENSION)
 			GuiMenuEx::AddSettingsUI(*s, mWindow);
 #endif
-			// screensaver time
+			// screen saver time
 			auto screensaver_time = std::make_shared<SliderComponent>(mWindow, 0.f, 30.f, 1.f, "m");
 			screensaver_time->setValue((float)(Settings::getInstance()->getInt("ScreenSaverTime") / (1000 * 60)));
 			s->addWithLabel(_("SCREENSAVER AFTER"), screensaver_time);
 			s->addSaveFunc(
 				[screensaver_time] { Settings::getInstance()->setInt("ScreenSaverTime", (int)round(screensaver_time->getValue()) * (1000 * 60)); });
 
-			// screensaver behavior
+			// screen saver behavior
 			auto screensaver_behavior = std::make_shared<OptionListComponent<std::string>>(mWindow, _("TRANSITION STYLE"), false);
 			std::vector<std::string> screensavers;
 			screensavers.push_back("dim");
@@ -220,6 +220,77 @@ GuiMenu::GuiMenu(Window* window)
 						ViewController::get()->reloadAll(); // TODO - replace this with some sort of signal-based implementation
 				});
 			}
+#if defined(EXTENSION)
+			struct Local
+			{
+				static std::vector<std::string> getDecorationsSets()
+				{
+					namespace fs = boost::filesystem;
+
+					std::vector<std::string> sets;
+					std::vector<fs::path> paths {"/recalbox/share_init/decorations", "/recalbox/share/decorations"};
+
+					fs::directory_iterator end;
+					for (size_t i = 0; i < paths.size(); i++)
+					{
+						if (fs::is_directory(paths[i]))
+						{
+							for (fs::directory_iterator it(paths[i]); it != end; ++it)
+							{
+								if (fs::is_directory(*it))
+									sets.push_back(it->path().filename().string());
+							}
+						}
+					}
+
+					// sort and remove duplicates
+					sort(sets.begin(), sets.end());
+					sets.erase(unique(sets.begin(), sets.end()), sets.end());
+					return sets;
+				}
+			};
+
+			// decorations
+#if defined(DECORATION_V1)
+			{
+				auto decorations = std::make_shared<OptionListComponent<std::string>>(mWindow, _("DECORATIONS"), false);
+				const std::vector<std::string> decorations_item{_("NONE"), "default"};
+				for (const auto& it : decorations_item)
+				{
+					decorations->add(it, it, (RecalboxConf::get("global.bezel") == it) || (RecalboxConf::get("global.bezel").empty() && it == _("NONE")));
+				}
+				s->addWithLabel(_("DECORATION"), decorations);
+				s->addSaveFunc([decorations] {
+					RecalboxConf::set("global.bezel", decorations->getSelected() == _("NONE") ? std::string() : decorations->getSelected());
+					RecalboxConf::saveRecalboxConf();
+				});
+			}
+#else
+			{
+				auto decorations = std::make_shared<OptionListComponent<std::string>>(mWindow, _("DECORATIONS"), false);
+				std::vector<std::string> decorations_item{_("NONE")};
+
+				std::vector<std::string> sets = Local::getDecorationsSets();
+				for (const auto& it : sets)
+					decorations_item.push_back(it);
+
+				for (auto it = decorations_item.begin(); it != decorations_item.end(); it++)
+				{
+					decorations->add(*it, *it, (RecalboxConf::get("global.bezel") == *it) || (RecalboxConf::get("global.bezel") == "" && *it == _("NONE")));
+				}
+				s->addWithLabel(_("DECORATION"), decorations);
+				s->addSaveFunc([decorations] {
+					RecalboxConf::set("global.bezel", decorations->getSelected() == _("NONE") ? std::string() : decorations->getSelected());
+					RecalboxConf::saveRecalboxConf();
+				});
+			}
+#endif
+#endif
+			// maximum VRAM
+			auto max_vram = std::make_shared<SliderComponent>(mWindow, 0.f, 1000.f, 10.f, "Mb");
+			max_vram->setValue(static_cast<float>(Settings::getInstance()->getInt("MaxVRAM")));
+			s->addWithLabel("VRAM LIMIT", max_vram);
+			s->addSaveFunc([max_vram] { Settings::getInstance()->setInt("MaxVRAM", static_cast<int>(round(max_vram->getValue()))); });
 
 			mWindow->pushGui(s);
 		});
@@ -398,3 +469,4 @@ std::vector<HelpPrompt> GuiMenu::getHelpPrompts()
 		HelpPrompt("start", _("CLOSE")),
 	};
 }
+
