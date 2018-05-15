@@ -1,5 +1,4 @@
 #pragma once
-
 #include "resources/TextureResource.h"
 
 struct NSVGimage;
