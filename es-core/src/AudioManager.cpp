@@ -224,8 +224,11 @@ namespace
 		std::vector<std::string> all_matching_files;
 		for (const auto& i : boost::make_iterator_range(boost::filesystem::directory_iterator(path)))
 		{
+			boost::smatch what;
+			boost::regex expression(".*\\.(mp3|ogg)$");
 			if (boost::filesystem::is_regular_file(i.status()) &&
-				boost::regex_match(i.path().string(), boost::smatch(), boost::regex(".*\\.(mp3|ogg)$")))
+				boost::regex_match(i.path().string(), what, expression)
+			)
 			{
 				all_matching_files.push_back(i.path().string()); // File matches, store it
 			}

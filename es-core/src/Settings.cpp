@@ -6,19 +6,19 @@
 #include <boost/filesystem.hpp>
 
 #define SETTINGS_GETSET_V2(type, mapName, getMethodName, setMethodName)       \
-	type SettingsData::getMethodName(const std::string& name)                  \
+	type getMethodName(const std::string& name)                  \
 	{ \
 		if (mapName.find(name) == mapName.end())                           \
 			LOG(LogError) << "Tried to use unset setting " << name << "!"; \
 		return mapName[name];                                              \
 	} \
-	void SettingsData::setMethodName(const std::string& name, type value) { mapName[name] = value; }
+	void setMethodName(const std::string& name, type value) { mapName[name] = value; }
 
 namespace
 {
 	struct SettingsData
 	{
-		SettingsData::SettingsData()
+		SettingsData()
 			: mBoolMap({
 			std::pair<std::string, bool>("BackgroundJoystickInput", false),
 			std::pair<std::string, bool>("ParseGamelistOnly", false)
