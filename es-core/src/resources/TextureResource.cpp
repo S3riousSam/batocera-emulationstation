@@ -10,12 +10,17 @@
 std::map<TextureResource::TextureKeyType, std::weak_ptr<TextureResource>> TextureResource::sTextureMap;
 std::list<std::weak_ptr<TextureResource>> TextureResource::sTextureList;
 
-TextureResource::TextureResource(const std::string& path, bool tile)
+TextureResource::TextureResource(
+    const std::string& path, bool tile)
 	: mTextureID(0)
 	, mPath(path)
 	, mTextureSize(Eigen::Vector2i::Zero())
 	, mTile(tile)
 {
+	{
+	}
+	{
+	}
 }
 
 TextureResource::~TextureResource()
@@ -106,7 +111,6 @@ std::shared_ptr<TextureResource> TextureResource::get(const std::string& path, b
 	std::shared_ptr<ResourceManager>& rm = ResourceManager::getInstance();
 
 	const std::string canonicalPath = getCanonicalPath(path);
-
 	if (canonicalPath.empty())
 	{
 		std::shared_ptr<TextureResource> tex(new TextureResource("", tile));

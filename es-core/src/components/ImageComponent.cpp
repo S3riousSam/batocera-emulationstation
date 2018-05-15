@@ -29,6 +29,26 @@ ImageComponent::ImageComponent(Window* window)
 	, mOrigin(0.0, 0.0)
 	, mTargetSize(0, 0)
 	, mColorShift(0xFFFFFFFF)
+	, mForceLoad(false)
+	, mDynamic(false)
+	, mFadeOpacity(0) // Fixed!
+	, mFading(false)
+{
+	updateColors();
+}
+
+ImageComponent::ImageComponent(Window* window, bool forceLoad, bool dynamic)
+	: GuiComponent(window)
+	, mTargetIsMax(false)
+	, mFlipX(false)
+	, mFlipY(false)
+	, mOrigin(0.0, 0.0)
+	, mTargetSize(0, 0)
+	, mColorShift(0xFFFFFFFF)
+	, mForceLoad(forceLoad)
+	, mDynamic(dynamic)
+	, mFadeOpacity(0) // Fixed!
+	, mFading(false)
 {
 	updateColors();
 }
@@ -260,8 +280,16 @@ void ImageComponent::render(const Eigen::Affine3f& parentTrans)
 	{
 		if (mTexture->isInitialized())
 		{
+#if !defined(PREVIOUS_IMPL)
 			// actually draw the image
 			mTexture->bind();
+#else
+			// actually draw the image
+			// The bind() function returns false if the texture is not currently loaded. A blank
+			// texture is bound in this case but we want to handle a fade so it doesn't just 'jump' in
+			// when it finally loads
+			fadeIn(mTexture->bind());
+#endif
 
 			glEnable(GL_TEXTURE_2D);
 			glEnable(GL_BLEND);
@@ -292,6 +320,47 @@ void ImageComponent::render(const Eigen::Affine3f& parentTrans)
 	}
 
 	GuiComponent::renderChildren(trans);
+}
+
+void ImageComponent::fadeIn(bool textureLoaded)
+{
+	if (!mForceLoad)
+	{
+		if (!textureLoaded)
+		{
+			// Start the fade if this is the first time we've encountered the unloaded texture
+			if (!mFading)
+			{
+				// Start with a zero opacity and flag it as fading
+				mFadeOpacity = 0;
+				mFading = true;
+				// Set the colors to be translucent
+				mColorShift = (mColorShift >> 8 << 8) | 0;
+				updateColors();
+			}
+		}
+		else if (mFading)
+		{
+			// The texture is loaded and we need to fade it in. The fade is based on the frame rate
+			// and is 1/4 second if running at 60 frames per second although the actual value is not
+			// that important
+			int opacity = mFadeOpacity + 255 / 15;
+			// See if we've finished fading
+			if (opacity >= 255)
+			{
+				mFadeOpacity = 255;
+				mFading = false;
+			}
+			else
+			{
+				mFadeOpacity = (unsigned char)opacity;
+			}
+			// Apply the combination of the target opacity and current fade
+			float newOpacity = (float)mOpacity * ((float)mFadeOpacity / 255.0f);
+			mColorShift = (mColorShift >> 8 << 8) | (unsigned char)newOpacity;
+			updateColors();
+		}
+	}
 }
 
 bool ImageComponent::hasImage()
