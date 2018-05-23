@@ -443,7 +443,8 @@ std::vector<HelpPrompt> SystemView::getHelpPrompts()
 HelpStyle SystemView::getHelpStyle()
 {
 	HelpStyle style;
-	style.applyTheme(mEntries.at(mCursor).object->getTheme(), "system");
+	if (mEntries.size() > 0)
+		style.applyTheme(mEntries.at(mCursor).object->getTheme(), "system");
 	return style;
 }
 
