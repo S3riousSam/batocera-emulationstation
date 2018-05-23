@@ -75,7 +75,11 @@ namespace Extension
 		gen.add_messages_domain("emulationstation2");
 
 		// Generate locales and imbue them to iostream
+#if defined(WIN32)
+		std::locale::global(gen("en-US"));
+#else
 		std::locale::global(gen(""));
+#endif
 		std::cout.imbue(std::locale());
 		LOG(LogInfo) << "Locals set...";
 		return 0;
