@@ -1,4 +1,3 @@
-
 # Compiled Object files
 *.slo
 *.lo
@@ -41,3 +40,8 @@ CPackSourceConfig.cmake
 
 # po backup
 *.po~
+
+locale/
+locale/lang/
+install_manifest\.txt
+*.po

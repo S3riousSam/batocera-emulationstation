@@ -24,8 +24,8 @@ void NetworkThread::run()
 	while (mRunning)
 	{
 		const boost::posix_time::time_duration delay = mFirstRun
-			? reinterpret_cast<boost::posix_time::time_duration&>(boost::posix_time::seconds(15))
-			: reinterpret_cast<boost::posix_time::time_duration&>(boost::posix_time::hours(1));
+			? static_cast<const boost::posix_time::time_duration&>(boost::posix_time::seconds(15))
+			: static_cast<const boost::posix_time::time_duration&>(boost::posix_time::hours(1));
 
 		if (mFirstRun)
 			mFirstRun = false;

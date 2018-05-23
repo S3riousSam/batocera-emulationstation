@@ -143,7 +143,7 @@ std::string SystemInterface::getFreeSpaceInfo()
 bool SystemInterface::isFreeSpaceLimit()
 {
 	const std::string sharePart = GetConfigValue("SharePartition");
-	return !sharePart.empty() ? getFreeSpaceGB(sharePart) < 2 : "ERROR"; // bool?
+	return !sharePart.empty() ? getFreeSpaceGB(sharePart) < 2 : false; // bool?
 }
 
 std::string SystemInterface::getVersion()
@@ -307,7 +307,7 @@ bool SystemInterface::launchKodi(Window* window)
 
 	window->deinit();
 
-	const int exitCode = system(command.c_str());
+	int exitCode = system(command.c_str());
 #if !defined(WIN32)
 	// WIFEXITED returns a nonzero value if the child process terminated normally with exit or _exit.
 	// https://www.gnu.org/software/libc/manual/html_node/Process-Completion-Status.html
@@ -348,7 +348,7 @@ bool SystemInterface::launchFileManager(Window* window)
 
 	window->deinit();
 
-	const int exitCode = system("/recalbox/scripts/filemanagerlauncher.sh");
+	int exitCode = system("/recalbox/scripts/filemanagerlauncher.sh");
 #if !defined(WIN32)
 	if (WIFEXITED(exitCode))
 	{

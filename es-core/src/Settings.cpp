@@ -5,6 +5,154 @@
 #include <boost/assign.hpp>
 #include <boost/filesystem.hpp>
 
+#define SETTINGS_GETSET_V2(type, mapName, getMethodName, setMethodName)       \
+	type getMethodName(const std::string& name)                  \
+	{ \
+		if (mapName.find(name) == mapName.end())                           \
+			LOG(LogError) << "Tried to use unset setting " << name << "!"; \
+		return mapName[name];                                              \
+	} \
+	void setMethodName(const std::string& name, type value) { mapName[name] = value; }
+
+namespace
+{
+	struct SettingsData
+	{
+		SettingsData()
+			: mBoolMap({
+			std::pair<std::string, bool>("BackgroundJoystickInput", false),
+			std::pair<std::string, bool>("ParseGamelistOnly", false)
+		})
+		{
+			//mBoolMap["BackgroundJoystickInput"] = false;
+			//mBoolMap["ParseGamelistOnly"] = false;
+			mBoolMap["DrawFramerate"] = false;
+			mBoolMap["ShowExit"] = true;
+			mBoolMap["Windowed"] = false;
+#if defined(EXTENSION)
+			mBoolMap["UseOSK"] = true;
+#endif
+
+#ifdef _RPI_
+			// don't enable VSync by default on the Pi, since it already
+			// has trouble trying to render things at 60fps in certain menus
+			mBoolMap["VSync"] = false;
+#else
+			mBoolMap["VSync"] = true;
+#endif
+#if !defined(EXTENSION)
+			mBoolMap["EnableSounds"] = true;
+#endif
+			mBoolMap["ShowHelpPrompts"] = true;
+			mBoolMap["ScrapeRatings"] = true;
+			mBoolMap["IgnoreGamelist"] = false;
+			mBoolMap["HideConsole"] = true;
+			mBoolMap["QuickSystemSelect"] = true;
+#if defined(EXTENSION)
+			mBoolMap["FavoritesOnly"] = false;
+			mBoolMap["ShowHidden"] = false;
+#endif
+
+			mBoolMap["Debug"] = false;
+			mBoolMap["DebugGrid"] = false;
+			mBoolMap["DebugText"] = false;
+#if defined(EXTENSION)
+			mBoolMap["Overscan"] = false;
+#endif
+			mIntMap["ScreenSaverTime"] = 5 * 60 * 1000; // 5 minutes
+			mIntMap["ScraperResizeWidth"] = 400;
+			mIntMap["ScraperResizeHeight"] = 0;
+#if defined(EXTENSION)
+			mIntMap["SystemVolume"] = 96;
+#endif
+
+			mStringMap["TransitionStyle"] = "fade";
+			mStringMap["ThemeSet"] = "";
+			mStringMap["ScreenSaverBehavior"] = "dim";
+#if !defined(EXTENSION)
+			mStringMap["Scraper"] = "TheGamesDB";
+#else
+			mStringMap["Scraper"] = "Screenscraper";
+			mStringMap["Lang"] = "en_US";
+			mStringMap["INPUT P1"] = "DEFAULT";
+			mStringMap["INPUT P2"] = "DEFAULT";
+			mStringMap["INPUT P3"] = "DEFAULT";
+			mStringMap["INPUT P4"] = "DEFAULT";
+			mStringMap["Overclock"] = "none";
+			mStringMap["UpdateCommand"] = "/recalbox/scripts/recalbox-upgrade.sh";
+			mStringMap["UpdateServer"] = "archive.recalbox.com";
+			mStringMap["VersionFile"] = "/recalbox/recalbox.version";
+			mStringMap["SharePartition"] = "/recalbox/share/";
+			mStringMap["RecalboxSettingScript"] = "/recalbox/scripts/recalbox-config.sh";
+			mStringMap["LastVersionFile"] = "/recalbox/share/system/update.done";
+			mStringMap["VersionMessage"] = "/recalbox/recalbox.msg";
+			mStringMap["MusicDirectory"] = "/recalbox/share/music/";
+#endif
+
+			loadFile();
+		}
+
+		void loadFile()
+		{
+			const std::string path = Platform::getHomePath() + "/.emulationstation/es_settings.cfg";
+
+			if (!boost::filesystem::exists(path))
+				return;
+
+			pugi::xml_document doc;
+			const pugi::xml_parse_result result = doc.load_file(path.c_str());
+			if (!result)
+			{
+				LOG(LogError) << "Could not parse Settings file!\n   " << result.description();
+				return;
+			}
+
+			pugi::xml_node config = doc.child("config");
+			if (config)
+			{ // correct file format, having a config root node
+				for (pugi::xml_node node = config.child("bool"); node; node = node.next_sibling("bool"))
+					setBool(node.attribute("name").as_string(), node.attribute("value").as_bool());
+				for (pugi::xml_node node = config.child("int"); node; node = node.next_sibling("int"))
+					setInt(node.attribute("name").as_string(), node.attribute("value").as_int());
+				for (pugi::xml_node node = config.child("float"); node; node = node.next_sibling("float"))
+					setFloat(node.attribute("name").as_string(), node.attribute("value").as_float());
+				for (pugi::xml_node node = config.child("string"); node; node = node.next_sibling("string"))
+					setString(node.attribute("name").as_string(), node.attribute("value").as_string());
+			}
+			else
+			{ // the old format, without the root config node -- keep for a transparent upgrade
+				for (pugi::xml_node node = doc.child("bool"); node; node = node.next_sibling("bool"))
+					setBool(node.attribute("name").as_string(), node.attribute("value").as_bool());
+				for (pugi::xml_node node = doc.child("int"); node; node = node.next_sibling("int"))
+					setInt(node.attribute("name").as_string(), node.attribute("value").as_int());
+				for (pugi::xml_node node = doc.child("float"); node; node = node.next_sibling("float"))
+					setFloat(node.attribute("name").as_string(), node.attribute("value").as_float());
+				for (pugi::xml_node node = doc.child("string"); node; node = node.next_sibling("string"))
+					setString(node.attribute("name").as_string(), node.attribute("value").as_string());
+			}
+		}
+
+		// Print a warning message if the setting we're trying to get doesn't already exist in the map, then return the value in the map.
+		SETTINGS_GETSET_V2(bool, mBoolMap, getBool, setBool);
+		SETTINGS_GETSET_V2(int, mIntMap, getInt, setInt);
+		SETTINGS_GETSET_V2(float, mFloatMap, getFloat, setFloat);
+		SETTINGS_GETSET_V2(const std::string&, mStringMap, getString, setString);
+
+		std::map<std::string, bool> mBoolMap;
+		std::map<std::string, int> mIntMap;
+		std::map<std::string, float> mFloatMap;
+		std::map<std::string, std::string> mStringMap;
+	};
+
+    SettingsData& getInstance()
+    {
+        static SettingsData* instance = nullptr;
+        if (instance == nullptr)
+            instance = new SettingsData();
+        return *instance;
+    }
+}
+
 Settings* Settings::sInstance = nullptr;
 
 Settings::Settings()
@@ -207,3 +355,18 @@ SETTINGS_GETSET(bool, mBoolMap, getBool, setBool);
 SETTINGS_GETSET(int, mIntMap, getInt, setInt);
 SETTINGS_GETSET(float, mFloatMap, getFloat, setFloat);
 SETTINGS_GETSET(const std::string&, mStringMap, getString, setString);
+
+void SettingsV2::saveFile()
+{
+    //getInstance().saveFile();
+}
+
+// Print a warning message if the setting we're trying to get doesn't already exist in the map, then return the value in the map.
+#define SETTINGS_GETSET_V3(type, mapName, getMethodName, setMethodName)       \
+	type SettingsV2::getMethodName(const std::string& name) { return getInstance().getMethodName(name); } \
+	void SettingsV2::setMethodName(const std::string& name, type value) { getInstance().setMethodName(name, value); }
+
+SETTINGS_GETSET_V3(bool, mBoolMap, getBool, setBool);
+SETTINGS_GETSET_V3(int, mIntMap, getInt, setInt);
+SETTINGS_GETSET_V3(float, mFloatMap, getFloat, setFloat);
+SETTINGS_GETSET_V3(const std::string&, mStringMap, getString, setString);

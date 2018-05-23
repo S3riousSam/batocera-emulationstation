@@ -54,6 +54,9 @@ public:
 	template<typename T>
 	friend ThemeException& operator<<(ThemeException& e, T msg);
 
+	template<typename T>
+	friend ThemeException operator<<(const ThemeException& e, T msg);
+
 private:
 	std::string msg;
 };
@@ -65,6 +68,16 @@ ThemeException& operator<<(ThemeException& e, T appendMsg)
 	ss << e.msg << appendMsg;
 	e.msg = ss.str();
 	return e;
+}
+
+template<typename T>
+ThemeException operator<<(const ThemeException& e, T appendMsg)
+{
+	std::stringstream ss;
+	ss << e.msg << appendMsg;
+	ThemeException result(e);
+	result.msg = ss.str();
+	return result;
 }
 
 class ThemeExtras : public GuiComponent

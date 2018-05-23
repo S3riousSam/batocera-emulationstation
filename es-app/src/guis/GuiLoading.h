@@ -25,9 +25,8 @@ private:
 	BusyComponent mBusyAnim;
 	boost::thread* mHandle;
 	bool mRunning;
-	const std::function<void*()>& mFunc1;
-	const std::function<void(void*)>& mFunc2;
-
+	const std::function<void*()> mFunc1;
+	const std::function<void(void*)> mFunc2;
 	void* mResult;
 };
 #endif

@@ -6,15 +6,14 @@
 static const std::string LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 GuiFastSelect::GuiFastSelect(Window* window, IGameListView* gamelist)
-	: GuiComponent(window)
+	: GuiComponent(*window,
+		Eigen::Vector3f(Renderer::getScreenWidth() * 0.2f, Renderer::getScreenHeight() * 0.2f, 0.0f),
+		Eigen::Vector2f(Renderer::getScreenWidth() * 0.6f, Renderer::getScreenHeight() * 0.6f))
 	, mBackground(window)
 	, mSortText(window)
 	, mLetterText(window)
 	, mGameList(gamelist)
 {
-	setPosition(Renderer::getScreenWidth() * 0.2f, Renderer::getScreenHeight() * 0.2f);
-	setSize(Renderer::getScreenWidth() * 0.6f, Renderer::getScreenHeight() * 0.6f);
-
 	const std::shared_ptr<ThemeData>& theme = mGameList->getTheme();
 	using namespace ThemeFlags;
 
@@ -60,20 +59,12 @@ bool GuiFastSelect::input(InputConfig* config, Input input)
 
 	if (config->isMappedTo("up", input))
 	{
-		if (input.value != 0)
-			setScrollDir(-1);
-		else
-			setScrollDir(0);
-
+		setScrollDir((input.value != 0)  ? -1 : 0);
 		return true;
 	}
 	else if (config->isMappedTo("down", input))
 	{
-		if (input.value != 0)
-			setScrollDir(1);
-		else
-			setScrollDir(0);
-
+		setScrollDir((input.value != 0) ? 1 : 0);
 		return true;
 	}
 	else if (config->isMappedTo("left", input) && input.value != 0)

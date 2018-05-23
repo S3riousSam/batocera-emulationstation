@@ -9,6 +9,7 @@ class ImageComponent : public GuiComponent
 {
 public:
 	ImageComponent(Window* window);
+	ImageComponent(Window* window, bool forceLoad, bool dynamic);
 
 	// Loads the image at the given filepath...
 	void setImage(const std::string& path, bool tile = false);
@@ -87,8 +88,14 @@ private:
 
 	void updateVertices();
 	void updateColors();
+	void fadeIn(bool textureLoaded);
 
 	unsigned int mColorShift;
 
 	std::shared_ptr<TextureResource> mTexture;
+
+	unsigned char mFadeOpacity;
+	bool mFading;
+	bool mForceLoad;
+	bool mDynamic;
 };

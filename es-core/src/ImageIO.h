@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef> // Required on Linux, but not in Visual Studio
 #include <vector>
 
 class ImageIO

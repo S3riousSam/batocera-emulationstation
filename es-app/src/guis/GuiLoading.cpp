@@ -17,12 +17,13 @@ GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc)
 GuiLoading::GuiLoading(Window* window, const std::function<void*()>& mFunc, const std::function<void(void*)>& mFunc2)
 	: GuiComponent(window)
 	, mBusyAnim(window)
+    , mHandle(nullptr)
 	, mFunc1(mFunc)
 	, mFunc2(mFunc2)
 	, mRunning(true)
 {
 	setSize(Renderer::getScreenSize());
-	mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
+	//mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
 	mBusyAnim.setSize(mSize);
 }
 
@@ -54,6 +55,9 @@ void GuiLoading::update(int deltaTime)
 {
 	GuiComponent::update(deltaTime);
 	mBusyAnim.update(deltaTime);
+
+    if (mHandle == nullptr)
+        mHandle = new boost::thread(boost::bind(&GuiLoading::threadLoading, this));
 
 	if (!mRunning)
 	{

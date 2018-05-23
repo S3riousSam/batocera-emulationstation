@@ -5,12 +5,12 @@
 #include "Window.h"
 #include "animations/AnimationController.h"
 
-GuiComponent::GuiComponent(Window& window)
+GuiComponent::GuiComponent(Window& window, const Eigen::Vector3f& position, const Eigen::Vector2f& size)
 	: mWindow(&window)
 	, mParent(nullptr)
 	, mOpacity(255)
-	, mPosition(Eigen::Vector3f::Zero())
-	, mSize(Eigen::Vector2f::Zero())
+    , mPosition(position)
+    , mSize(size)
 	, mTransform(Eigen::Affine3f::Identity())
 	, mIsProcessing(false)
 {
